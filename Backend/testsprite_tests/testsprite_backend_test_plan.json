@@ -1,0 +1,27 @@
+[
+  {
+    "id": "TC001",
+    "title": "post api v1 auth login with valid credentials",
+    "description": "Verify that POST /api/v1/auth/login with valid user credentials returns HTTP 200 with a JWT access token and user session details."
+  },
+  {
+    "id": "TC002",
+    "title": "get api v1 users with admin token",
+    "description": "Verify that GET /api/v1/users with a valid admin JWT token returns HTTP 200 with a paginated list of users."
+  },
+  {
+    "id": "TC003",
+    "title": "get api v1 courses with authenticated token",
+    "description": "Verify that GET /api/v1/courses with a valid authenticated token returns HTTP 200 with the list of accessible courses."
+  },
+  {
+    "id": "TC004",
+    "title": "post api v1 applications with valid data",
+    "description": "Verify that POST /api/v1/applications with valid application data returns HTTP 201 Created with application status pending review."
+  },
+  {
+    "id": "TC005",
+    "title": "get api v1 assignments with authenticated token",
+    "description": "Verify that GET /api/v1/assignments with a valid authenticated token returns HTTP 200 with the list of assignments for the user."
+  }
+]

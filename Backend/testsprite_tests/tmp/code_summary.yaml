@@ -1,0 +1,72 @@
+version: "2"
+type: backend
+tech_stack:
+  - TypeScript
+  - NestJS
+  - TypeORM
+  - PostgreSQL
+  - Redis
+  - Passport (JWT)
+features:
+  - name: Authentication
+    description: Login and JWT token generation
+    files:
+      - src/auth/auth.controller.ts
+    endpoints:
+      - method: POST
+        path: /api/v1/auth/login
+        description: Authenticate user and get tokens
+        auth_required: false
+      - method: GET
+        path: /api/v1/auth/me
+        description: Get current logged-in user profile
+        auth_required: true
+  - name: Users Management
+    description: CRUD operations for users
+    files:
+      - src/users/users.controller.ts
+    endpoints:
+      - method: GET
+        path: /api/v1/users
+        description: List users (Admin only)
+        auth_required: true
+  - name: Courses Management
+    description: CRUD for courses, modules, and lessons
+    files:
+      - src/courses/courses.controller.ts
+    endpoints:
+      - method: GET
+        path: /api/v1/courses
+        description: List courses accessible to user
+        auth_required: true
+      - method: POST
+        path: /api/v1/courses
+        description: Create a new course (Admin only)
+        auth_required: true
+      - method: GET
+        path: /api/v1/courses/:id/modules
+        description: List modules for a course
+        auth_required: true
+  - name: Enrollments and Applications
+    description: Student enrollments and course applications
+    files:
+      - src/enrollments/enrollments.controller.ts
+    endpoints:
+      - method: GET
+        path: /api/v1/enrollments
+        description: Get user enrollments
+        auth_required: true
+      - method: POST
+        path: /api/v1/applications
+        description: Apply for a course
+        auth_required: false
+  - name: Assignments
+    description: Assignments and submissions
+    files:
+      - src/assignments/assignments.controller.ts
+    endpoints:
+      - method: GET
+        path: /api/v1/assignments
+        description: List assignments
+        auth_required: true
+known_limitations: []

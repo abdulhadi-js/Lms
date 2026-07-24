@@ -1,0 +1,38 @@
+# Node / NPM
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Frontend (Next.js)
+Frontend/.next/
+Frontend/out/
+Frontend/build/
+Frontend/.env.local
+Frontend/.env.development.local
+Frontend/.env.test.local
+Frontend/.env.production.local
+
+# Backend (NestJS)
+Backend/dist/
+Backend/.env
+Backend/.postgres/
+Backend/logs/
+Backend/test-results/
+
+# TestSprite
+testsprite_tests/tmp/
+.testsprite/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+.agents/
+
+# Artifacts
+*.docx
+*.pdf
+*.log

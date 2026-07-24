@@ -1,0 +1,7 @@
+[
+  {
+    "id": "TC001",
+    "title": "post apiv1authlogin with valid credentials",
+    "description": "Verify that POST /api/v1/auth/login with valid user credentials returns HTTP 200 with access token, refresh token, and session data."
+  }
+]
