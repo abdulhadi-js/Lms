@@ -86,6 +86,9 @@ export const coursesApi = {
   list: () => fetchAuthApi('/courses'),
   get: (id: string) => fetchAuthApi(`/courses/${id}`),
   getModules: (courseId: string) => fetchAuthApi(`/courses/${courseId}/modules`),
+  create: (data: any) => fetchAuthApi('/courses', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/courses/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/courses/${id}`, { method: 'DELETE' }),
 };
 
 export const feesApi = {
