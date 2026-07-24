@@ -105,3 +105,10 @@ export const feesApi = {
 export const assignmentsApi = {
   list: () => fetchAuthApi('/assignments'),
 };
+
+export const timetableApi = {
+  list: () => fetchAuthApi('/timetable'),
+  create: (data: any) => fetchAuthApi('/timetable', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/timetable/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/timetable/${id}`, { method: 'DELETE' }),
+};
