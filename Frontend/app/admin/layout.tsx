@@ -58,8 +58,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Side Navigation (Desktop) */}
-      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-8 shrink-0 z-40">
-        <div className="px-6 mb-8 text-center flex flex-col items-center">
+      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-6 shrink-0 z-40">
+        <div className="px-6 mb-6 text-center flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
             <div className="w-16 h-16 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xl border-2 border-on-primary/20">
               JD
@@ -69,7 +69,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <h2 className="font-semibold text-[20px] text-on-primary">EduCore LMS</h2>
           <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block">Admin Dashboard</span>
         </div>
-        <ul className="flex flex-col gap-1 px-4 flex-grow overflow-y-auto">
+        
+        <ul className="flex flex-col gap-0.5 px-4 flex-grow shrink-0">
           {navLinks.map((link) => {
             const active = isActive(link.path);
             const Icon = link.icon;
@@ -77,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <li key={link.path}>
                 <Link 
                   href={link.path} 
-                  className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${
+                  className={`flex items-center gap-3 py-2 rounded-lg font-medium transition-colors ${
                     active 
                       ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' 
                       : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'
@@ -90,15 +91,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
           <li>
-            <Link href="#" className="flex items-center gap-3 py-3 rounded-lg text-on-primary/70 font-medium pl-5 hover:bg-primary-container/50 hover:text-white transition-colors">
+            <Link href="#" className="flex items-center gap-3 py-2 rounded-lg text-on-primary/70 font-medium pl-5 hover:bg-primary-container/50 hover:text-white transition-colors">
               <Settings className="w-5 h-5" />
               <span>Settings</span>
             </Link>
           </li>
         </ul>
-        <div className="px-6 mt-auto shrink-0">
-          <button className="w-full bg-lime-cream text-evergreen font-semibold text-[16px] py-2 rounded-lg hover:bg-white transition-colors mb-2 brand-button">Generate Report</button>
-          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
+
+        <div className="px-6 mt-4 shrink-0">
+          <button className="w-full bg-lime-cream text-evergreen font-semibold text-[16px] py-1.5 rounded-lg hover:bg-white transition-colors mb-2 brand-button">Generate Report</button>
+          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-1.5 hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
