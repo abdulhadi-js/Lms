@@ -70,6 +70,10 @@ export const enrollmentsApi = {
     method: 'PATCH',
     body: JSON.stringify({ status, notes })
   }),
+  directEnroll: (studentId: string, courseId: string) => fetchAuthApi('/enrollments', {
+    method: 'POST',
+    body: JSON.stringify({ studentId, courseId })
+  }),
 };
 
 export const coursesApi = {
