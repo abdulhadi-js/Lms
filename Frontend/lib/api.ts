@@ -60,7 +60,9 @@ export const usersApi = {
 
 export const reportsApi = {
   overview: () => fetchAuthApi('/reports/overview'),
-  atRisk: () => fetchAuthApi('/reports/at-risk'),
+  performance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/performance?courseId=${courseId}` : '/reports/performance'),
+  attendance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/attendance?courseId=${courseId}` : '/reports/attendance'),
+  atRisk: (courseId?: string) => fetchAuthApi(courseId ? `/reports/at-risk?courseId=${courseId}` : '/reports/at-risk'),
 };
 
 export const enrollmentsApi = {
@@ -82,10 +84,16 @@ export const enrollmentsApi = {
 
 export const coursesApi = {
   list: () => fetchAuthApi('/courses'),
+  get: (id: string) => fetchAuthApi(`/courses/${id}`),
+  getModules: (courseId: string) => fetchAuthApi(`/courses/${courseId}/modules`),
 };
 
 export const feesApi = {
   list: () => fetchAuthApi('/fees'),
+  pay: (id: string, amount: number) => fetchAuthApi(`/fees/${id}/pay`, {
+    method: 'POST',
+    body: JSON.stringify({ amount })
+  }),
 };
 
 export const assignmentsApi = {
