@@ -1,0 +1,625 @@
+[
+  {
+    "id": "TC001",
+    "title": "Admin reaches the admin dashboard after login",
+    "description": "This verifies that an admin can sign in and land on the admin dashboard successfully.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify admin-specific navigation is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Student reaches the student dashboard after login",
+    "description": "This verifies that a student can sign in and land on the student dashboard successfully.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify student-specific navigation is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Teacher signs in and reaches the dashboard",
+    "description": "This verifies that a teacher can log in and land on the correct dashboard for their role.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the teacher dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assigned class information is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Teacher reaches the teacher dashboard after login",
+    "description": "This verifies that a teacher can sign in and land on the teacher dashboard successfully.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the teacher dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify teacher-specific navigation is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Teacher opens gradebook and updates a grade",
+    "description": "This verifies that a teacher can access the gradebook, enter a grade, and confirm the updated record is shown.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the gradebook"
+      },
+      {
+        "type": "action",
+        "description": "Select a student record"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid grade for the selected record"
+      },
+      {
+        "type": "action",
+        "description": "Save the grade update"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated grade record is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the gradebook remains accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Teacher reviews assigned classes and opens the gradebook",
+    "description": "This verifies that a teacher can move from the dashboard into the gradebook and view student grade records.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the gradebook area"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify student grade records are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the gradebook view is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Admin reviews users and manages a user account",
+    "description": "This verifies that an admin can open the users area, review accounts, and reach a user management action.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users area"
+      },
+      {
+        "type": "action",
+        "description": "Open a user account for management"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user account details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a user management control is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Teacher updates a student's grade",
+    "description": "This verifies that a teacher can enter a grade and see the updated record reflected in the gradebook.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the gradebook area"
+      },
+      {
+        "type": "action",
+        "description": "Enter a grade for a student"
+      },
+      {
+        "type": "action",
+        "description": "Save the update"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated grade record is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the gradebook shows the saved change"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Admin reviews courses and manages a course record",
+    "description": "This verifies that an admin can open the courses area, review course records, and reach a course management action.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the courses area"
+      },
+      {
+        "type": "action",
+        "description": "Open a course record for management"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify course record details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a course management control is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Student opens an enrolled course and views its content",
+    "description": "This verifies that a student can open enrolled courses and reach course content successfully.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the courses area"
+      },
+      {
+        "type": "action",
+        "description": "Open an enrolled course"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify enrolled course information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify course content is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Student reviews assignment details and feedback",
+    "description": "This verifies that a student can open assignments and view assignment details, grades, and feedback.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the assignments area"
+      },
+      {
+        "type": "action",
+        "description": "Open an assignment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assignment details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify grades and feedback are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Login shows validation for incomplete credentials",
+    "description": "This verifies that submitting incomplete login credentials shows validation feedback and keeps the user on the login page.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Leave the password field empty"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page remains displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC013",
+    "title": "Teacher remains on login page when credentials are incomplete",
+    "description": "This verifies that incomplete login credentials are rejected with validation while the user stays on the login page.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login validation message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page remains visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC014",
+    "title": "Student is blocked from unavailable course content",
+    "description": "This verifies that a student attempting to access content outside their enrollment sees restricted access messaging.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the courses area"
+      },
+      {
+        "type": "action",
+        "description": "Open unavailable course content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an access restricted message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify unavailable course content is not accessible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC015",
+    "title": "Teacher sees an empty state when no classes are assigned",
+    "description": "This verifies that the teacher dashboard shows an empty-state view when there are no assigned classes.",
+    "category": "Teacher Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the teacher role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assigned classes are not displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

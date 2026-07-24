@@ -1,0 +1,34 @@
+version: "2"
+type: frontend
+tech_stack:
+  - react
+  - next.js
+  - tailwindcss
+  - typescript
+features:
+  - name: Authentication
+    description: Login page with role selection
+    files:
+      - app/login/page.tsx
+    endpoints: []
+  - name: Admin Dashboard
+    description: Admin view for managing users and courses
+    files:
+      - app/admin/page.tsx
+      - app/admin/users/page.tsx
+      - app/admin/courses/page.tsx
+    endpoints: []
+  - name: Student Dashboard
+    description: Student view for courses, assignments, and grades
+    files:
+      - app/student/page.tsx
+      - app/student/courses/page.tsx
+      - app/student/assignments/page.tsx
+    endpoints: []
+  - name: Teacher Dashboard
+    description: Teacher view for managing classes and grades
+    files:
+      - app/teacher/page.tsx
+      - app/teacher/gradebook/page.tsx
+    endpoints: []
+known_limitations: []

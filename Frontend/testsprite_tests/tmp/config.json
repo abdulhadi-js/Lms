@@ -1,0 +1,17 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "frontend",
+    "projectPath": "C:\\Users\\saadi\\OneDrive\\Desktop\\LMS project\\frontend",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-qrZoLYTRsUVa9KxRcZw_WayqaGC3-d2IcQH57LKvTevt0QVwQYZc33Am4_FpGPB06Z2BTel2PGaxgY6Eo34LX_bI0s27-DUwJ2PxwTKP3i7rRzkAjSxAjImrPJ_qzJ8sxew"
+    }
+  },
+  "serverPort": 53415
+}
