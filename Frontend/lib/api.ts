@@ -83,6 +83,8 @@ export const enrollmentsApi = {
     method: 'POST',
     body: JSON.stringify({ reason })
   }),
+  update: (id: string, data: any) => fetchAuthApi(`/enrollments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/enrollments/${id}`, { method: 'DELETE' }),
 };
 
 export const coursesApi = {

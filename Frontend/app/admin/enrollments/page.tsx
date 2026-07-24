@@ -1,7 +1,7 @@
 "use client";
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Search, Filter, Plus, UserMinus } from 'lucide-react';
+import { Search, Plus, UserMinus, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { enrollmentsApi, usersApi, coursesApi } from '@/lib/api';
 
 export default function EnrollmentsManagement() {
@@ -12,6 +12,7 @@ export default function EnrollmentsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState('');
@@ -21,6 +22,9 @@ export default function EnrollmentsManagement() {
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState('');
   const [dropReason, setDropReason] = useState('');
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editStatus, setEditStatus] = useState('');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -29,26 +33,33 @@ export default function EnrollmentsManagement() {
         usersApi.list('STUDENT'),
         coursesApi.list()
       ]);
-      setEnrollments(enrollData);
-      setStudents(usersData);
-      setCourses(coursesData);
+      setEnrollments(enrollData.data || enrollData || []);
+      setStudents(usersData.data || usersData || []);
+      setCourses(coursesData.data || coursesData || []);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to load enrollments');
     } finally {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if ((e.target as Element).closest('.actions-dropdown')) return;
+      setOpenDropdown(null);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const handleEnrollSubmit = async () => {
     if (!selectedStudent || !selectedCourse) {
-      toast("Please select both a student and a course.");
+      toast.error("Please select both a student and a course.");
       return;
     }
     try {
@@ -56,7 +67,7 @@ export default function EnrollmentsManagement() {
       setEnrollModalOpen(false);
       setSelectedStudent('');
       setSelectedCourse('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      toast.success('Student enrolled successfully');
       fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to enroll student');
@@ -67,6 +78,7 @@ export default function EnrollmentsManagement() {
     setSelectedEnrollmentId(id);
     setDropReason('');
     setDropModalOpen(true);
+    setOpenDropdown(null);
   };
 
   const handleDropSubmit = async () => {
@@ -74,11 +86,42 @@ export default function EnrollmentsManagement() {
     try {
       await enrollmentsApi.requestDrop(selectedEnrollmentId, dropReason);
       setDropModalOpen(false);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      toast.success('Enrollment dropped successfully');
       fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to drop enrollment');
     }
+  };
+
+  const handleEditClick = (enr: any) => {
+    setSelectedEnrollmentId(enr.id);
+    setEditStatus(enr.status);
+    setEditModalOpen(true);
+    setOpenDropdown(null);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!selectedEnrollmentId || !editStatus) return;
+    try {
+      await enrollmentsApi.update(selectedEnrollmentId, { status: editStatus });
+      setEditModalOpen(false);
+      toast.success('Enrollment status updated');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update status');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to permanently delete this enrollment record?')) return;
+    try {
+      await enrollmentsApi.remove(id);
+      toast.success('Enrollment deleted completely');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete enrollment');
+    }
+    setOpenDropdown(null);
   };
 
   const filteredEnrollments = enrollments.filter(e => statusFilter === 'ALL' || e.status === statusFilter);
@@ -135,27 +178,50 @@ export default function EnrollmentsManagement() {
               </thead>
               <tbody className="text-sm">
                 {filteredEnrollments.map((enr, i) => (
-                  <tr key={enr.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
+                  <tr key={enr.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors relative">
                     <td className="py-4 px-6">
                       <div className="font-medium text-on-surface">{enr.student?.firstName} {enr.student?.lastName}</div>
                       <div className="text-xs text-body-secondary">{enr.student?.email}</div>
                     </td>
-                    <td className="py-4 px-6 text-on-surface">{enr.course?.title}</td>
+                    <td className="py-4 px-6 text-on-surface">{enr.course?.title} <span className="text-xs text-body-secondary ml-1">({enr.course?.code})</span></td>
                     <td className="py-4 px-6">
                       {enr.status === 'ENROLLED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Enrolled</span>}
                       {enr.status === 'DROPPED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Dropped</span>}
                       {enr.status === 'COMPLETED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container/20 text-primary border border-primary/20">Completed</span>}
                     </td>
                     <td className="py-4 px-6 text-body-secondary">{new Date(enr.createdAt).toLocaleDateString()}</td>
-                    <td className="py-4 px-6 text-right">
-                      {enr.status === 'ENROLLED' && (
-                        <button 
-                          onClick={() => handleDropClick(enr.id)}
-                          className="p-1.5 text-error hover:bg-error-bg rounded transition-colors"
-                          title="Drop Student"
-                        >
-                          <UserMinus className="w-5 h-5" />
-                        </button>
+                    <td className="py-4 px-6 text-right relative actions-dropdown">
+                      <button 
+                        onClick={() => setOpenDropdown(openDropdown === enr.id ? null : enr.id)}
+                        className="text-icon-inactive hover:text-primary transition-colors p-1.5 rounded-md hover:bg-surface-container"
+                      >
+                        <MoreVertical className="h-5 w-5" />
+                      </button>
+                      
+                      {openDropdown === enr.id && (
+                        <div className="absolute right-6 top-10 w-48 bg-white rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
+                          {enr.status === 'ENROLLED' && (
+                            <button 
+                              onClick={() => handleDropClick(enr.id)}
+                              className="w-full text-left px-4 py-2 text-sm text-warning hover:bg-warning-bg flex items-center gap-2"
+                            >
+                              <UserMinus className="w-4 h-4" /> Drop Student
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handleEditClick(enr)}
+                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
+                          >
+                            <Edit className="w-4 h-4 text-icon-inactive" /> Edit Status
+                          </button>
+                          <hr className="my-1 border-divider" />
+                          <button 
+                            onClick={() => handleDelete(enr.id)}
+                            className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error-bg flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4" /> Delete Record
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -169,7 +235,7 @@ export default function EnrollmentsManagement() {
       {/* Direct Enroll Modal */}
       {enrollModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Direct Enroll Student</h3>
             
             <div className="space-y-4 mb-6">
@@ -220,10 +286,46 @@ export default function EnrollmentsManagement() {
         </div>
       )}
 
+      {/* Edit Status Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-heading-on-light mb-4">Edit Enrollment Status</h3>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
+              <select 
+                className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value)}
+              >
+                <option value="ENROLLED">ENROLLED</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="DROPPED">DROPPED</option>
+              </select>
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setEditModalOpen(false)}
+                className="px-4 py-2 border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleEditSubmit}
+                className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Drop Modal */}
       {dropModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Drop Enrollment</h3>
             <p className="text-sm text-body-secondary mb-4">Provide a reason for dropping this student.</p>
             
