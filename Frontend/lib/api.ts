@@ -14,24 +14,68 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
   return res.json();
 }
 
+export const tokens = {
+  getAccessToken: () => localStorage.getItem('lms_access_token'),
+  set: (access: string, refresh: string) => {
+    localStorage.setItem('lms_access_token', access);
+    localStorage.setItem('lms_refresh_token', refresh);
+  },
+  clear: () => {
+    localStorage.removeItem('lms_access_token');
+    localStorage.removeItem('lms_refresh_token');
+  }
+};
+
+async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
+  const token = tokens.getAccessToken();
+  return fetchApi(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+}
+
+export type AuthUser = { id: string; email: string; role: string; firstName: string; lastName: string };
+export type LoginResponse = { accessToken: string; refreshToken: string; user: AuthUser };
+
+export const authApi = {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) throw new Error('Login failed');
+    return res.json();
+  },
+  logout: () => fetchAuthApi('/auth/logout', { method: 'POST' }),
+  me: () => fetchAuthApi('/auth/me'),
+};
+
+export const usersApi = {
+  list: () => fetchAuthApi('/users'),
+};
+
 export const reportsApi = {
-  overview: () => fetchApi('/reports/overview'),
-  atRisk: () => fetchApi('/reports/at-risk'),
+  overview: () => fetchAuthApi('/reports/overview'),
+  atRisk: () => fetchAuthApi('/reports/at-risk'),
 };
 
 export const enrollmentsApi = {
-  getApplications: (status: string) => fetchApi(`/enrollments?status=${status}`),
-  list: () => fetchApi('/enrollments'),
+  getApplications: (status?: string) => fetchAuthApi(status ? `/applications?status=${status}` : '/applications'),
+  list: () => fetchAuthApi('/enrollments'),
 };
 
 export const coursesApi = {
-  list: () => fetchApi('/courses'),
+  list: () => fetchAuthApi('/courses'),
 };
 
 export const feesApi = {
-  list: () => fetchApi('/fees'),
+  list: () => fetchAuthApi('/fees'),
 };
 
 export const assignmentsApi = {
-  list: () => fetchApi('/assignments'),
+  list: () => fetchAuthApi('/assignments'),
 };
