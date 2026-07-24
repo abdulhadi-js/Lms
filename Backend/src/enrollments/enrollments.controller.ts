@@ -9,6 +9,7 @@ import {
   Request,
   ForbiddenException,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -55,8 +56,19 @@ export class EnrollmentsController {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.enrollmentsService.reviewDropRequest(id, approved, req.user.id);
   }
-}
 
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateData: any, @Request() req: any) {
+    if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
+    return this.enrollmentsService.update(id, updateData);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req: any) {
+    if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
+    return this.enrollmentsService.remove(id);
+  }
+}
 @Controller('applications')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ApplicationsController {

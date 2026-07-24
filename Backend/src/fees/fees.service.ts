@@ -71,4 +71,17 @@ export class FeesService {
     }
     return query.getMany();
   }
+
+  async update(id: string, updateData: any) {
+    const fee = await this.feeRepo.findOne({ where: { id } });
+    if (!fee) throw new NotFoundException('Fee not found');
+    Object.assign(fee, updateData);
+    return this.feeRepo.save(fee);
+  }
+
+  async remove(id: string) {
+    const fee = await this.feeRepo.findOne({ where: { id } });
+    if (!fee) throw new NotFoundException('Fee not found');
+    return this.feeRepo.remove(fee);
+  }
 }

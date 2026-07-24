@@ -62,10 +62,11 @@ export class EnrollmentsService {
     return app;
   }
 
-  async getApplications(status?: string) {
-    return status
-      ? this.appRepo.find({ where: { status } })
-      : this.appRepo.find();
+  async getApplications(status: string) {
+    if (status) {
+      return this.appRepo.find({ where: { status: status as any } });
+    }
+    return this.appRepo.find();
   }
 
   async requestDrop(
@@ -124,5 +125,18 @@ export class EnrollmentsService {
     if (currentUser.role === 'STUDENT')
       return this.enrollmentRepo.find({ where: { studentId: currentUser.id } });
     return [];
+  }
+
+  async update(id: string, updateData: any) {
+    const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
+    if (!enrollment) throw new NotFoundException();
+    Object.assign(enrollment, updateData);
+    return this.enrollmentRepo.save(enrollment);
+  }
+
+  async remove(id: string) {
+    const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
+    if (!enrollment) throw new NotFoundException();
+    return this.enrollmentRepo.remove(enrollment);
   }
 }
