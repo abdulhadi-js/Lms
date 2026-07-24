@@ -46,8 +46,10 @@ export class ReportsService {
     const results = await query.getRawMany();
     return results.map((r) => ({
       courseId: r.courseId,
-      attendancePercentage:
-        (Number(r.presentCount) / Number(r.totalClasses)) * 100,
+      totalClasses: Number(r.totalClasses) || 0,
+      totalPresent: Number(r.presentCount) || 0,
+      totalAbsent: (Number(r.totalClasses) || 0) - (Number(r.presentCount) || 0),
+      attendancePercentage: Number(r.totalClasses) ? (Number(r.presentCount) / Number(r.totalClasses)) * 100 : 0,
     }));
   }
 

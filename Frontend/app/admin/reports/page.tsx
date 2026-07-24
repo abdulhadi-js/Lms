@@ -22,8 +22,24 @@ export default function ReportsAnalytics() {
         ]);
         setOverview(ovData);
         setAtRisk(riskData);
-        setPerformance(perfData);
-        setAttendance(attData);
+        
+        // Aggregate performance across all courses
+        const perfArray = Array.isArray(perfData) ? perfData : [];
+        const avgGrade = perfArray.length > 0 
+          ? perfArray.reduce((acc, curr) => acc + Number(curr.averagePercentage || 0), 0) / perfArray.length 
+          : 0;
+        setPerformance({ averageGrade: avgGrade });
+        
+        // Aggregate attendance across all courses
+        const attArray = Array.isArray(attData) ? attData : [];
+        const totalP = attArray.reduce((acc, curr) => acc + (curr.totalPresent || 0), 0);
+        const totalA = attArray.reduce((acc, curr) => acc + (curr.totalAbsent || 0), 0);
+        const totalClasses = totalP + totalA;
+        setAttendance({
+          overallAttendancePercentage: totalClasses > 0 ? (totalP / totalClasses) * 100 : 0,
+          totalPresent: totalP,
+          totalAbsent: totalA
+        });
       } catch (error) {
         console.error("Failed to load reports", error);
       } finally {
@@ -79,7 +95,7 @@ export default function ReportsAnalytics() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Revenue</p>
-                  <h3 className="text-2xl font-bold text-on-surface mt-2">${overview?.totalRevenue?.toFixed(2) || '0.00'}</h3>
+                  <h3 className="text-2xl font-bold text-on-surface mt-2">${overview?.totalFeesCollected?.toFixed(2) || '0.00'}</h3>
                 </div>
                 <div className="p-3 bg-success-bg text-success rounded-lg">
                   <TrendingUp className="w-5 h-5" />
