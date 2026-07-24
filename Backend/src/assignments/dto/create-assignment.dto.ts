@@ -1,4 +1,11 @@
-import { IsUUID, IsString, IsOptional, IsNumber, IsDate, IsArray } from 'class-validator';
+import {
+  IsUUID,
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsDate,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class RubricDto {

@@ -8,6 +8,6 @@ import { Timetable } from './entities/timetable.entity';
   imports: [TypeOrmModule.forFeature([Timetable])],
   controllers: [TimetableController],
   providers: [TimetableService],
-  exports: [TimetableService]
+  exports: [TimetableService],
 })
 export class TimetableModule {}

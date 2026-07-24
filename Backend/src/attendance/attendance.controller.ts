@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AttendanceService } from './attendance.service';
@@ -21,21 +31,30 @@ export class AttendanceController {
     @Query('studentId') studentId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-    @Req() req: any
+    @Req() req: any,
   ) {
-    return this.attendanceService.getAttendance(courseId, studentId, startDate, endDate, req.user);
+    return this.attendanceService.getAttendance(
+      courseId,
+      studentId,
+      startDate,
+      endDate,
+      req.user,
+    );
   }
 
   @Get('summary')
   getAttendanceSummary(
     @Query('courseId') courseId: string,
-    @Query('studentId') studentId: string
+    @Query('studentId') studentId: string,
   ) {
     return this.attendanceService.getAttendanceSummary(courseId, studentId);
   }
 
   @Patch(':id')
-  updateAttendance(@Param('id') id: string, @Body('status') status: AttendanceStatus) {
+  updateAttendance(
+    @Param('id') id: string,
+    @Body('status') status: AttendanceStatus,
+  ) {
     return this.attendanceService.updateAttendance(id, { status });
   }
 }

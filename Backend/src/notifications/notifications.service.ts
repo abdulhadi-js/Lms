@@ -7,7 +7,8 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 @Injectable()
 export class NotificationsService {
   constructor(
-    @InjectRepository(Notification) private notificationRepo: Repository<Notification>,
+    @InjectRepository(Notification)
+    private notificationRepo: Repository<Notification>,
   ) {}
 
   async create(dto: CreateNotificationDto, senderId: string) {
@@ -19,10 +20,13 @@ export class NotificationsService {
   }
 
   async findAll(currentUser: any) {
-    const query = this.notificationRepo.createQueryBuilder('notif')
-      .where('notif.audienceRole = :role OR notif.audienceRole IS NULL', { role: currentUser.role })
+    const query = this.notificationRepo
+      .createQueryBuilder('notif')
+      .where('notif.audienceRole = :role OR notif.audienceRole IS NULL', {
+        role: currentUser.role,
+      })
       .orderBy('notif.createdAt', 'DESC');
-    
+
     // If student, theoretically join with enrollments to match courseId.
     // For simplicity, returning all global role-matched notifications.
     return query.getMany();

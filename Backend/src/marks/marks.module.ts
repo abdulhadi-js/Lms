@@ -9,6 +9,6 @@ import { GradingCriteria } from './entities/grading-criteria.entity';
   imports: [TypeOrmModule.forFeature([Mark, GradingCriteria])],
   controllers: [MarksController],
   providers: [MarksService],
-  exports: [MarksService]
+  exports: [MarksService],
 })
 export class MarksModule {}

@@ -18,9 +18,9 @@ async function bootstrap() {
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,        // strip unknown properties
+      whitelist: true, // strip unknown properties
       forbidNonWhitelisted: true,
-      transform: true,        // auto-transform to DTO types
+      transform: true, // auto-transform to DTO types
       transformOptions: {
         enableImplicitConversion: true,
       },
@@ -38,7 +38,7 @@ async function bootstrap() {
     .setTitle('EduCore LMS API')
     .setDescription(
       'Production-level REST API for the EduCore Learning Management System. ' +
-      'Supports Admin, Teacher, and Student roles with full RBAC.',
+        'Supports Admin, Teacher, and Student roles with full RBAC.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -69,8 +69,12 @@ async function bootstrap() {
   const port = configService.get<number>('APP_PORT', 3001);
   await app.listen(port);
 
-  console.log(`\n🚀 EduCore LMS API running on: http://localhost:${port}/api/v1`);
-  console.log(`📖 Swagger Docs available at: http://localhost:${port}/api/docs\n`);
+  console.log(
+    `\n🚀 EduCore LMS API running on: http://localhost:${port}/api/v1`,
+  );
+  console.log(
+    `📖 Swagger Docs available at: http://localhost:${port}/api/docs\n`,
+  );
 }
 
 bootstrap();

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -48,7 +58,10 @@ export class UsersController {
 
   @Post(':id/reset-password')
   @Roles(Role.ADMIN)
-  resetPassword(@Param('id') id: string, @Body('newPassword') newPassword: string) {
+  resetPassword(
+    @Param('id') id: string,
+    @Body('newPassword') newPassword: string,
+  ) {
     return this.usersService.resetPassword(id, newPassword);
   }
 }

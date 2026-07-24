@@ -13,7 +13,11 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  private generateTokens(payload: { sub: string; email: string; role: string }) {
+  private generateTokens(payload: {
+    sub: string;
+    email: string;
+    role: string;
+  }) {
     // Pass expiresIn as seconds to satisfy JwtSignOptions type (number)
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET')!,
@@ -31,7 +35,9 @@ export class AuthService {
   async validateUser(email: string, pass: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user || user.status !== 'ACTIVE') {
-      throw new UnauthorizedException('Invalid credentials or inactive account');
+      throw new UnauthorizedException(
+        'Invalid credentials or inactive account',
+      );
     }
 
     const isMatch = await bcrypt.compare(pass, user.passwordHash);

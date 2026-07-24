@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, Req, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Req,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { FeesService } from './fees.service';
@@ -12,7 +22,9 @@ export class FeesController {
   @Get()
   findAll(@Req() req: any, @Query('outstanding') outstanding: boolean) {
     if (outstanding) {
-      return this.feesService.getOutstandingFees(req.user.role === 'STUDENT' ? req.user.id : undefined);
+      return this.feesService.getOutstandingFees(
+        req.user.role === 'STUDENT' ? req.user.id : undefined,
+      );
     }
     return this.feesService.findAll(req.user);
   }

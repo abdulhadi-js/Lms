@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Fee, FeeStatus } from './entities/fee.entity';
@@ -6,9 +11,7 @@ import { CreateFeeDto, PayFeeDto, RefundFeeDto } from './dto/fee.dto';
 
 @Injectable()
 export class FeesService {
-  constructor(
-    @InjectRepository(Fee) private feeRepo: Repository<Fee>,
-  ) {}
+  constructor(@InjectRepository(Fee) private feeRepo: Repository<Fee>) {}
 
   async create(dto: CreateFeeDto) {
     const fee = this.feeRepo.create(dto);
@@ -34,8 +37,10 @@ export class FeesService {
   async pay(id: string, dto: PayFeeDto, studentId: string) {
     const fee = await this.feeRepo.findOne({ where: { id } });
     if (!fee) throw new NotFoundException('Fee not found');
-    if (fee.studentId !== studentId) throw new ForbiddenException('Not your fee');
-    if (fee.status === FeeStatus.PAID) throw new BadRequestException('Fee already paid');
+    if (fee.studentId !== studentId)
+      throw new ForbiddenException('Not your fee');
+    if (fee.status === FeeStatus.PAID)
+      throw new BadRequestException('Fee already paid');
 
     fee.paidAmount += dto.paidAmount;
     if (fee.paidAmount >= fee.amount) {
@@ -48,16 +53,19 @@ export class FeesService {
   async refund(id: string, dto: RefundFeeDto, adminId: string) {
     const fee = await this.feeRepo.findOne({ where: { id } });
     if (!fee) throw new NotFoundException('Fee not found');
-    
+
     fee.status = FeeStatus.REFUNDED;
     fee.refundReason = dto.refundReason;
     return this.feeRepo.save(fee);
   }
 
   async getOutstandingFees(studentId?: string) {
-    const query = this.feeRepo.createQueryBuilder('fee')
-      .where('fee.status IN (:...statuses)', { statuses: [FeeStatus.PENDING, FeeStatus.OVERDUE] });
-    
+    const query = this.feeRepo
+      .createQueryBuilder('fee')
+      .where('fee.status IN (:...statuses)', {
+        statuses: [FeeStatus.PENDING, FeeStatus.OVERDUE],
+      });
+
     if (studentId) {
       query.andWhere('fee.studentId = :studentId', { studentId });
     }

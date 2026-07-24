@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { NotificationsService } from './notifications.service';
@@ -16,7 +24,10 @@ export class NotificationsController {
 
   @Post()
   create(@Body() dto: CreateNotificationDto, @Req() req: any) {
-    return this.notificationsService.create(dto, req.user.id || req.user.userId);
+    return this.notificationsService.create(
+      dto,
+      req.user.id || req.user.userId,
+    );
   }
 
   @Get(':id')

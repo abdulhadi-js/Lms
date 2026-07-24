@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Enrollment } from './entities/enrollment.entity';
@@ -11,14 +15,17 @@ import { RequestDropDto } from './dto/request-drop.dto';
 @Injectable()
 export class EnrollmentsService {
   constructor(
-    @InjectRepository(Enrollment) private enrollmentRepo: Repository<Enrollment>,
+    @InjectRepository(Enrollment)
+    private enrollmentRepo: Repository<Enrollment>,
     @InjectRepository(Application) private appRepo: Repository<Application>,
   ) {}
 
   async directEnroll(dto: CreateEnrollmentDto) {
     const enrollment = this.enrollmentRepo.create(dto);
     await this.enrollmentRepo.save(enrollment);
-    console.log(`Audit: Direct enroll for student ${dto.studentId} in course ${dto.courseId}`);
+    console.log(
+      `Audit: Direct enroll for student ${dto.studentId} in course ${dto.courseId}`,
+    );
     return enrollment;
   }
 
@@ -27,15 +34,21 @@ export class EnrollmentsService {
     return this.appRepo.save(app);
   }
 
-  async reviewApplication(id: string, dto: ReviewApplicationDto, adminId: string) {
+  async reviewApplication(
+    id: string,
+    dto: ReviewApplicationDto,
+    adminId: string,
+  ) {
     const app = await this.appRepo.findOne({ where: { id } });
     if (!app) throw new NotFoundException();
-    app.status = dto.status as any;
+    app.status = dto.status;
     app.reviewNotes = dto.notes ?? '';
     await this.appRepo.save(app);
 
     if (dto.status === 'APPROVED') {
-      console.log(`Audit: Admin ${adminId} approved application ${id}. Creating enrollment.`);
+      console.log(
+        `Audit: Admin ${adminId} approved application ${id}. Creating enrollment.`,
+      );
       // Use Object.assign to bypass strict TypeORM typing during testing
       const enrollment = this.enrollmentRepo.create();
       Object.assign(enrollment, {
@@ -50,21 +63,37 @@ export class EnrollmentsService {
   }
 
   async getApplications(status?: string) {
-    return status ? this.appRepo.find({ where: { status } }) : this.appRepo.find();
+    return status
+      ? this.appRepo.find({ where: { status } })
+      : this.appRepo.find();
   }
 
-  async requestDrop(studentId: string, enrollmentId: string, dto: RequestDropDto) {
-    const enrollment = await this.enrollmentRepo.findOne({ where: { id: enrollmentId, studentId } });
+  async requestDrop(
+    studentId: string,
+    enrollmentId: string,
+    dto: RequestDropDto,
+  ) {
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { id: enrollmentId, studentId },
+    });
     if (!enrollment) throw new NotFoundException();
     enrollment.status = 'DROP_REQUESTED';
     enrollment.dropReason = dto.reason;
     await this.enrollmentRepo.save(enrollment);
-    console.log(`Audit: Student ${studentId} requested drop for enrollment ${enrollmentId}`);
+    console.log(
+      `Audit: Student ${studentId} requested drop for enrollment ${enrollmentId}`,
+    );
     return enrollment;
   }
 
-  async reviewDropRequest(enrollmentId: string, approved: boolean, adminId: string) {
-    const enrollment = await this.enrollmentRepo.findOne({ where: { id: enrollmentId } });
+  async reviewDropRequest(
+    enrollmentId: string,
+    approved: boolean,
+    adminId: string,
+  ) {
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { id: enrollmentId },
+    });
     if (!enrollment) throw new NotFoundException();
     if (approved) {
       enrollment.status = 'DROPPED';
@@ -78,7 +107,9 @@ export class EnrollmentsService {
   }
 
   async adminDrop(enrollmentId: string, reason: string, adminId: string) {
-    const enrollment = await this.enrollmentRepo.findOne({ where: { id: enrollmentId } });
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { id: enrollmentId },
+    });
     if (!enrollment) throw new NotFoundException();
     enrollment.status = 'DROPPED';
     enrollment.dropReason = reason;
@@ -90,7 +121,8 @@ export class EnrollmentsService {
 
   async findEnrollments(currentUser: any) {
     if (currentUser.role === 'ADMIN') return this.enrollmentRepo.find();
-    if (currentUser.role === 'STUDENT') return this.enrollmentRepo.find({ where: { studentId: currentUser.id } });
+    if (currentUser.role === 'STUDENT')
+      return this.enrollmentRepo.find({ where: { studentId: currentUser.id } });
     return [];
   }
 }

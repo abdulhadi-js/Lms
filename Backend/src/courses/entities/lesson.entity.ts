@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { CourseModule } from './module.entity';
 
 @Entity('lessons')
@@ -27,7 +33,7 @@ export class Lesson {
   @Column()
   moduleId: string;
 
-  @ManyToOne(() => CourseModule, module => module.lessons)
+  @ManyToOne(() => CourseModule, (module) => module.lessons)
   @JoinColumn({ name: 'moduleId' })
   module: CourseModule;
 }

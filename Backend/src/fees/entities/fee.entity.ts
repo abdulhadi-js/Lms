@@ -1,10 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum FeeStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
   OVERDUE = 'OVERDUE',
-  REFUNDED = 'REFUNDED'
+  REFUNDED = 'REFUNDED',
 }
 
 @Entity('fees')

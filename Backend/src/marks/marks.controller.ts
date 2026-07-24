@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { MarksService } from './marks.service';
 import { CreateMarkDto } from './dto/create-mark.dto';
 import { UpdateMarkDto } from './dto/update-mark.dto';
@@ -22,7 +32,11 @@ export class MarksController {
   }
 
   @Patch(':id')
-  updateMark(@Param('id') id: string, @Body() dto: UpdateMarkDto, @Req() req: any) {
+  updateMark(
+    @Param('id') id: string,
+    @Body() dto: UpdateMarkDto,
+    @Req() req: any,
+  ) {
     return this.marksService.updateMark(id, dto, req.user);
   }
 

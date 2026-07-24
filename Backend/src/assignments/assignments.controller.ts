@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseInterceptors, UploadedFile, ForbiddenException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  UseInterceptors,
+  UploadedFile,
+  ForbiddenException,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -18,8 +31,13 @@ export class AssignmentsController {
   }
 
   @Post('courses/:courseId/assignments')
-  create(@Param('courseId') courseId: string, @Body() dto: CreateAssignmentDto, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+  create(
+    @Param('courseId') courseId: string,
+    @Body() dto: CreateAssignmentDto,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     dto.courseId = courseId;
     return this.assignmentsService.create(dto, req.user.id);
   }
@@ -31,13 +49,15 @@ export class AssignmentsController {
 
   @Patch('assignments/:id')
   update(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     return this.assignmentsService.update(id, dto, req.user);
   }
 
   @Delete('assignments/:id')
   remove(@Param('id') id: string, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     return this.assignmentsService.remove(id);
   }
 
@@ -47,9 +67,14 @@ export class AssignmentsController {
     @Param('id') id: string,
     @Body() dto: SubmitAssignmentDto,
     @UploadedFile() file: any,
-    @Request() req: any
+    @Request() req: any,
   ) {
-    return this.assignmentsService.submitAssignment(id, req.user?.id, dto, file);
+    return this.assignmentsService.submitAssignment(
+      id,
+      req.user?.id,
+      dto,
+      file,
+    );
   }
 
   @Get('assignments/:id/submissions')
@@ -58,8 +83,13 @@ export class AssignmentsController {
   }
 
   @Patch('submissions/:id/grade')
-  gradeSubmission(@Param('id') id: string, @Body() dto: GradeSubmissionDto, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+  gradeSubmission(
+    @Param('id') id: string,
+    @Body() dto: GradeSubmissionDto,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     return this.assignmentsService.gradeSubmission(id, dto, req.user?.id);
   }
 }

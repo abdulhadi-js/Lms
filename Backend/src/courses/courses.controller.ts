@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, ForbiddenException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+  ForbiddenException,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoursesService } from './courses.service';
@@ -28,7 +39,11 @@ export class CoursesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @Request() req: any) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @Request() req: any,
+  ) {
     return this.coursesService.update(id, updateCourseDto, req.user);
   }
 
@@ -39,7 +54,11 @@ export class CoursesController {
   }
 
   @Post(':id/assign-teacher')
-  assignTeacher(@Param('id') id: string, @Body('teacherId') teacherId: string, @Request() req: any) {
+  assignTeacher(
+    @Param('id') id: string,
+    @Body('teacherId') teacherId: string,
+    @Request() req: any,
+  ) {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.coursesService.assignTeacher(id, teacherId);
   }
@@ -50,8 +69,13 @@ export class CoursesController {
   }
 
   @Post(':id/modules')
-  createModule(@Param('id') id: string, @Body() createModuleDto: CreateModuleDto, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+  createModule(
+    @Param('id') id: string,
+    @Body() createModuleDto: CreateModuleDto,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     return this.coursesService.createModule(id, createModuleDto);
   }
 }
@@ -62,8 +86,13 @@ export class ModulesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post(':moduleId/lessons')
-  createLesson(@Param('moduleId') moduleId: string, @Body() createLessonDto: CreateLessonDto, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER') throw new ForbiddenException();
+  createLesson(
+    @Param('moduleId') moduleId: string,
+    @Body() createLessonDto: CreateLessonDto,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+      throw new ForbiddenException();
     return this.coursesService.createLesson(moduleId, createLessonDto);
   }
 }

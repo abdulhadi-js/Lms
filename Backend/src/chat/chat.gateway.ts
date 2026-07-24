@@ -1,4 +1,12 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -15,7 +23,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Real implementation should decode JWT and set client.data.user
     // For now, mock a user id from token
     if (token) {
-      client.data.userId = 'mock-user-id'; 
+      client.data.userId = 'mock-user-id';
     } else {
       client.disconnect();
     }
@@ -32,10 +40,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('send_message')
-  async handleMessage(@ConnectedSocket() client: Socket, @MessageBody() dto: SendMessageDto) {
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: SendMessageDto,
+  ) {
     const userId = client.data.userId;
     const msg = await this.chatService.sendMessage(userId, dto);
-    
+
     if (dto.courseId) {
       this.server.to(dto.courseId).emit('new_message', msg);
     } else if (dto.receiverId) {
@@ -43,7 +54,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Emit to sender as well
       client.emit('new_message', msg);
     }
-    
+
     return msg;
   }
 }

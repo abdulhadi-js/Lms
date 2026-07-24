@@ -75,7 +75,10 @@ export class UsersService {
     return { success: true };
   }
 
-  async resetPassword(id: string, newPassword: string): Promise<{ success: boolean }> {
+  async resetPassword(
+    id: string,
+    newPassword: string,
+  ): Promise<{ success: boolean }> {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     user.passwordHash = await bcrypt.hash(newPassword, 10);

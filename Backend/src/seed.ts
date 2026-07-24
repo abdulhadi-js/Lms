@@ -126,7 +126,8 @@ async function seed() {
     {
       code: 'CS101',
       title: 'Introduction to Computer Science',
-      description: 'Fundamentals of programming, algorithms, and data structures.',
+      description:
+        'Fundamentals of programming, algorithms, and data structures.',
       teacherId: teacher1.id,
       credits: 3,
       status: 'ACTIVE',
@@ -160,12 +161,42 @@ async function seed() {
   console.log('📋  Seeding enrollments…');
 
   const enrollments = await enrollmentRepo.save([
-    { studentId: student1.id, courseId: cs101.id, status: 'ENROLLED', enrolledAt: new Date() },
-    { studentId: student1.id, courseId: math201.id, status: 'ENROLLED', enrolledAt: new Date() },
-    { studentId: student2.id, courseId: cs101.id, status: 'ENROLLED', enrolledAt: new Date() },
-    { studentId: student2.id, courseId: eng101.id, status: 'ENROLLED', enrolledAt: new Date() },
-    { studentId: student3.id, courseId: math201.id, status: 'ENROLLED', enrolledAt: new Date() },
-    { studentId: student3.id, courseId: eng101.id, status: 'ENROLLED', enrolledAt: new Date() },
+    {
+      studentId: student1.id,
+      courseId: cs101.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
+    {
+      studentId: student1.id,
+      courseId: math201.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
+    {
+      studentId: student2.id,
+      courseId: cs101.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
+    {
+      studentId: student2.id,
+      courseId: eng101.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
+    {
+      studentId: student3.id,
+      courseId: math201.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
+    {
+      studentId: student3.id,
+      courseId: eng101.id,
+      status: 'ENROLLED',
+      enrolledAt: new Date(),
+    },
   ]);
 
   console.log(`   ✓ Created ${enrollments.length} enrollments`);
@@ -175,16 +206,76 @@ async function seed() {
   console.log('📊  Seeding grading criteria…');
 
   await gradingRepo.save([
-    { minScore: 90, maxScore: 100, gradeLetter: 'A',  gpaPoints: 4.0, description: 'Excellent' },
-    { minScore: 85, maxScore: 89,  gradeLetter: 'A-', gpaPoints: 3.7, description: 'Very Good' },
-    { minScore: 80, maxScore: 84,  gradeLetter: 'B+', gpaPoints: 3.3, description: 'Good' },
-    { minScore: 75, maxScore: 79,  gradeLetter: 'B',  gpaPoints: 3.0, description: 'Above Average' },
-    { minScore: 70, maxScore: 74,  gradeLetter: 'B-', gpaPoints: 2.7, description: 'Average' },
-    { minScore: 65, maxScore: 69,  gradeLetter: 'C+', gpaPoints: 2.3, description: 'Satisfactory' },
-    { minScore: 60, maxScore: 64,  gradeLetter: 'C',  gpaPoints: 2.0, description: 'Passing' },
-    { minScore: 55, maxScore: 59,  gradeLetter: 'C-', gpaPoints: 1.7, description: 'Below Average' },
-    { minScore: 50, maxScore: 54,  gradeLetter: 'D',  gpaPoints: 1.0, description: 'Marginal' },
-    { minScore: 0,  maxScore: 49,  gradeLetter: 'F',  gpaPoints: 0.0, description: 'Failing' },
+    {
+      minScore: 90,
+      maxScore: 100,
+      gradeLetter: 'A',
+      gpaPoints: 4.0,
+      description: 'Excellent',
+    },
+    {
+      minScore: 85,
+      maxScore: 89,
+      gradeLetter: 'A-',
+      gpaPoints: 3.7,
+      description: 'Very Good',
+    },
+    {
+      minScore: 80,
+      maxScore: 84,
+      gradeLetter: 'B+',
+      gpaPoints: 3.3,
+      description: 'Good',
+    },
+    {
+      minScore: 75,
+      maxScore: 79,
+      gradeLetter: 'B',
+      gpaPoints: 3.0,
+      description: 'Above Average',
+    },
+    {
+      minScore: 70,
+      maxScore: 74,
+      gradeLetter: 'B-',
+      gpaPoints: 2.7,
+      description: 'Average',
+    },
+    {
+      minScore: 65,
+      maxScore: 69,
+      gradeLetter: 'C+',
+      gpaPoints: 2.3,
+      description: 'Satisfactory',
+    },
+    {
+      minScore: 60,
+      maxScore: 64,
+      gradeLetter: 'C',
+      gpaPoints: 2.0,
+      description: 'Passing',
+    },
+    {
+      minScore: 55,
+      maxScore: 59,
+      gradeLetter: 'C-',
+      gpaPoints: 1.7,
+      description: 'Below Average',
+    },
+    {
+      minScore: 50,
+      maxScore: 54,
+      gradeLetter: 'D',
+      gpaPoints: 1.0,
+      description: 'Marginal',
+    },
+    {
+      minScore: 0,
+      maxScore: 49,
+      gradeLetter: 'F',
+      gpaPoints: 0.0,
+      description: 'Failing',
+    },
   ]);
 
   console.log(`   ✓ Created 10 grading criteria`);
@@ -194,12 +285,48 @@ async function seed() {
   console.log('🕐  Seeding timetable…');
 
   await timetableRepo.save([
-    { courseId: cs101.id,   dayOfWeek: 'MON', startTime: '09:00', endTime: '10:30', room: 'CS-101' },
-    { courseId: cs101.id,   dayOfWeek: 'WED', startTime: '09:00', endTime: '10:30', room: 'CS-101' },
-    { courseId: math201.id, dayOfWeek: 'TUE', startTime: '11:00', endTime: '12:30', room: 'MATH-201' },
-    { courseId: math201.id, dayOfWeek: 'THU', startTime: '11:00', endTime: '12:30', room: 'MATH-201' },
-    { courseId: eng101.id,  dayOfWeek: 'MON', startTime: '14:00', endTime: '15:30', room: 'ENG-101' },
-    { courseId: eng101.id,  dayOfWeek: 'FRI', startTime: '10:00', endTime: '11:30', room: 'ENG-101' },
+    {
+      courseId: cs101.id,
+      dayOfWeek: 'MON',
+      startTime: '09:00',
+      endTime: '10:30',
+      room: 'CS-101',
+    },
+    {
+      courseId: cs101.id,
+      dayOfWeek: 'WED',
+      startTime: '09:00',
+      endTime: '10:30',
+      room: 'CS-101',
+    },
+    {
+      courseId: math201.id,
+      dayOfWeek: 'TUE',
+      startTime: '11:00',
+      endTime: '12:30',
+      room: 'MATH-201',
+    },
+    {
+      courseId: math201.id,
+      dayOfWeek: 'THU',
+      startTime: '11:00',
+      endTime: '12:30',
+      room: 'MATH-201',
+    },
+    {
+      courseId: eng101.id,
+      dayOfWeek: 'MON',
+      startTime: '14:00',
+      endTime: '15:30',
+      room: 'ENG-101',
+    },
+    {
+      courseId: eng101.id,
+      dayOfWeek: 'FRI',
+      startTime: '10:00',
+      endTime: '11:30',
+      room: 'ENG-101',
+    },
   ]);
 
   console.log(`   ✓ Created 6 timetable entries`);
@@ -212,12 +339,58 @@ async function seed() {
   dueDate.setDate(dueDate.getDate() + 30); // due in 30 days
 
   await feeRepo.save([
-    { studentId: student1.id, courseId: cs101.id,   amount: 1500, description: 'Course fee – CS101',   dueDate, status: 'PENDING' },
-    { studentId: student1.id, courseId: math201.id, amount: 1800, description: 'Course fee – MATH201', dueDate, status: 'PENDING' },
-    { studentId: student2.id, courseId: cs101.id,   amount: 1500, description: 'Course fee – CS101',   dueDate, status: 'PAID', paidAt: new Date(), paidAmount: 1500 },
-    { studentId: student2.id, courseId: eng101.id,  amount: 1200, description: 'Course fee – ENG101',  dueDate, status: 'PENDING' },
-    { studentId: student3.id, courseId: math201.id, amount: 1800, description: 'Course fee – MATH201', dueDate, status: 'PENDING' },
-    { studentId: student3.id, courseId: eng101.id,  amount: 1200, description: 'Course fee – ENG101',  dueDate, status: 'PAID', paidAt: new Date(), paidAmount: 1200 },
+    {
+      studentId: student1.id,
+      courseId: cs101.id,
+      amount: 1500,
+      description: 'Course fee – CS101',
+      dueDate,
+      status: 'PENDING',
+    },
+    {
+      studentId: student1.id,
+      courseId: math201.id,
+      amount: 1800,
+      description: 'Course fee – MATH201',
+      dueDate,
+      status: 'PENDING',
+    },
+    {
+      studentId: student2.id,
+      courseId: cs101.id,
+      amount: 1500,
+      description: 'Course fee – CS101',
+      dueDate,
+      status: 'PAID',
+      paidAt: new Date(),
+      paidAmount: 1500,
+    },
+    {
+      studentId: student2.id,
+      courseId: eng101.id,
+      amount: 1200,
+      description: 'Course fee – ENG101',
+      dueDate,
+      status: 'PENDING',
+    },
+    {
+      studentId: student3.id,
+      courseId: math201.id,
+      amount: 1800,
+      description: 'Course fee – MATH201',
+      dueDate,
+      status: 'PENDING',
+    },
+    {
+      studentId: student3.id,
+      courseId: eng101.id,
+      amount: 1200,
+      description: 'Course fee – ENG101',
+      dueDate,
+      status: 'PAID',
+      paidAt: new Date(),
+      paidAmount: 1200,
+    },
   ]);
 
   console.log(`   ✓ Created 6 fee records`);

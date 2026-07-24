@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, Request, ForbiddenException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Query,
+  Request,
+  ForbiddenException,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { EnrollmentsService } from './enrollments.service';
@@ -24,7 +35,11 @@ export class EnrollmentsController {
   }
 
   @Post(':id/drop')
-  requestDrop(@Param('id') id: string, @Body() dto: RequestDropDto, @Request() req: any) {
+  requestDrop(
+    @Param('id') id: string,
+    @Body() dto: RequestDropDto,
+    @Request() req: any,
+  ) {
     if (req.user?.role === 'ADMIN') {
       return this.enrollmentsService.adminDrop(id, dto.reason, req.user.id);
     }
@@ -32,7 +47,11 @@ export class EnrollmentsController {
   }
 
   @Patch(':id/drop/review')
-  reviewDropRequest(@Param('id') id: string, @Body('approved') approved: boolean, @Request() req: any) {
+  reviewDropRequest(
+    @Param('id') id: string,
+    @Body('approved') approved: boolean,
+    @Request() req: any,
+  ) {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.enrollmentsService.reviewDropRequest(id, approved, req.user.id);
   }
@@ -55,7 +74,11 @@ export class ApplicationsController {
   }
 
   @Patch(':id/review')
-  reviewApplication(@Param('id') id: string, @Body() dto: ReviewApplicationDto, @Request() req: any) {
+  reviewApplication(
+    @Param('id') id: string,
+    @Body() dto: ReviewApplicationDto,
+    @Request() req: any,
+  ) {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.enrollmentsService.reviewApplication(id, dto, req.user.id);
   }

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { CourseModule } from './module.entity';
 
 @Entity('courses')
@@ -24,6 +31,6 @@ export class Course {
   @Column({ default: 'ACTIVE' })
   status: string;
 
-  @OneToMany(() => CourseModule, module => module.course)
+  @OneToMany(() => CourseModule, (module) => module.course)
   modules: CourseModule[];
 }

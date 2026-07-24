@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
@@ -13,12 +17,14 @@ import { CreateLessonDto } from './dto/create-lesson.dto';
 export class CoursesService {
   constructor(
     @InjectRepository(Course) private courseRepo: Repository<Course>,
-    @InjectRepository(CourseModule) private moduleRepo: Repository<CourseModule>,
+    @InjectRepository(CourseModule)
+    private moduleRepo: Repository<CourseModule>,
     @InjectRepository(Lesson) private lessonRepo: Repository<Lesson>,
   ) {}
 
   async create(dto: CreateCourseDto, currentUser: any) {
-    if (currentUser.role !== 'ADMIN') throw new ForbiddenException('Only admin can create courses');
+    if (currentUser.role !== 'ADMIN')
+      throw new ForbiddenException('Only admin can create courses');
     const course = this.courseRepo.create(dto);
     return this.courseRepo.save(course);
   }
@@ -32,7 +38,9 @@ export class CoursesService {
       return this.courseRepo
         .createQueryBuilder('course')
         .innerJoin('course.enrollments', 'enrollment')
-        .where('enrollment.studentId = :studentId', { studentId: currentUser.id })
+        .where('enrollment.studentId = :studentId', {
+          studentId: currentUser.id,
+        })
         .andWhere('enrollment.status = :status', { status: 'ENROLLED' })
         .getMany();
     }
@@ -53,7 +61,9 @@ export class CoursesService {
     const course = await this.courseRepo.findOne({ where: { id } });
     if (!course) throw new NotFoundException('Course not found');
     if (currentUser.role === 'TEACHER' && course.teacherId !== currentUser.id) {
-      throw new ForbiddenException('You can only update your own assigned courses');
+      throw new ForbiddenException(
+        'You can only update your own assigned courses',
+      );
     }
     if (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER') {
       throw new ForbiddenException('Not authorized');
@@ -65,7 +75,7 @@ export class CoursesService {
   async remove(id: string) {
     const course = await this.courseRepo.findOne({ where: { id } });
     if (!course) throw new NotFoundException('Course not found');
-    course.status = 'ARCHIVED' as any;
+    course.status = 'ARCHIVED';
     return this.courseRepo.save(course);
   }
 

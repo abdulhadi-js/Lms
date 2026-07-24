@@ -11,7 +11,7 @@ export class ReportsController {
   @Get('performance')
   getPerformanceReport(
     @Query('courseId') courseId: string,
-    @Query('studentId') studentId: string
+    @Query('studentId') studentId: string,
   ) {
     return this.reportsService.getPerformanceReport(courseId, studentId);
   }
@@ -20,9 +20,13 @@ export class ReportsController {
   getAttendanceReport(
     @Query('courseId') courseId: string,
     @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string
+    @Query('endDate') endDate: string,
   ) {
-    return this.reportsService.getAttendanceReport(courseId, startDate, endDate);
+    return this.reportsService.getAttendanceReport(
+      courseId,
+      startDate,
+      endDate,
+    );
   }
 
   @Get('at-risk')

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum AttendanceStatus {
   PRESENT = 'PRESENT',
@@ -21,7 +27,11 @@ export class Attendance {
   @Column({ type: 'date' })
   classDate: string;
 
-  @Column({ type: 'enum', enum: AttendanceStatus, default: AttendanceStatus.PRESENT })
+  @Column({
+    type: 'enum',
+    enum: AttendanceStatus,
+    default: AttendanceStatus.PRESENT,
+  })
   status: AttendanceStatus;
 
   @Column({ nullable: true })
