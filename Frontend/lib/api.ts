@@ -62,7 +62,7 @@ export const reportsApi = {
   overview: () => fetchAuthApi('/reports/overview'),
   performance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/performance?courseId=${courseId}` : '/reports/performance'),
   attendance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/attendance?courseId=${courseId}` : '/reports/attendance'),
-  atRisk: (courseId?: string) => fetchAuthApi(courseId ? `/reports/at-risk?courseId=${courseId}` : '/reports/at-risk'),
+  atRisk: (thresholdOrCourseId?: string | number) => fetchAuthApi(thresholdOrCourseId ? `/reports/at-risk?param=${thresholdOrCourseId}` : '/reports/at-risk'),
 };
 
 export const enrollmentsApi = {
