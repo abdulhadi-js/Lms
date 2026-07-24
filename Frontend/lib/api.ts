@@ -56,6 +56,9 @@ export const authApi = {
 
 export const usersApi = {
   list: (role?: string) => fetchAuthApi(role ? `/users?role=${role}` : '/users'),
+  create: (data: any) => fetchAuthApi('/users', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/users/${id}`, { method: 'DELETE' }),
 };
 
 export const reportsApi = {
