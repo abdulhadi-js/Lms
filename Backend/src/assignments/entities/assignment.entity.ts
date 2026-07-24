@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Index,  Entity, PrimaryGeneratedColumn, Column  } from 'typeorm';
 
 @Entity('assignments')
 export class Assignment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Index()
   @Column()
   courseId: string;
 

@@ -1,10 +1,10 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm';
+ } from 'typeorm';
 
 export enum AttendanceStatus {
   PRESENT = 'PRESENT',

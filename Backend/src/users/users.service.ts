@@ -32,10 +32,10 @@ export class UsersService {
     return this.sanitize(saved as User);
   }
 
-  async findAll(role?: Role): Promise<SafeUser[]> {
+  async findAll(role?: Role, limit: number = 50, offset: number = 0): Promise<SafeUser[]> {
     const qb = this.userRepo.createQueryBuilder('user');
     if (role) qb.where('user.role = :role', { role });
-    const users = await qb.getMany();
+    const users = await qb.take(limit).skip(offset).getMany();
     return users.map((u) => this.sanitize(u));
   }
 

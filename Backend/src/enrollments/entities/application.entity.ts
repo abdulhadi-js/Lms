@@ -1,9 +1,9 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-} from 'typeorm';
+ } from 'typeorm';
 
 @Entity('applications')
 export class Application {

@@ -1,10 +1,10 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
+ } from 'typeorm';
 import { CourseModule } from './module.entity';
 
 @Entity('lessons')

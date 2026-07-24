@@ -1,10 +1,10 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm';
+ } from 'typeorm';
 
 @Entity('marks')
 export class Mark {

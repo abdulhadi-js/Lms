@@ -1,11 +1,11 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-} from 'typeorm';
+ } from 'typeorm';
 import { Role } from '../../common/enums/roles.enum';
 import { UserStatus } from '../../common/enums/status.enum';
 import { Exclude } from 'class-transformer';
@@ -13,9 +13,12 @@ import { Exclude } from 'class-transformer';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid') id: string;
+  @Index()
   @Column({ unique: true }) email: string;
   @Column() @Exclude() passwordHash: string;
+  @Index()
   @Column({ type: 'enum', enum: Role }) role: Role;
+  @Index()
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
   @Column() firstName: string;

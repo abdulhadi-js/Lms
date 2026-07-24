@@ -1,11 +1,11 @@
-import {
+import { Index, 
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   OneToMany,
   JoinColumn,
-} from 'typeorm';
+ } from 'typeorm';
 import { Course } from './course.entity';
 import { Lesson } from './lesson.entity';
 
@@ -23,6 +23,7 @@ export class CourseModule {
   @Column({ default: 0 })
   order: number;
 
+  @Index()
   @Column()
   courseId: string;
 
