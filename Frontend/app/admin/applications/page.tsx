@@ -1,3 +1,4 @@
+import { toast } from 'react-hot-toast';
 "use client";
 import { useState, useEffect } from 'react';
 import { Search, Filter, Check, X, MoreVertical } from 'lucide-react';
@@ -39,7 +40,7 @@ export default function ApplicationsManagement() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchApplications();
     } catch (err: any) {
-      alert(err.message || 'Failed to approve application');
+      toast.error(err.message || 'Failed to approve application');
     }
   };
 
@@ -57,7 +58,7 @@ export default function ApplicationsManagement() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchApplications();
     } catch (err: any) {
-      alert(err.message || 'Failed to reject application');
+      toast.error(err.message || 'Failed to reject application');
     }
   };
 

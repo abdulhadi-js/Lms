@@ -1,3 +1,4 @@
+import { toast } from 'react-hot-toast';
 "use client";
 import { useState, useEffect } from 'react';
 import { Search, Filter, Plus, UserMinus } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function EnrollmentsManagement() {
 
   const handleEnrollSubmit = async () => {
     if (!selectedStudent || !selectedCourse) {
-      alert("Please select both a student and a course.");
+      toast("Please select both a student and a course.");
       return;
     }
     try {
@@ -58,7 +59,7 @@ export default function EnrollmentsManagement() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchData();
     } catch (err: any) {
-      alert(err.message || 'Failed to enroll student');
+      toast.error(err.message || 'Failed to enroll student');
     }
   };
 
@@ -76,7 +77,7 @@ export default function EnrollmentsManagement() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchData();
     } catch (err: any) {
-      alert(err.message || 'Failed to drop enrollment');
+      toast.error(err.message || 'Failed to drop enrollment');
     }
   };
 

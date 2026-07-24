@@ -1,3 +1,4 @@
+import { toast } from 'react-hot-toast';
 "use client";
 import { useState, useEffect } from 'react';
 import { Search, Filter, DollarSign, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
@@ -46,7 +47,7 @@ export default function FeesManagement() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchFees();
     } catch (err: any) {
-      alert(err.message || 'Failed to process payment');
+      toast.error(err.message || 'Failed to process payment');
     }
   };
 
