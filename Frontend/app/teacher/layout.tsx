@@ -2,9 +2,28 @@
 
 import { Menu, Bell, LayoutDashboard, GraduationCap, FileText, Edit, ClipboardCheck, MessageSquare, BarChart3, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { useEffect } from 'react';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.role !== 'TEACHER') {
+        router.push('/');
+      }
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user || user.role !== 'TEACHER') {
+    return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
+  }
+
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
 
@@ -64,10 +83,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           ))}
         </ul>
         <div className="px-6 mt-auto">
-          <Link href="/" className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
+          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
-          </Link>
+          </button>
         </div>
       </nav>
 

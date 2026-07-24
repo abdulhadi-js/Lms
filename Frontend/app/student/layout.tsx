@@ -3,6 +3,23 @@ import { LayoutDashboard, BookOpen, FileText, Award, Calendar, CreditCard, Messa
 import Image from 'next/image';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.role !== 'STUDENT') {
+        router.push('/');
+      }
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user || user.role !== 'STUDENT') {
+    return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
+  }
+
   return (
     <div className="flex h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
       {/* Top Navigation (Mobile/Tablet) */}
@@ -76,10 +93,10 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </li>
         </ul>
         <div className="px-6 mt-auto">
-          <Link href="/" className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
+          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
-          </Link>
+          </button>
         </div>
       </nav>
 

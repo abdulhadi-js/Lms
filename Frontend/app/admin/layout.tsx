@@ -1,9 +1,28 @@
 "use client";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { useEffect } from 'react';
 import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.role !== 'ADMIN') {
+        router.push('/');
+      }
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user || user.role !== 'ADMIN') {
+    return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
+  }
+
   const pathname = usePathname();
   
   const isActive = (path: string) => {
@@ -80,10 +99,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </ul>
         <div className="px-6 mt-auto shrink-0">
           <button className="w-full bg-lime-cream text-evergreen font-semibold text-[16px] py-2 rounded-lg hover:bg-white transition-colors mb-2 brand-button">Generate Report</button>
-          <Link href="/" className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
+          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
-          </Link>
+          </button>
         </div>
       </nav>
 
