@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading) {
@@ -23,8 +24,6 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   if (isLoading || !user || user.role !== 'TEACHER') {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
-
-  const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [

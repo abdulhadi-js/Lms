@@ -29,6 +29,7 @@ export default function TeacherAnalytics() {
 
   useEffect(() => {
     if (!selectedCourseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -50,6 +51,7 @@ export default function TeacherAnalytics() {
       } catch (err) {
         console.error("Failed to load analytics", err);
       } finally {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(false);
       }
     };

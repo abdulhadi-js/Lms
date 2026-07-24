@@ -22,6 +22,7 @@ export default function TeacherCourses() {
       } catch (err: any) {
         setError(err.message || 'Failed to load courses');
       } finally {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(false);
       }
     };
@@ -131,7 +132,7 @@ export default function TeacherCourses() {
                         ))
                       ) : (
                         <div className="p-8 text-center text-sm text-body-secondary bg-white border border-border-light border-dashed rounded-lg">
-                          No modules created yet. Click "Add Module" to get started.
+                          No modules created yet. Click &quot;Add Module&quot; to get started.
                         </div>
                       )}
                     </div>

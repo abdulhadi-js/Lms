@@ -8,6 +8,7 @@ import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Me
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading) {
@@ -22,8 +23,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isLoading || !user || user.role !== 'ADMIN') {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
-
-  const pathname = usePathname();
   
   const isActive = (path: string) => {
     if (path === '/admin' && pathname === '/admin') return true;

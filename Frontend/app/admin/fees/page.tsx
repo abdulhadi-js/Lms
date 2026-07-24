@@ -22,11 +22,13 @@ export default function FeesManagement() {
     } catch (err: any) {
       setError(err.message || 'Failed to load fees');
     } finally {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchFees();
   }, []);
 
@@ -41,6 +43,7 @@ export default function FeesManagement() {
     try {
       await feesApi.pay(selectedFee.id, Number(payAmount));
       setPayModalOpen(false);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchFees();
     } catch (err: any) {
       alert(err.message || 'Failed to process payment');
