@@ -55,7 +55,7 @@ export const authApi = {
 };
 
 export const usersApi = {
-  list: () => fetchAuthApi('/users'),
+  list: (role?: string) => fetchAuthApi(role ? `/users?role=${role}` : '/users'),
 };
 
 export const reportsApi = {
@@ -66,6 +66,10 @@ export const reportsApi = {
 export const enrollmentsApi = {
   getApplications: (status?: string) => fetchAuthApi(status ? `/applications?status=${status}` : '/applications'),
   list: () => fetchAuthApi('/enrollments'),
+  reviewApplication: (id: string, status: string, notes?: string) => fetchAuthApi(`/applications/${id}/review`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, notes })
+  }),
 };
 
 export const coursesApi = {
