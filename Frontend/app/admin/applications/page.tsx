@@ -75,13 +75,13 @@ export default function ApplicationsManagement() {
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="flex space-x-1 bg-surface-container-low p-1 rounded-lg">
-              {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(status => (
+              {['ALL', 'PENDING_REVIEW', 'APPROVED', 'REJECTED'].map(status => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${statusFilter === status ? 'bg-white shadow-sm text-primary' : 'text-body-secondary hover:text-primary'}`}
                 >
-                  {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+                  {status === 'ALL' ? 'All' : status === 'PENDING_REVIEW' ? 'Pending' : status.charAt(0) + status.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -121,11 +121,11 @@ export default function ApplicationsManagement() {
                     <td className="py-4 px-6 text-body-secondary">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</td>
                     <td className="py-4 px-6">
                       {app.status === 'APPROVED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Approved</span>}
-                      {app.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
+                      {app.status === 'PENDING_REVIEW' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
                       {app.status === 'REJECTED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Rejected</span>}
                     </td>
                     <td className="py-4 px-6 text-right">
-                      {app.status === 'PENDING' && (
+                      {app.status === 'PENDING_REVIEW' && (
                         <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => handleApprove(app.id)}
