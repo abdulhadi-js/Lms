@@ -1,5 +1,5 @@
-import { toast } from 'react-hot-toast';
 "use client";
+import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Search, Filter, Check, X, MoreVertical } from 'lucide-react';
 import { enrollmentsApi } from '@/lib/api';

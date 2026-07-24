@@ -11,12 +11,12 @@ export const metadata: Metadata = {
   description: 'Empower Every Learner. Manage Every Classroom.',
 };
 
-export default function RootLayout(<Toaster position="top-right" />
-        {children}: {children: React.ReactNode}) {
+export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
+          <Toaster position="top-right" />
           {children}
         </AuthProvider>
       </body>
