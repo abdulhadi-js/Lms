@@ -33,6 +33,20 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  const handleReview = async (id: string, status: string) => {
+    try {
+      await enrollmentsApi.reviewApplication(id, status);
+      setApplications(prev => prev.filter(app => app.id !== id));
+      
+      // Update pending count in overview
+      if (overview) {
+        setOverview({ ...overview, pendingApplications: Math.max(0, overview.pendingApplications - 1) });
+      }
+    } catch (error) {
+      console.error("Failed to review application:", error);
+    }
+  };
+
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
       <div className="flex justify-between items-end mb-2">
@@ -125,8 +139,8 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right space-x-2">
-                          <button className="text-success hover:bg-success-bg p-1 rounded transition-colors"><CheckCircle className="h-5 w-5" /></button>
-                          <button className="text-error hover:bg-error-bg p-1 rounded transition-colors"><XCircle className="h-5 w-5" /></button>
+                          <button onClick={() => handleReview(row.id, 'APPROVED')} className="text-success hover:bg-success-bg p-1 rounded transition-colors"><CheckCircle className="h-5 w-5" /></button>
+                          <button onClick={() => handleReview(row.id, 'REJECTED')} className="text-error hover:bg-error-bg p-1 rounded transition-colors"><XCircle className="h-5 w-5" /></button>
                         </td>
                       </tr>
                     ))
@@ -140,14 +154,14 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl border border-divider brand-shadow p-5">
             <h3 className="text-lg font-semibold text-heading-on-light mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex flex-col items-center justify-center py-4 px-2 primary-gradient text-white rounded-lg hover:shadow-md transition-shadow">
+              <Link href="/admin/enrollments" className="flex flex-col items-center justify-center py-4 px-2 primary-gradient text-white rounded-lg hover:shadow-md transition-shadow">
                 <Users className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Enroll Student</span>
-              </button>
-              <button className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-white rounded-lg hover:opacity-90 transition-all">
+                <span className="text-xs font-semibold">Enrollments</span>
+              </Link>
+              <Link href="/admin/courses" className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-white rounded-lg hover:opacity-90 transition-all">
                 <BookOpen className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Create Course</span>
-              </button>
+                <span className="text-xs font-semibold">Courses</span>
+              </Link>
             </div>
           </div>
         </div>
