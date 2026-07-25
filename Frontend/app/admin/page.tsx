@@ -57,9 +57,9 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
           { title: 'Total Students', val: loading ? '...' : overview?.totalStudents || '0', sub: 'Active enrollments', icon: Users, color: 'text-primary-container', bg: 'bg-surface-container-low' },
-          { title: 'Active Courses', val: loading ? '...' : overview?.activeCourses || '0', sub: 'Current semester', icon: BookOpen, color: 'text-primary-container', bg: 'bg-surface-container-low' },
+          { title: 'Active Courses', val: loading ? '...' : overview?.totalCourses || '0', sub: 'Current semester', icon: BookOpen, color: 'text-primary-container', bg: 'bg-surface-container-low' },
           { title: 'Pending Applications', val: loading ? '...' : overview?.pendingApplications || '0', sub: 'Needs review', icon: Clock, color: 'text-warning', bg: 'bg-warning-bg' },
-          { title: 'Fees Collected (Jul)', val: loading ? '...' : `PKR ${(overview?.feesCollected || 0).toLocaleString()}`, sub: 'Total received', icon: Banknote, color: 'text-success', bg: 'bg-success-bg' },
+          { title: 'Fees Collected', val: loading ? '...' : `$${(overview?.totalFeesCollected || 0).toLocaleString()}`, sub: 'Total received', icon: Banknote, color: 'text-success', bg: 'bg-success-bg' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-xl border border-divider brand-shadow relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-1 card-accent-top"></div>
@@ -111,14 +111,14 @@ export default function AdminDashboard() {
                       <tr key={i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
                         <td className="py-3 px-4 flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-xs font-bold text-body-secondary">
-                            {row.student?.user?.firstName?.[0] || 'U'}{row.student?.user?.lastName?.[0] || 'U'}
+                            {row.firstName?.[0] || 'U'}{row.lastName?.[0] || 'U'}
                           </div>
                           <span className="font-medium text-on-surface">
-                            {row.student?.user?.firstName} {row.student?.user?.lastName}
+                            {row.firstName} {row.lastName}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-body-secondary">{row.course?.title || 'Unknown Course'}</td>
-                        <td className="py-3 px-4 text-body-secondary">{new Date(row.enrollmentDate).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-body-secondary">{row.desiredCourse || 'Unknown Course'}</td>
+                        <td className="py-3 px-4 text-body-secondary">{new Date(row.createdAt).toLocaleDateString()}</td>
                         <td className="py-3 px-4">
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-warning-bg text-warning border border-warning/20">
                             {row.status.replace('_', ' ')}
