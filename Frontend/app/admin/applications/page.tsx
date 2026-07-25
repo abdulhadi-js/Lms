@@ -9,6 +9,7 @@ export default function ApplicationsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
@@ -86,9 +87,19 @@ export default function ApplicationsManagement() {
               ))}
             </div>
           </div>
+          <div className="w-full md:w-64 relative">
+            <Search className="w-4 h-4 text-body-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text" 
+              placeholder="Search applications..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            />
+          </div>
         </div>
         
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-body-secondary">Loading applications...</div>
           ) : error ? (
@@ -108,7 +119,13 @@ export default function ApplicationsManagement() {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {applications.map((app, i) => (
+                {applications
+                  .filter(app => {
+                    if (!searchQuery) return true;
+                    const searchString = `${app.firstName} ${app.lastName} ${app.email}`.toLowerCase();
+                    return searchString.includes(searchQuery.toLowerCase());
+                  })
+                  .map((app, i) => (
                   <tr key={app.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-on-surface">{app.firstName} {app.lastName}</div>
