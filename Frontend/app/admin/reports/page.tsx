@@ -56,7 +56,7 @@ export default function ReportsAnalytics() {
           <h2 className="text-3xl font-bold text-heading-on-light">Reports & Analytics</h2>
           <p className="text-sm text-body-secondary mt-1">Comprehensive insights into system performance and student progress.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow">
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-white border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow print:hidden">
           <Download className="w-4 h-4" />
           Export Full Report
         </button>
@@ -187,13 +187,13 @@ export default function ReportsAnalytics() {
                   ) : (
                     atRisk.map((student, i) => (
                       <tr key={i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
-                        <td className="py-4 px-6 font-medium text-on-surface">{student.firstName} {student.lastName}</td>
-                        <td className="py-4 px-6 text-body-secondary">{student.courseTitle || 'N/A'}</td>
+                        <td className="py-4 px-6 font-medium text-on-surface text-xs">{student.studentId}</td>
+                        <td className="py-4 px-6 text-body-secondary">{student.riskReason || 'N/A'}</td>
                         <td className="py-4 px-6">
-                          <span className={`font-medium ${student.averageGrade < 50 ? 'text-error' : 'text-warning'}`}>{student.averageGrade}%</span>
+                          <span className={`font-medium ${student.avgMark < 50 ? 'text-error' : 'text-warning'}`}>{student.avgMark ? Number(student.avgMark).toFixed(1) + '%' : 'N/A'}</span>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="font-medium text-warning">{student.attendancePercentage || 'N/A'}%</span>
+                          <span className="font-medium text-warning">{student.avgAttendance ? Number(student.avgAttendance).toFixed(1) + '%' : 'N/A'}</span>
                         </td>
                         <td className="py-4 px-6 text-right">
                           <button className="px-3 py-1.5 border border-border-light rounded-lg text-xs font-medium hover:bg-surface-container">

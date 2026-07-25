@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Side Navigation (Desktop) */}
-      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-6 shrink-0 z-40">
+      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-6 shrink-0 z-40 print:hidden">
         <div className="px-6 mb-6 text-center flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
             <div className="w-16 h-16 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xl border-2 border-on-primary/20">
@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </main>
       
       {/* Bottom Navigation (Mobile Only) */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-surface border-t border-divider flex justify-around items-center h-16 z-50 px-2 pb-safe">
+      <nav className="md:hidden fixed bottom-0 w-full bg-surface border-t border-divider flex justify-around items-center h-16 z-50 px-2 pb-safe print:hidden">
         {navLinks.slice(0, 3).map(link => {
           const active = isActive(link.path);
           const Icon = link.icon;
