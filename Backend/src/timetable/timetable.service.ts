@@ -31,7 +31,7 @@ export class TimetableService {
 
   async findAll(currentUser: any) {
     // Basic implementation. In reality, filter by student's enrollments or teacher's courses
-    return this.timetableRepo.find({ relations: ['course'] });
+    return this.timetableRepo.find({ relations: ['course', 'course.teacher'] });
   }
 
   async update(id: string, dto: Partial<CreateTimetableDto>) {

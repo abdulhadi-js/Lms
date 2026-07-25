@@ -7,6 +7,7 @@ import { Index,
   JoinColumn,
  } from 'typeorm';
 import { CourseModule } from './module.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('courses')
 export class Course {
@@ -22,8 +23,12 @@ export class Course {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'uuid' })
   teacherId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'teacherId' })
+  teacher: User;
 
   @Column({ default: 3 })
   credits: number;
