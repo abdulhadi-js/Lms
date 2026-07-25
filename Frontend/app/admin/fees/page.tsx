@@ -12,6 +12,8 @@ export default function FeesManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [studentSearch, setStudentSearch] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Modals
@@ -153,7 +155,12 @@ export default function FeesManagement() {
     setOpenDropdown(null);
   };
 
-  const filteredFees = fees.filter(f => statusFilter === 'ALL' || f.status === statusFilter);
+  const filteredFees = fees.filter(f => {
+    const matchesStatus = statusFilter === 'ALL' || f.status === statusFilter;
+    const searchString = `${f.student?.firstName} ${f.student?.lastName}`.toLowerCase();
+    const matchesSearch = searchString.includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
   const totalCollected = fees.reduce((acc, f) => acc + (Number(f.paidAmount) || 0), 0);
   const totalOutstanding = fees.reduce((acc, f) => acc + (f.status !== 'PAID' ? (Number(f.amount) - (Number(f.paidAmount) || 0)) : 0), 0);
   const overdueCount = fees.filter(f => f.status === 'OVERDUE').length;
@@ -219,9 +226,19 @@ export default function FeesManagement() {
               ))}
             </div>
           </div>
+          <div className="w-full md:w-64 relative">
+            <Search className="w-4 h-4 text-body-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text" 
+              placeholder="Search by student name..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            />
+          </div>
         </div>
         
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-body-secondary">Loading fees...</div>
           ) : error ? (
@@ -316,6 +333,13 @@ export default function FeesManagement() {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Select Student</label>
+                <input 
+                  type="text" 
+                  placeholder="Filter students..." 
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="w-full mb-2 border border-border-light rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
                 <select 
                   required
                   className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
@@ -323,7 +347,7 @@ export default function FeesManagement() {
                   onChange={(e) => setFormData({...formData, studentId: e.target.value})}
                 >
                   <option value="">-- Choose a Student --</option>
-                  {students.map(s => (
+                  {students.filter(s => `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase())).map(s => (
                     <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.email})</option>
                   ))}
                 </select>

@@ -12,6 +12,8 @@ export default function EnrollmentsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [studentSearch, setStudentSearch] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
@@ -124,7 +126,12 @@ export default function EnrollmentsManagement() {
     setOpenDropdown(null);
   };
 
-  const filteredEnrollments = enrollments.filter(e => statusFilter === 'ALL' || e.status === statusFilter);
+  const filteredEnrollments = enrollments.filter(e => {
+    const matchesStatus = statusFilter === 'ALL' || e.status === statusFilter;
+    const searchString = `${e.student?.firstName} ${e.student?.lastName}`.toLowerCase();
+    const matchesSearch = searchString.includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
@@ -156,9 +163,19 @@ export default function EnrollmentsManagement() {
               <option value="COMPLETED">Completed</option>
             </select>
           </div>
+          <div className="w-full md:w-64 relative">
+            <Search className="w-4 h-4 text-body-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text" 
+              placeholder="Search by student name..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            />
+          </div>
         </div>
         
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-body-secondary">Loading enrollments...</div>
           ) : error ? (
@@ -241,13 +258,20 @@ export default function EnrollmentsManagement() {
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Select Student</label>
+                <input 
+                  type="text" 
+                  placeholder="Filter students..." 
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="w-full mb-2 border border-border-light rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
                 <select 
                   className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                   value={selectedStudent}
                   onChange={(e) => setSelectedStudent(e.target.value)}
                 >
                   <option value="">-- Choose a Student --</option>
-                  {students.map(s => (
+                  {students.filter(s => `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase())).map(s => (
                     <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.email})</option>
                   ))}
                 </select>
