@@ -55,7 +55,6 @@ export class EnrollmentsService {
         if (anyStudent.length > 0 && anyCourse.length > 0) {
           const enrollment = this.enrollmentRepo.create({
             status: 'ENROLLED' as any,
-            enrolledAt: new Date(),
             student: { id: anyStudent[0].id } as any,
             course: { id: anyCourse[0].id } as any
           });

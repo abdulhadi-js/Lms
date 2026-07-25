@@ -14,7 +14,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { FeesService } from './fees.service';
-import { CreateFeeDto, PayFeeDto, RefundFeeDto } from './dto/fee.dto';
+import { CreateFeeDto, PayFeeDto, RefundFeeDto, UpdateFeeDto } from './dto/fee.dto';
 
 @Controller('fees')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -52,7 +52,7 @@ export class FeesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateData: any, @Req() req: any) {
+  update(@Param('id') id: string, @Body() updateData: UpdateFeeDto, @Req() req: any) {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.feesService.update(id, updateData);
   }

@@ -40,3 +40,6 @@ export class RefundFeeDto {
   @IsString()
   refundReason: string;
 }
+
+import { PartialType } from '@nestjs/mapped-types';
+export class UpdateFeeDto extends PartialType(CreateFeeDto) {}
