@@ -22,7 +22,7 @@ export default function CourseManagement() {
     try {
       const [coursesData, teachersData] = await Promise.all([
         coursesApi.list(),
-        usersApi.list('TEACHER')
+        usersApi.list('INSTRUCTOR')
       ]);
       setCourses(coursesData.data || coursesData || []);
       setTeachers(teachersData.data || teachersData || []);

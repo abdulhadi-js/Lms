@@ -62,12 +62,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
 
       // Route based on role
-      const roleRoutes: Record<string, string> = {
+      const redirectPaths: Record<string, string> = {
         ADMIN: "/admin",
-        TEACHER: "/teacher",
+        INSTRUCTOR: "/teacher",
         STUDENT: "/student",
       };
-      router.push(roleRoutes[data.user.role] ?? "/");
+      router.push(redirectPaths[data.user.role] ?? "/");
     } catch (err: any) {
       setError(err.message ?? "Login failed. Please check your credentials.");
       throw err;

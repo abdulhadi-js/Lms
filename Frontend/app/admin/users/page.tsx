@@ -177,7 +177,7 @@ export default function UserManagement() {
             >
               <option value="ALL">All Roles</option>
               <option value="STUDENT">Students</option>
-              <option value="TEACHER">Teachers</option>
+              <option value="INSTRUCTOR">Instructors</option>
               <option value="ADMIN">Admins</option>
             </select>
           </div>
@@ -220,7 +220,7 @@ export default function UserManagement() {
                     </td>
                     <td className="py-4 px-6 text-body-secondary font-medium">
                       {row.role === 'ADMIN' && <span className="flex items-center gap-1 text-primary"><Shield className="w-3 h-3" /> Admin</span>}
-                      {row.role === 'TEACHER' && <span className="text-info">Teacher</span>}
+                      {row.role === 'INSTRUCTOR' && <span className="text-info">Instructor</span>}
                       {row.role === 'STUDENT' && <span className="text-body-secondary">Student</span>}
                     </td>
                     <td className="py-4 px-6">
@@ -327,7 +327,7 @@ export default function UserManagement() {
                     className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
                     <option value="STUDENT">Student</option>
-                    <option value="TEACHER">Teacher</option>
+                    <option value="INSTRUCTOR">Instructor</option>
                     <option value="ADMIN">Admin</option>
                   </select>
                 </div>

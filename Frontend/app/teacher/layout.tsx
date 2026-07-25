@@ -15,13 +15,13 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'TEACHER') {
+      } else if (user.role !== 'INSTRUCTOR') {
         router.push('/');
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || user.role !== 'TEACHER') {
+  if (isLoading || !user || user.role !== 'INSTRUCTOR') {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
   const isActive = (path: string) => pathname === path;
