@@ -17,8 +17,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET', 'fallback-secret'),
         signOptions: {
-          // Use number (seconds) to satisfy JwtSignOptions type
-          expiresIn: 900,
+          expiresIn: 604800, // 7 days
         },
       }),
       inject: [ConfigService],
