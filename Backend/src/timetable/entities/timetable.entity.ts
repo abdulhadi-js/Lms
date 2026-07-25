@@ -4,7 +4,10 @@ import { Index,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
  } from 'typeorm';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity('timetable')
 export class Timetable {
@@ -13,6 +16,10 @@ export class Timetable {
 
   @Column({ type: 'uuid' })
   courseId: string;
+
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'courseId' })
+  course: Course;
 
   @Column({ type: 'enum', enum: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] })
   dayOfWeek: string;
