@@ -4,7 +4,9 @@ import {
   IsOptional,
   IsString,
   IsDateString,
+  IsEnum,
 } from 'class-validator';
+import { FeeStatus } from '../entities/fee.entity';
 
 export class CreateFeeDto {
   @IsUUID()
@@ -23,6 +25,10 @@ export class CreateFeeDto {
 
   @IsDateString()
   dueDate: string;
+
+  @IsOptional()
+  @IsEnum(FeeStatus)
+  status?: FeeStatus;
 }
 
 export class PayFeeDto {
