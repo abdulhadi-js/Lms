@@ -5,7 +5,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Role } from '../enums/user.enum';
+import { Role, UserStatus } from '../enums/user.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -27,4 +27,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }
