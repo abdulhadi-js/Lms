@@ -90,12 +90,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </li>
             );
           })}
-          <li>
-            <Link href="#" className="flex items-center gap-3 py-2 rounded-lg text-on-primary/70 font-medium pl-5 hover:bg-primary-container/50 hover:text-white transition-colors">
-              <Settings className="w-5 h-5" />
-              <span>Settings</span>
-            </Link>
-          </li>
         </ul>
 
         <div className="px-6 mt-4 shrink-0">
@@ -124,10 +118,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           );
         })}
-        <Link href="#" className="flex flex-col items-center justify-center w-full h-full text-icon-inactive hover:text-primary transition-colors">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium text-[10px] mt-1">Settings</span>
-        </Link>
+        <button onClick={() => logout()} className="flex flex-col items-center justify-center w-full h-full text-icon-inactive hover:text-primary transition-colors">
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium text-[10px] mt-1">Logout</span>
+        </button>
       </nav>
     </div>
   );
