@@ -4,7 +4,11 @@ import { Index,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
  } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 export enum FeeStatus {
   PENDING = 'PENDING',
@@ -21,8 +25,16 @@ export class Fee {
   @Column({ type: 'uuid' })
   studentId: string;
 
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'studentId' })
+  student: User;
+
   @Column({ type: 'uuid', nullable: true })
   courseId: string;
+
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'courseId' })
+  course: Course;
 
   @Column({ type: 'float' })
   amount: number;

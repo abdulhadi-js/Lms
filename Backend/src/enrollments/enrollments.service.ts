@@ -121,9 +121,9 @@ export class EnrollmentsService {
   }
 
   async findEnrollments(currentUser: any) {
-    if (currentUser.role === 'ADMIN') return this.enrollmentRepo.find();
+    if (currentUser.role === 'ADMIN') return this.enrollmentRepo.find({ relations: ['student', 'course'] });
     if (currentUser.role === 'STUDENT')
-      return this.enrollmentRepo.find({ where: { studentId: currentUser.id } });
+      return this.enrollmentRepo.find({ where: { studentId: currentUser.id }, relations: ['student', 'course'] });
     return [];
   }
 

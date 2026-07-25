@@ -20,9 +20,9 @@ export class FeesService {
 
   async findAll(currentUser: any) {
     if (currentUser.role === 'STUDENT') {
-      return this.feeRepo.find({ where: { studentId: currentUser.id } });
+      return this.feeRepo.find({ where: { studentId: currentUser.id }, relations: ['student', 'course'] });
     }
-    return this.feeRepo.find();
+    return this.feeRepo.find({ relations: ['student', 'course'] });
   }
 
   async findOne(id: string, currentUser: any) {
