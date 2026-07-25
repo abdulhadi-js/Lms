@@ -42,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="flex h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
       {/* Top Navigation (Mobile/Tablet) */}
       <header className="md:hidden flex justify-between items-center px-4 h-16 w-full bg-primary border-b border-outline/20 sticky top-0 z-50">
         <div className="flex items-center gap-2">
