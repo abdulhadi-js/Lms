@@ -97,14 +97,14 @@ export default function FeesManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
+      const payload: any = {
         studentId: formData.studentId,
-        courseId: formData.courseId || null,
         amount: Number(formData.amount),
         description: formData.description,
-        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
         status: formData.status
       };
+      if (formData.courseId) payload.courseId = formData.courseId;
+      if (formData.dueDate) payload.dueDate = new Date(formData.dueDate).toISOString();
 
       if (isEditMode) {
         await feesApi.update(formData.id, payload);
