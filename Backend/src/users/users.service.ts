@@ -46,10 +46,8 @@ export class UsersService {
   }
 
   /** Returns the full entity including passwordHash — for AuthService use only */
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepo.findOne({ where: { email } });
-    if (!user) throw new NotFoundException(`No user with email: ${email}`);
-    return user;
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepo.findOne({ where: { email } });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUser> {

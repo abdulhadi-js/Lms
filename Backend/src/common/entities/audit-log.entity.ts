@@ -25,10 +25,10 @@ export class AuditLog {
   @Column()
   entityId: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   oldValue: any;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   newValue: any;
 
   @Column({ nullable: true })
@@ -38,6 +38,6 @@ export class AuditLog {
   @JoinColumn({ name: 'actor_id' })
   actor: User;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 }

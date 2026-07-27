@@ -65,7 +65,7 @@ export const reportsApi = {
   overview: () => fetchAuthApi('/reports/overview'),
   performance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/performance?courseId=${courseId}` : '/reports/performance'),
   attendance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/attendance?courseId=${courseId}` : '/reports/attendance'),
-  atRisk: (thresholdOrCourseId?: string | number) => fetchAuthApi(thresholdOrCourseId ? `/reports/at-risk?param=${thresholdOrCourseId}` : '/reports/at-risk'),
+  atRisk: (threshold?: number) => fetchAuthApi(threshold ? `/reports/at-risk?threshold=${threshold}` : '/reports/at-risk'),
 };
 
 export const enrollmentsApi = {
@@ -91,6 +91,9 @@ export const coursesApi = {
   list: () => fetchAuthApi('/courses'),
   get: (id: string) => fetchAuthApi(`/courses/${id}`),
   getModules: (courseId: string) => fetchAuthApi(`/courses/${courseId}/modules`),
+  createModule: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules`, { method: 'POST', body: JSON.stringify(data) }),
+  updateModule: (courseId: string, modId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  removeModule: (courseId: string, modId: string) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'DELETE' }),
   create: (data: any) => fetchAuthApi('/courses', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/courses/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/courses/${id}`, { method: 'DELETE' }),
@@ -109,6 +112,11 @@ export const feesApi = {
 
 export const assignmentsApi = {
   list: () => fetchAuthApi('/assignments'),
+  get: (id: string) => fetchAuthApi(`/assignments/${id}`),
+  create: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/assignments`, { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/assignments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/assignments/${id}`, { method: 'DELETE' }),
+  submit: (id: string, data: any) => fetchAuthApi(`/assignments/${id}/submissions`, { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export const timetableApi = {
@@ -116,4 +124,43 @@ export const timetableApi = {
   create: (data: any) => fetchAuthApi('/timetable', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/timetable/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/timetable/${id}`, { method: 'DELETE' }),
+};
+
+export const marksApi = {
+  getGradebook: (courseId: string) => fetchAuthApi(`/marks/gradebook?courseId=${courseId}`),
+  enterMark: (data: any) => fetchAuthApi('/marks', { method: 'POST', body: JSON.stringify(data) }),
+  updateMark: (id: string, data: any) => fetchAuthApi(`/marks/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+};
+
+
+export const attendanceApi = {
+  get: (courseId?: string, studentId?: string, startDate?: string, endDate?: string) => {
+    let params = new URLSearchParams();
+    if (courseId) params.append('courseId', courseId);
+    if (studentId) params.append('studentId', studentId);
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    return fetchAuthApi(`/attendance?${params.toString()}`);
+  },
+  getSummary: (courseId: string, studentId?: string) => {
+    let params = new URLSearchParams();
+    params.append('courseId', courseId);
+    if (studentId) params.append('studentId', studentId);
+    return fetchAuthApi(`/attendance/summary?${params.toString()}`);
+  },
+  mark: (data: any) => fetchAuthApi('/attendance', { method: 'POST', body: JSON.stringify(data) }),
+};
+
+export const chatApi = {
+  getConversations: () => fetchAuthApi('/chat/conversations'),
+  getMessages: (params: { partnerId?: string; courseId?: string }) => {
+    const qs = new URLSearchParams();
+    if (params.partnerId) qs.append('partnerId', params.partnerId);
+    if (params.courseId) qs.append('courseId', params.courseId);
+    return fetchAuthApi(`/chat/messages?${qs.toString()}`);
+  },
+  sendMessage: (data: { receiverId?: string; courseId?: string; body: string }) => fetchAuthApi('/chat/messages', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
 };

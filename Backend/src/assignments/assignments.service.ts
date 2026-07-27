@@ -30,6 +30,10 @@ export class AssignmentsService {
     return this.assignmentRepo.find({ where: { courseId } });
   }
 
+  async findAllGlobal() {
+    return this.assignmentRepo.find();
+  }
+
   async findOne(id: string) {
     const assignment = await this.assignmentRepo.findOne({ where: { id } });
     if (!assignment) throw new NotFoundException();

@@ -22,9 +22,11 @@ export class ChatService {
   }
 
   async getConversations(userId: string) {
-    // Simplified: Return latest messages for users
     const query = this.messageRepo
       .createQueryBuilder('msg')
+      .leftJoinAndSelect('msg.sender', 'sender')
+      .leftJoinAndSelect('msg.receiver', 'receiver')
+      .leftJoinAndSelect('msg.course', 'course')
       .where('msg.senderId = :userId OR msg.receiverId = :userId', { userId })
       .orderBy('msg.createdAt', 'DESC');
 
@@ -48,7 +50,11 @@ export class ChatService {
     page: number = 1,
     limit: number = 50,
   ) {
-    const query = this.messageRepo.createQueryBuilder('msg');
+    const query = this.messageRepo
+      .createQueryBuilder('msg')
+      .leftJoinAndSelect('msg.sender', 'sender')
+      .leftJoinAndSelect('msg.receiver', 'receiver')
+      .leftJoinAndSelect('msg.course', 'course');
 
     if (courseId) {
       query.where('msg.courseId = :courseId', { courseId });
@@ -62,11 +68,11 @@ export class ChatService {
     }
 
     query
-      .orderBy('msg.createdAt', 'DESC')
+      .orderBy('msg.createdAt', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
-    return query.getManyAndCount();
+    return query.getMany();
   }
 
   async markAsRead(userId: string, messageId: string) {

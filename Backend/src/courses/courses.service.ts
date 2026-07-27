@@ -32,7 +32,7 @@ export class CoursesService {
   async findAll(currentUser: any) {
     if (currentUser.role === 'ADMIN') {
       return this.courseRepo.find();
-    } else if (currentUser.role === 'TEACHER') {
+    } else if (currentUser.role === 'INSTRUCTOR') {
       return this.courseRepo.find({ where: { teacherId: currentUser.id } });
     } else if (currentUser.role === 'STUDENT') {
       return this.courseRepo
@@ -60,7 +60,7 @@ export class CoursesService {
   async update(id: string, dto: UpdateCourseDto, currentUser: any) {
     const course = await this.courseRepo.findOne({ where: { id } });
     if (!course) throw new NotFoundException('Course not found');
-    if (currentUser.role === 'TEACHER' && course.teacherId !== currentUser.id) {
+    if (currentUser.role === 'INSTRUCTOR' && course.teacherId !== currentUser.id) {
       throw new ForbiddenException(
         'You can only update your own assigned courses',
       );
@@ -103,5 +103,18 @@ export class CoursesService {
       order: { order: 'ASC' },
       relations: { lessons: true },
     });
+  }
+
+  async updateModule(moduleId: string, dto: any) {
+    const module = await this.moduleRepo.findOne({ where: { id: moduleId } });
+    if (!module) throw new NotFoundException('Module not found');
+    Object.assign(module, dto);
+    return this.moduleRepo.save(module);
+  }
+
+  async removeModule(moduleId: string) {
+    const module = await this.moduleRepo.findOne({ where: { id: moduleId } });
+    if (!module) throw new NotFoundException('Module not found');
+    return this.moduleRepo.remove(module);
   }
 }

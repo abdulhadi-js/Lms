@@ -28,9 +28,7 @@ export class Attendance {
   classDate: string;
 
   @Column({
-    type: 'enum',
-    enum: AttendanceStatus,
-    default: AttendanceStatus.PRESENT,
+    type: 'varchar',
   })
   status: AttendanceStatus;
 

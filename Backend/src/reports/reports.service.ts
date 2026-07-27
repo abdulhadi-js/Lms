@@ -127,7 +127,7 @@ export class ReportsService {
       .count({ where: { role: 'STUDENT' } });
     const totalTeachers = await this.dataSource
       .getRepository('User')
-      .count({ where: { role: 'TEACHER' } });
+      .count({ where: { role: 'INSTRUCTOR' } });
     const totalCourses = await this.dataSource.getRepository('Course').count();
     const totalEnrollments = await this.dataSource
       .getRepository('Enrollment')

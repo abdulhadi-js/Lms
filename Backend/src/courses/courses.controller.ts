@@ -74,9 +74,30 @@ export class CoursesController {
     @Body() createModuleDto: CreateModuleDto,
     @Request() req: any,
   ) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     return this.coursesService.createModule(id, createModuleDto);
+  }
+
+  @Patch(':courseId/modules/:moduleId')
+  updateModule(
+    @Param('moduleId') moduleId: string,
+    @Body() dto: any,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
+      throw new ForbiddenException();
+    return this.coursesService.updateModule(moduleId, dto);
+  }
+
+  @Delete(':courseId/modules/:moduleId')
+  removeModule(
+    @Param('moduleId') moduleId: string,
+    @Request() req: any,
+  ) {
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
+      throw new ForbiddenException();
+    return this.coursesService.removeModule(moduleId);
   }
 }
 
@@ -91,7 +112,7 @@ export class ModulesController {
     @Body() createLessonDto: CreateLessonDto,
     @Request() req: any,
   ) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     return this.coursesService.createLesson(moduleId, createLessonDto);
   }

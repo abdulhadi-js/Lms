@@ -1,24 +1,29 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Bell, Settings, ArrowRight, Edit, ClipboardCheck, MessageSquare, Upload, MapPin, Users, MoreHorizontal, Download } from 'lucide-react';
+import { Bell, Settings, ArrowRight, Edit, ClipboardCheck, MessageSquare, Upload, MapPin, Users, MoreHorizontal, Download, BookOpen } from 'lucide-react';
 import Link from 'next/link';
-import { coursesApi, assignmentsApi } from '@/lib/api';
+import { coursesApi, assignmentsApi, timetableApi } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 
 export default function TeacherDashboard() {
+  const { user } = useAuth();
   const [courses, setCourses] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<any[]>([]);
+  const [timetable, setTimetable] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [coursesData, assignmentsData] = await Promise.all([
+        const [coursesData, assignmentsData, timetableData] = await Promise.all([
           coursesApi.list(),
-          assignmentsApi.list()
+          assignmentsApi.list(),
+          timetableApi.list()
         ]);
         setCourses(coursesData);
         setAssignments(assignmentsData);
+        setTimetable(timetableData);
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
       } finally {
@@ -31,12 +36,21 @@ export default function TeacherDashboard() {
   const totalStudents = courses.reduce((acc, course) => acc + (course.studentsCount || 0), 0);
   const activeCourses = courses.filter(c => c.status === 'ACTIVE').length || courses.length;
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24">
       {/* Page Header */}
       <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="font-semibold text-[20px] font-bold text-evergreen">Good Morning, Prof. Ali Raza 👋</h1>
+          <h1 className="font-semibold text-[20px] font-bold text-evergreen">
+            {getGreeting()},{user?.lastName ? ` Prof. ${user.lastName}` : (user?.firstName ? ` Prof. ${user.firstName}` : '')} 👋
+          </h1>
         </div>
         <div className="hidden md:flex items-center gap-4">
           <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-icon-inactive hover:bg-surface-container-high transition-colors">
@@ -134,44 +148,41 @@ export default function TeacherDashboard() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#90a955] to-[#ecf39e]"></div>
           <div className="p-6">
             <h3 className="font-semibold text-[20px] font-bold text-evergreen mb-4">Pending Actions</h3>
-            <ul className="space-y-4">
-              <li className="flex items-center gap-4 p-3 rounded-lg border border-error-bg bg-error-bg/10 hover:bg-error-bg/30 transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error border border-error/20">
-                  <Edit className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[16px] text-on-surface">Grading Due</p>
-                  <p className="font-normal text-[14px] text-body-secondary text-sm">CS101 Midterm (12 pending)</p>
-                </div>
-              </li>
-              <li className="flex items-center gap-4 p-3 rounded-lg border border-warning-bg bg-warning-bg/10 hover:bg-warning-bg/30 transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning border border-warning/20">
-                  <ClipboardCheck className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[16px] text-on-surface">Attendance Missing</p>
-                  <p className="font-normal text-[14px] text-body-secondary text-sm">CS201 Lecture (Yesterday)</p>
-                </div>
-              </li>
-              <li className="flex items-center gap-4 p-3 rounded-lg border border-success-bg bg-success-bg/30 hover:bg-success-bg/60 transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success border border-success/20">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[16px] text-on-surface">Unread Messages</p>
-                  <p className="font-normal text-[14px] text-body-secondary text-sm">3 student inquiries</p>
-                </div>
-              </li>
-              <li className="flex items-center gap-4 p-3 rounded-lg border border-info-bg bg-info-bg/30 hover:bg-info-bg/60 transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center text-info border border-info/20">
-                  <Upload className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-[16px] text-on-surface">Materials Upload</p>
-                  <p className="font-normal text-[14px] text-body-secondary text-sm">SE305 Week 4 Slides</p>
-                </div>
-              </li>
-            </ul>
+            {loading ? (
+               <div className="space-y-4">
+                 {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-container-high rounded-lg animate-pulse"></div>)}
+               </div>
+            ) : (
+              <ul className="space-y-4">
+                <li className="flex items-center gap-4 p-3 rounded-lg border border-error-bg bg-error-bg/10 hover:bg-error-bg/30 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error border border-error/20">
+                    <Edit className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-[16px] text-on-surface">Assignments</p>
+                    <p className="font-normal text-[14px] text-body-secondary text-sm">{assignments.length > 0 ? `${assignments.length} assignments to manage` : 'No assignments currently'}</p>
+                  </div>
+                </li>
+                <li className="flex items-center gap-4 p-3 rounded-lg border border-warning-bg bg-warning-bg/10 hover:bg-warning-bg/30 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning border border-warning/20">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-[16px] text-on-surface">Active Courses</p>
+                    <p className="font-normal text-[14px] text-body-secondary text-sm">{activeCourses > 0 ? `${activeCourses} courses running` : 'No active courses'}</p>
+                  </div>
+                </li>
+                <li className="flex items-center gap-4 p-3 rounded-lg border border-success-bg bg-success-bg/30 hover:bg-success-bg/60 transition-colors cursor-pointer">
+                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success border border-success/20">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-[16px] text-on-surface">Student Check-in</p>
+                    <p className="font-normal text-[14px] text-body-secondary text-sm">{totalStudents > 0 ? `${totalStudents} students to monitor` : 'No students enrolled yet'}</p>
+                  </div>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
 
@@ -179,61 +190,41 @@ export default function TeacherDashboard() {
         <div className="bg-white rounded-xl border border-divider brand-shadow lg:col-span-2 overflow-hidden flex flex-col">
           <div className="p-6 bg-surface-container-low border-b border-divider flex justify-between items-center">
             <h3 className="font-semibold text-[20px] font-bold text-evergreen">Today&apos;s Schedule</h3>
-            <span className="font-medium text-[12px] text-body-secondary">Monday, Oct 12</span>
+            <span className="font-medium text-[12px] text-body-secondary">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+            </span>
           </div>
           <div className="p-6 flex-1">
-            <div className="relative border-l-2 border-surface-container-highest ml-3 space-y-8 pb-4">
-              {/* Past Event */}
-              <div className="relative pl-6">
-                <div className="absolute w-3 h-3 bg-surface-container-highest rounded-full -left-[7px] top-1.5 border border-white"></div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 opacity-60">
-                  <div className="w-24 font-semibold text-[16px] text-body-secondary">9:00 AM</div>
-                  <div className="flex-1 bg-surface rounded-lg p-3 border border-divider">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-[16px] font-medium text-on-surface">CS101 Lecture</h4>
-                        <p className="font-normal text-[14px] text-body-secondary text-sm flex items-center gap-1 mt-1"><MapPin className="w-5 h-5" /> Room 201</p>
+            {loading ? (
+              <div className="space-y-4">
+                 {[1,2].map(i => <div key={i} className="h-16 bg-surface-container-high rounded-lg animate-pulse"></div>)}
+              </div>
+            ) : timetable.length > 0 ? (
+              <div className="relative border-l-2 border-surface-container-highest ml-3 space-y-8 pb-4">
+                {timetable.map((session, index) => (
+                  <div key={session.id || index} className="relative pl-6">
+                    <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1.5 border border-white"></div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                      <div className="w-24 font-semibold text-[16px] text-on-surface">{session.startTime}</div>
+                      <div className="flex-1 bg-surface rounded-lg p-3 border border-divider hover:border-primary/50 transition-colors cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold text-[16px] font-medium text-on-surface">{session.course?.title || `Course ID: ${session.courseId}`}</h4>
+                            <p className="font-normal text-[14px] text-body-secondary text-sm flex items-center gap-1 mt-1"><MapPin className="w-5 h-5" /> Room {session.room}</p>
+                          </div>
+                          <span className="text-body-secondary font-medium text-[12px]">{session.endTime}</span>
+                        </div>
                       </div>
-                      <span className="bg-surface-container text-body-secondary font-medium text-[10px] px-2 py-1 rounded">Completed</span>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-
-              {/* Current Event */}
-              <div className="relative pl-6">
-                <div className="absolute w-4 h-4 bg-primary rounded-full -left-[9px] top-1.5 border-2 border-white shadow-[0_0_0_4px_rgba(26,63,23,0.1)]"></div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                  <div className="w-24 font-semibold text-[16px] text-primary font-bold">11:00 AM</div>
-                  <div className="flex-1 bg-success-bg/30 rounded-lg p-3 border border-success border-l-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-[16px] font-bold text-primary">CS201 Lab Session</h4>
-                        <p className="font-normal text-[14px] text-primary/80 text-sm flex items-center gap-1 mt-1"><MapPin className="w-5 h-5" /> Room 305</p>
-                      </div>
-                      <span className="bg-success text-white font-medium text-[10px] px-2 py-1 rounded animate-pulse">Now</span>
-                    </div>
-                  </div>
-                </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-body-secondary py-8">
+                <MapPin className="w-12 h-12 mb-2 opacity-20" />
+                <p>No classes scheduled for today.</p>
               </div>
-
-              {/* Future Event */}
-              <div className="relative pl-6">
-                <div className="absolute w-3 h-3 bg-surface-container-high rounded-full -left-[7px] top-1.5 border border-white"></div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                  <div className="w-24 font-semibold text-[16px] text-on-surface">2:00 PM</div>
-                  <div className="flex-1 bg-surface rounded-lg p-3 border border-divider hover:border-outline-variant transition-colors cursor-pointer">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-[16px] font-medium text-on-surface">Office Hours</h4>
-                        <p className="font-normal text-[14px] text-body-secondary text-sm flex items-center gap-1 mt-1"><MapPin className="w-5 h-5" /> Faculty Office 4B</p>
-                      </div>
-                      <span className="text-info font-medium text-[14px]"><Users className="w-5 h-5" /> 2 Bookings</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

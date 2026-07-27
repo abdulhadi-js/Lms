@@ -36,8 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (storedUser && accessToken) {
           // Verify token is still valid with backend
-          const validUser = await authApi.me();
-          setUser(validUser);
+          await authApi.me();
+          // Restore full user object from localStorage
+          setUser(JSON.parse(storedUser));
+        } else {
+          setIsLoading(false);
         }
       } catch (err) {
         // Token invalid or expired

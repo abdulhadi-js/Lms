@@ -17,15 +17,15 @@ export class User {
   @Column({ unique: true }) email: string;
   @Column() @Exclude() passwordHash: string;
   @Index()
-  @Column({ type: 'enum', enum: Role }) role: Role;
-  @Index()
-  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  @Column({ type: 'varchar' }) role: Role;
+
+  @Column({ type: 'varchar', default: UserStatus.ACTIVE })
   status: UserStatus;
   @Column() firstName: string;
   @Column() lastName: string;
   @Column({ nullable: true }) phone: string;
   @Column({ nullable: true }) profilePicture: string;
-  @Column({ type: 'jsonb', nullable: true }) metadata: Record<string, unknown>;
+  @Column({ type: 'simple-json', nullable: true }) metadata: Record<string, unknown>;
   @CreateDateColumn() createdAt: Date;
   @UpdateDateColumn() updatedAt: Date;
 

@@ -3,7 +3,11 @@ import { Index,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
  } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity('messages')
 export class Message {
@@ -27,4 +31,16 @@ export class Message {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'senderId' })
+  sender: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'receiverId' })
+  receiver: User;
+
+  @ManyToOne(() => Course)
+  @JoinColumn({ name: 'courseId' })
+  course: Course;
 }

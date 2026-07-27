@@ -30,13 +30,18 @@ export class AssignmentsController {
     return this.assignmentsService.findAll(courseId, req.user);
   }
 
+  @Get('assignments')
+  findAllGlobal() {
+    return this.assignmentsService.findAllGlobal();
+  }
+
   @Post('courses/:courseId/assignments')
   create(
     @Param('courseId') courseId: string,
     @Body() dto: CreateAssignmentDto,
     @Request() req: any,
   ) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     dto.courseId = courseId;
     return this.assignmentsService.create(dto, req.user.id);
@@ -49,14 +54,14 @@ export class AssignmentsController {
 
   @Patch('assignments/:id')
   update(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     return this.assignmentsService.update(id, dto, req.user);
   }
 
   @Delete('assignments/:id')
   remove(@Param('id') id: string, @Request() req: any) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     return this.assignmentsService.remove(id);
   }
@@ -88,7 +93,7 @@ export class AssignmentsController {
     @Body() dto: GradeSubmissionDto,
     @Request() req: any,
   ) {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'TEACHER')
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'INSTRUCTOR')
       throw new ForbiddenException();
     return this.assignmentsService.gradeSubmission(id, dto, req.user?.id);
   }

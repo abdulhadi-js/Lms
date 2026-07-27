@@ -32,7 +32,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.INSTRUCTOR, Role.STUDENT)
   @ApiQuery({ name: 'role', enum: Role, required: false })
   findAll(@Query('role') role?: Role, @Query('limit') limit?: number, @Query('offset') offset?: number) {
     return this.usersService.findAll(role, limit, offset);

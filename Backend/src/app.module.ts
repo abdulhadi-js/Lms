@@ -30,17 +30,13 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('POSTGRES_HOST', 'localhost'),
-        port: config.get<number>('POSTGRES_PORT', 5432),
-        username: config.get<string>('POSTGRES_USER', 'postgres'),
-        password: config.get<string>('POSTGRES_PASSWORD', 'postgres'),
-        database: config.get<string>('POSTGRES_DB', 'educore_lms'),
+        type: 'better-sqlite3',
+        database: 'database.sqlite',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        synchronize: true, // Always true for local sqlite
         logging: config.get<string>('NODE_ENV') === 'development',
         autoLoadEntities: true,
-      }),
+      } as any),
     }),
 
     // Rate limiting — 100 requests per minute per IP

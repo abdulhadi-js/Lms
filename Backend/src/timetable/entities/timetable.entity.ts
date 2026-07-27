@@ -21,7 +21,7 @@ export class Timetable {
   @JoinColumn({ name: 'courseId' })
   course: Course;
 
-  @Column({ type: 'enum', enum: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] })
+  @Column({ type: 'varchar' })
   dayOfWeek: string;
 
   @Column()

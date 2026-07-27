@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TrendingUp, Users, AlertCircle, CheckCircle } from 'lucide-react';
-import { reportsApi, coursesApi } from '@/lib/api';
+import { reportsApi, coursesApi, enrollmentsApi } from '@/lib/api';
 
 export default function TeacherAnalytics() {
+  const searchParams = useSearchParams();
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>('');
   
@@ -19,9 +21,12 @@ export default function TeacherAnalytics() {
         setCourses(courseData);
         if (courseData.length > 0) {
           setSelectedCourseId(courseData[0].id);
+        } else {
+          setLoading(false);
         }
       } catch (err) {
         console.error("Failed to load courses", err);
+        setLoading(false);
       }
     };
     fetchInitialData();
@@ -29,34 +34,58 @@ export default function TeacherAnalytics() {
 
   useEffect(() => {
     if (!selectedCourseId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false);
       return;
     }
     
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const [perfData, attData, riskData] = await Promise.all([
+        const [perfData, attData, riskData, enrollData] = await Promise.all([
           reportsApi.performance(selectedCourseId),
           reportsApi.attendance(selectedCourseId),
-          reportsApi.atRisk(65)
+          reportsApi.atRisk(65),
+          enrollmentsApi.list()
         ]);
-        setPerformance(perfData);
-        setAttendance(attData);
+
+        // perfData is array of { courseId, averagePercentage, totalMarks }
+        const coursePerf = perfData.find((p: any) => p.courseId === selectedCourseId) || { averagePercentage: 0 };
+        setPerformance(coursePerf);
+
+        // attData is array of { courseId, attendancePercentage, totalClasses, ... }
+        const courseAtt = attData.find((a: any) => a.courseId === selectedCourseId) || { attendancePercentage: 0 };
+        setAttendance(courseAtt);
         
-        // Filter at-risk students for the selected course if backend returns all
-        const courseAtRisk = riskData.filter((r: any) => r.courseId === selectedCourseId || !r.courseId);
+        // riskData is array of { studentId, avgMark, riskReason, avgAttendance }
+        // Filter it down to only students enrolled in this course
+        const courseStudents = enrollData
+          .filter((e: any) => e.course?.id === selectedCourseId && e.status === 'ENROLLED' && e.student)
+          .map((e: any) => e.student);
+
+        const courseAtRisk = riskData
+          .filter((r: any) => courseStudents.some((s: any) => s.id === r.studentId))
+          .map((r: any) => {
+             const student = courseStudents.find((s: any) => s.id === r.studentId);
+             return {
+               ...r,
+               firstName: student.firstName,
+               lastName: student.lastName,
+             };
+          });
+
         setAtRisk(courseAtRisk);
       } catch (err) {
         console.error("Failed to load analytics", err);
       } finally {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(false);
+        if (searchParams.get('print') === 'true') {
+          setTimeout(() => {
+            window.print();
+          }, 500);
+        }
       }
     };
     fetchAnalytics();
-  }, [selectedCourseId]);
+  }, [selectedCourseId, searchParams]);
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
@@ -71,6 +100,7 @@ export default function TeacherAnalytics() {
             className="bg-white border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary brand-shadow"
             value={selectedCourseId}
             onChange={(e) => setSelectedCourseId(e.target.value)}
+            disabled={loading}
           >
             {courses.map(c => (
               <option key={c.id} value={c.id}>{c.title}</option>
@@ -80,7 +110,7 @@ export default function TeacherAnalytics() {
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-body-secondary">Loading analytics data...</div>
+        <div className="p-12 text-center text-body-secondary bg-white rounded-xl border border-divider">Loading analytics data...</div>
       ) : !selectedCourseId ? (
         <div className="p-12 text-center text-body-secondary bg-white rounded-xl border border-divider">No courses assigned to display analytics.</div>
       ) : (
@@ -92,7 +122,7 @@ export default function TeacherAnalytics() {
               </div>
               <div>
                 <p className="text-sm font-medium text-body-secondary">Average Grade</p>
-                <h3 className="text-2xl font-bold text-on-surface mt-1">{performance?.averageGrade?.toFixed(1) || '0.0'}%</h3>
+                <h3 className="text-2xl font-bold text-on-surface mt-1">{Number(performance?.averagePercentage || 0).toFixed(1)}%</h3>
               </div>
             </div>
             
@@ -102,7 +132,7 @@ export default function TeacherAnalytics() {
               </div>
               <div>
                 <p className="text-sm font-medium text-body-secondary">Attendance Rate</p>
-                <h3 className="text-2xl font-bold text-on-surface mt-1">{attendance?.overallAttendancePercentage?.toFixed(0) || '0'}%</h3>
+                <h3 className="text-2xl font-bold text-on-surface mt-1">{Number(attendance?.attendancePercentage || 0).toFixed(0)}%</h3>
               </div>
             </div>
             
@@ -122,7 +152,7 @@ export default function TeacherAnalytics() {
               <h3 className="text-lg font-bold text-heading-on-light mb-4">Grade Distribution</h3>
               <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
                 <div className="w-full flex justify-around items-end h-full z-10 pl-4">
-                  {/* Mock bars for distribution */}
+                  {/* Static mock bars for visual representation until grade distribution API is ready */}
                   {[
                     { label: 'A (90-100)', height: 35 },
                     { label: 'B (80-89)', height: 45 },
@@ -142,7 +172,7 @@ export default function TeacherAnalytics() {
             <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden flex flex-col">
               <div className="p-5 border-b border-divider bg-surface">
                 <h3 className="text-lg font-bold text-heading-on-light">At-Risk Students</h3>
-                <p className="text-sm text-body-secondary">Students requiring attention (Grade &lt; 65%).</p>
+                <p className="text-sm text-body-secondary">Students requiring attention (Grade &lt; 50% or Attendance &lt; 65%).</p>
               </div>
               
               <div className="overflow-y-auto flex-1">
@@ -153,7 +183,7 @@ export default function TeacherAnalytics() {
                     <thead>
                       <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                         <th className="py-3 px-4 font-semibold">Student</th>
-                        <th className="py-3 px-4 font-semibold">Grade</th>
+                        <th className="py-3 px-4 font-semibold">Reason</th>
                         <th className="py-3 px-4 font-semibold">Actions</th>
                       </tr>
                     </thead>
@@ -161,7 +191,7 @@ export default function TeacherAnalytics() {
                       {atRisk.map((student, i) => (
                         <tr key={i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
                           <td className="py-3 px-4 font-medium text-on-surface">{student.firstName} {student.lastName}</td>
-                          <td className="py-3 px-4 text-error font-medium">{student.averageGrade}%</td>
+                          <td className="py-3 px-4 text-error font-medium">{student.riskReason}</td>
                           <td className="py-3 px-4">
                             <button className="text-primary hover:underline font-medium text-xs">Message</button>
                           </td>

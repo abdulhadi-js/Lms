@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
 
 export default function ReportsAnalytics() {
+  const searchParams = useSearchParams();
   const [overview, setOverview] = useState<any>(null);
   const [atRisk, setAtRisk] = useState<any[]>([]);
   const [performance, setPerformance] = useState<any>(null);
@@ -40,6 +42,13 @@ export default function ReportsAnalytics() {
           totalPresent: totalP,
           totalAbsent: totalA
         });
+
+        // Trigger print if requested
+        if (searchParams.get('print') === 'true') {
+          setTimeout(() => {
+            window.print();
+          }, 500);
+        }
       } catch (error) {
         console.error("Failed to load reports", error);
       } finally {
@@ -47,7 +56,7 @@ export default function ReportsAnalytics() {
       }
     };
     fetchReports();
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">

@@ -93,7 +93,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </ul>
 
         <div className="px-6 mt-4 shrink-0">
-          <button className="w-full bg-lime-cream text-evergreen font-semibold text-[16px] py-1.5 rounded-lg hover:bg-white transition-colors mb-2 brand-button">Generate Report</button>
+          <button onClick={() => {
+            if (pathname === '/admin/reports') window.print();
+            else router.push('/admin/reports?print=true');
+          }} className="w-full bg-lime-cream text-evergreen font-semibold text-[16px] py-1.5 rounded-lg hover:bg-white transition-colors mb-2 brand-button print:hidden">Generate Report</button>
           <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-1.5 hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>

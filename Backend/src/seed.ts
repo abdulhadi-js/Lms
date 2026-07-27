@@ -71,7 +71,7 @@ async function seed() {
     {
       email: 'sarah.johnson@educore.com',
       passwordHash: await hash('Teacher@123'),
-      role: 'TEACHER',
+      role: 'INSTRUCTOR',
       status: 'ACTIVE',
       firstName: 'Sarah',
       lastName: 'Johnson',
@@ -80,7 +80,7 @@ async function seed() {
     {
       email: 'michael.chen@educore.com',
       passwordHash: await hash('Teacher@123'),
-      role: 'TEACHER',
+      role: 'INSTRUCTOR',
       status: 'ACTIVE',
       firstName: 'Michael',
       lastName: 'Chen',

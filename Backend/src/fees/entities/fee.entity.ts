@@ -48,10 +48,10 @@ export class Fee {
   @Column({ type: 'float', default: 0 })
   paidAmount: number;
 
-  @Column({ type: 'enum', enum: FeeStatus, default: FeeStatus.PENDING })
+  @Column({ type: 'varchar', default: FeeStatus.PENDING })
   status: FeeStatus;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   paidAt: Date;
 
   @Column({ nullable: true })
