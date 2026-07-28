@@ -1,238 +1,387 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import toast from 'react-hot-toast';
+import {
+  Upload, FileText, CheckCircle, Clock, AlertCircle,
+  X, ArrowLeft, Award, Calendar, BookOpen, Paperclip,
+} from 'lucide-react';
 import { assignmentsApi } from '@/lib/api';
 
-interface Assignment {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  maxMarks: number;
-  weightPercent: number;
-  rubric?: Array<{
-    criterion: string;
-    description: string;
-    maxPoints: number;
-  }>;
+const ACCEPTED_TYPES = '.pdf,.doc,.docx,.zip,.txt,.py,.js,.ts,.jsx,.tsx,.csv';
+const MAX_FILE_SIZE_MB = 10;
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function AssignmentSubmission() {
-  const { id } = useParams() as { id: string };
-  const [assignment, setAssignment] = useState<Assignment | null>(null);
+function timeUntilDue(dueDate: string) {
+  const diff = new Date(dueDate).getTime() - Date.now();
+  if (diff < 0) return { label: 'Overdue', color: 'text-error', bg: 'bg-error-bg' };
+  const hours = diff / 1000 / 3600;
+  if (hours < 24) return { label: `Due in ${Math.round(hours)}h`, color: 'text-warning', bg: 'bg-warning-bg' };
+  const days = Math.floor(hours / 24);
+  return { label: `Due in ${days}d`, color: 'text-success', bg: 'bg-success-bg' };
+}
+
+type Tab = 'file' | 'text';
+
+export default function AssignmentSubmissionPage() {
+  const params = useParams();
+  const id = params?.id as string;
+
+  const [assignment, setAssignment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [tab, setTab] = useState<Tab>('file');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [textContent, setTextContent] = useState('');
+  const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const fetchAssignment = async () => {
-      try {
-        setLoading(true);
-        const data = await assignmentsApi.get(id);
-        setAssignment(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load assignment');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAssignment();
+    if (!id) return;
+    assignmentsApi.get(id)
+      .then(data => setAssignment(data))
+      .catch(err => setError(err?.message || 'Failed to load assignment'))
+      .finally(() => setLoading(false));
   }, [id]);
 
+  const handleFileSelect = (file: File) => {
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      toast.error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
+      return;
+    }
+    setSelectedFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileSelect(file);
+  };
+
   const handleSubmit = async () => {
+    if (tab === 'file' && !selectedFile) {
+      toast.error('Please select a file to submit.');
+      return;
+    }
+    if (tab === 'text' && textContent.trim().length < 10) {
+      toast.error('Text submission must be at least 10 characters.');
+      return;
+    }
+    setSubmitting(true);
+    setUploadProgress(0);
     try {
-      setSubmitting(true);
-      setError(null);
-      await assignmentsApi.submit(id, { textContent, fileUrl: '' });
-      setSuccess(true);
+      if (tab === 'file') {
+        const formData = new FormData();
+        formData.append('file', selectedFile!);
+        await assignmentsApi.submit(id, formData, (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
+        });
+      } else {
+        await assignmentsApi.submit(id, { textContent: textContent.trim() });
+      }
+      setSubmitted(true);
+      toast.success('Assignment submitted successfully! 🎉');
     } catch (err: any) {
-      setError(err.message || 'Failed to submit assignment');
+      toast.error(err?.message || 'Submission failed. Please try again.');
     } finally {
       setSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
   if (loading) {
     return (
-      <div className="pt-8 px-4 md:px-8 pb-12 w-full max-w-[1280px] mx-auto flex-1 flex flex-col">
-        {/* Skeleton Breadcrumb */}
-        <div className="h-4 bg-surface-container-high rounded w-48 mb-6 animate-pulse"></div>
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-2/5 flex flex-col space-y-6">
-            <div className="h-10 bg-surface-container-high rounded w-3/4 mb-4 animate-pulse"></div>
-            <div className="h-6 bg-surface-container-high rounded w-1/2 mb-4 animate-pulse"></div>
-            <div className="h-32 bg-surface-container-high rounded w-full animate-pulse"></div>
-            <div className="h-48 bg-surface-container-high rounded w-full animate-pulse"></div>
-          </div>
-          <div className="lg:w-3/5">
-            <div className="bg-white rounded-xl border border-divider shadow-sm p-8 h-[600px] flex flex-col animate-pulse">
-               <div className="h-8 bg-surface-container-high rounded w-1/3 mb-6"></div>
-               <div className="h-40 bg-surface-container-high rounded w-full mb-6"></div>
-               <div className="h-32 bg-surface-container-high rounded w-full mb-6"></div>
-               <div className="mt-auto h-12 bg-surface-container-high rounded w-full"></div>
-            </div>
-          </div>
+      <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8 pb-24 space-y-6 animate-pulse">
+        <div className="h-8 w-40 bg-surface-container rounded mb-6" />
+        <div className="bg-surface rounded-2xl border border-divider p-8 space-y-4">
+          <div className="h-7 w-3/4 bg-surface-container rounded" />
+          <div className="h-4 w-full bg-surface-container rounded" />
+          <div className="h-4 w-5/6 bg-surface-container rounded" />
         </div>
+        <div className="bg-surface rounded-2xl border border-divider h-64" />
       </div>
     );
   }
-  if (error && !assignment) return <div className="p-8 text-error">Error: {error}</div>;
-  if (!assignment) return <div className="p-8 text-on-surface">Assignment not found.</div>;
 
-  const dueDate = new Date(assignment.dueDate);
-  const isPastDue = new Date() > dueDate;
+  if (error || !assignment) {
+    return (
+      <div className="max-w-[900px] mx-auto px-8 py-16 text-center">
+        <AlertCircle className="w-12 h-12 text-error mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-on-surface mb-2">Assignment Not Found</h2>
+        <p className="text-body-secondary mb-6">{error || 'This assignment could not be loaded.'}</p>
+        <Link href="/student/assignments" className="inline-flex items-center gap-2 text-primary hover:underline font-medium">
+          <ArrowLeft className="w-4 h-4" /> Back to Assignments
+        </Link>
+      </div>
+    );
+  }
+
+  const due = assignment.dueDate ? timeUntilDue(assignment.dueDate) : null;
+  const wordCount = textContent.trim().split(/\s+/).filter(Boolean).length;
 
   return (
-    <div className="pt-8 px-4 md:px-8 pb-12 w-full max-w-[1280px] mx-auto flex-1 flex flex-col">
-      {/* Breadcrumb */}
-      <nav className="flex text-sm text-body-secondary mb-6 font-medium">
-        <ol className="flex items-center space-x-2">
-          <li><Link href="/student/assignments" className="hover:text-primary transition-colors">Assignments</Link></li>
-          <li><span className="material-symbols-outlined text-sm mx-1">chevron_right</span></li>
-          <li className="text-on-background">{assignment.title}</li>
-        </ol>
-      </nav>
+    <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8 pb-24 space-y-6">
+      {/* Back nav */}
+      <Link
+        href="/student/assignments"
+        className="inline-flex items-center gap-2 text-sm text-body-secondary hover:text-primary transition-colors font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Assignments
+      </Link>
 
-      {/* Two Column Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* LEFT COLUMN: Details (40%) */}
-        <div className="lg:w-2/5 flex flex-col space-y-6">
-          {/* Assignment Header Info */}
-          <div>
-            <h1 className="text-[32px] md:text-[40px] font-bold text-heading-on-light mb-4 leading-tight">{assignment.title}</h1>
-            
-            <div className="flex flex-wrap items-center gap-4 mb-4">
-              <div className={`flex items-center px-3 py-1.5 rounded-full border text-[12px] font-medium ${isPastDue ? 'bg-error-bg text-error border-error-container' : 'bg-success-bg text-[#466d24] border-secondary-fixed'}`}>
-                <span className="material-symbols-outlined text-[18px] mr-1.5">{isPastDue ? 'error' : 'check_circle'}</span>
-                {isPastDue ? 'Past Due' : 'Active'}
-              </div>
-              <div className="flex items-center text-body-secondary text-[14px]">
-                <span className="material-symbols-outlined text-[18px] mr-1.5">calendar_month</span>
-                Due: {dueDate.toLocaleString()}
-              </div>
+      {/* Assignment Detail Card */}
+      <div className="bg-surface rounded-2xl border border-divider brand-shadow overflow-hidden">
+        <div className="h-1 w-full bg-gradient-to-r from-evergreen to-lime-cream" />
+        <div className="p-6 md:p-8">
+          <div className="flex flex-wrap justify-between items-start gap-4 mb-5">
+            <div className="flex-1 min-w-0">
+              {assignment.course && (
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen className="w-4 h-4 text-primary-container" />
+                  <span className="text-xs font-bold text-primary-container uppercase tracking-wider">
+                    {assignment.course?.code || assignment.course?.title || 'Course'}
+                  </span>
+                </div>
+              )}
+              <h1 className="text-2xl md:text-3xl font-bold text-heading-on-light leading-tight">
+                {assignment.title}
+              </h1>
             </div>
-            
-            <div className="flex items-center text-on-surface text-[14px]">
-              <span className="font-semibold mr-2">Max Marks:</span> {assignment.maxMarks} ({assignment.weightPercent}% weight)
+            <div className="flex flex-wrap gap-2 shrink-0">
+              {due && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${due.bg} ${due.color} border border-current/20`}>
+                  <Clock className="w-3.5 h-3.5" />
+                  {due.label}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-primary/10 text-primary border border-primary/20">
+                <Award className="w-3.5 h-3.5" />
+                {assignment.maxMarks ?? 100} pts
+              </span>
             </div>
           </div>
 
-          {/* Description */}
-          <div className="prose prose-sm max-w-none text-on-surface text-[14px] whitespace-pre-wrap">
-            {assignment.description}
-          </div>
+          {assignment.dueDate && (
+            <div className="flex items-center gap-2 text-sm text-body-secondary mb-5">
+              <Calendar className="w-4 h-4" />
+              <span>
+                Due:{' '}
+                <span className="font-semibold text-on-surface">
+                  {new Date(assignment.dueDate).toLocaleDateString('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                  })}
+                </span>
+              </span>
+            </div>
+          )}
 
-          {/* Rubric Table */}
-          {assignment.rubric && assignment.rubric.length > 0 && (
+          {assignment.description && (
+            <div 
+              className="prose max-w-none text-body-secondary leading-relaxed mb-6 whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{ __html: assignment.description }} 
+            />
+          )}
+
+          {/* Rubric table */}
+          {Array.isArray(assignment.rubric) && assignment.rubric.length > 0 && (
             <div>
-              <h3 className="text-[20px] font-semibold text-heading-on-light mb-3">Rubric</h3>
-              <div className="overflow-x-auto rounded-lg border border-border-light shadow-sm">
-                <table className="w-full text-left border-collapse">
+              <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider mb-3">Grading Rubric</h2>
+              <div className="overflow-x-auto rounded-xl border border-divider">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-primary-container text-on-primary">
-                      <th className="px-4 py-3 text-[14px] font-semibold">Criteria</th>
-                      <th className="px-4 py-3 text-[14px] font-semibold text-right">Points</th>
+                    <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider">
+                      <th className="text-left py-3 px-4 font-semibold">Criterion</th>
+                      <th className="text-left py-3 px-4 font-semibold">Description</th>
+                      <th className="text-right py-3 px-4 font-semibold">Max Points</th>
                     </tr>
                   </thead>
-                  <tbody className="text-[14px] text-on-background divide-y divide-border-light">
-                    {assignment.rubric.map((item, idx) => (
-                      <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-surface-container-low"}>
-                        <td className="px-4 py-3">
-                          <div className="font-medium">{item.criterion}</div>
-                          <div className="text-xs text-body-secondary mt-1">{item.description}</div>
-                        </td>
-                        <td className="px-4 py-3 text-right">{item.maxPoints}</td>
+                  <tbody className="divide-y divide-divider">
+                    {assignment.rubric.map((row: any, i: number) => (
+                      <tr key={i} className="hover:bg-surface-container-low transition-colors">
+                        <td className="py-3 px-4 font-semibold text-on-surface">{row.criterion}</td>
+                        <td className="py-3 px-4 text-body-secondary">{row.description}</td>
+                        <td className="py-3 px-4 text-right font-bold text-primary">{row.maxPoints}</td>
                       </tr>
                     ))}
-                    <tr className="bg-lime-cream text-evergreen font-semibold border-t-2 border-primary-container/20">
-                      <td className="px-4 py-3">Total</td>
-                      <td className="px-4 py-3 text-right">{assignment.rubric.reduce((acc, curr) => acc + curr.maxPoints, 0)}</td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* RIGHT COLUMN: Submission Panel (60%) */}
-        <div className="lg:w-3/5">
-          <div className="bg-white rounded-xl border border-divider shadow-[0_4px_12px_rgba(19,42,19,0.08)] overflow-hidden flex flex-col h-full sticky top-24 relative">
-            {/* Top Accent Bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-[#4f772d] to-[#ecf39e]"></div>
-            
-            <div className="p-6 md:p-8 flex-1 flex flex-col">
-              <h2 className="text-[28px] font-bold text-heading-on-light mb-6 flex items-center">
-                <span className="material-symbols-outlined mr-2 text-primary text-3xl">upload_file</span>
-                Submit Your Work
-              </h2>
+      {/* Submission Section */}
+      {submitted ? (
+        <div className="bg-surface rounded-2xl border border-success/30 brand-shadow p-10 text-center">
+          <div className="w-20 h-20 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-5">
+            <CheckCircle className="w-10 h-10 text-success" />
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface mb-2">Submitted Successfully!</h2>
+          <p className="text-body-secondary mb-6">
+            Your assignment has been submitted. Your teacher will review it and provide feedback soon.
+          </p>
+          <Link
+            href="/student/assignments"
+            className="inline-flex items-center gap-2 primary-gradient text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Assignments
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-surface rounded-2xl border border-divider brand-shadow overflow-hidden">
+          <div className="p-5 border-b border-divider bg-surface-container-low flex items-center gap-3">
+            <Upload className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-heading-on-light">Submit Your Work</h2>
+          </div>
 
-              {success ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-[#4f772d] bg-success-bg rounded-xl">
-                  <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm border border-secondary-fixed">
-                    <span className="material-symbols-outlined text-[40px] text-[#466d24]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-evergreen mb-2">Submission Successful!</h3>
-                  <p className="text-sm text-body-secondary mb-6">Your assignment has been submitted successfully and is pending grading.</p>
-                  <button onClick={() => setSuccess(false)} className="px-6 py-2 border border-outline-variant rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
-                    Submit another response
-                  </button>
+          {/* Tab Switcher */}
+          <div className="flex border-b border-divider">
+            {(['file', 'text'] as Tab[]).map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`flex-1 py-3.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+                  tab === t
+                    ? 'text-primary border-b-2 border-primary bg-primary/5'
+                    : 'text-body-secondary hover:text-on-surface'
+                }`}
+              >
+                {t === 'file' ? <Paperclip className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                {t === 'file' ? 'Upload File' : 'Text Submission'}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-6 md:p-8">
+            {tab === 'file' ? (
+              <div className="space-y-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={ACCEPTED_TYPES}
+                  className="hidden"
+                  onChange={handleFileInputChange}
+                />
+                {/* Drop zone */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={e => { e.preventDefault(); setDragging(true); }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all select-none ${
+                    dragging
+                      ? 'border-primary bg-primary/10 scale-[1.01]'
+                      : 'border-divider hover:border-primary hover:bg-primary/5'
+                  }`}
+                >
+                  <Upload className={`w-10 h-10 mx-auto mb-3 transition-colors ${dragging ? 'text-primary' : 'text-icon-inactive'}`} />
+                  <p className="font-semibold text-on-surface mb-1">
+                    {dragging ? 'Drop your file here' : 'Drag & drop or click to browse'}
+                  </p>
+                  <p className="text-sm text-body-secondary">
+                    PDF, DOC, DOCX, ZIP, TXT, code files · Max {MAX_FILE_SIZE_MB}MB
+                  </p>
                 </div>
-              ) : (
-                <div className="flex flex-col flex-1">
-                  {/* Upload Zone */}
-                  <div className="mb-6">
-                    <label className="block text-[14px] font-medium text-on-background mb-2">Upload Files</label>
-                    <div className="border-2 border-dashed border-[#4f772d] bg-success-bg rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#e1e9db] transition-colors relative group">
-                      <input type="file" multiple className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-secondary text-3xl">cloud_upload</span>
-                      </div>
-                      <p className="text-[14px] text-on-background font-medium mb-1">Drag and drop files here</p>
-                      <p className="text-[12px] text-body-secondary">or click to browse from your computer</p>
+
+                {/* Selected file chip */}
+                {selectedFile && (
+                  <div className="flex items-center gap-3 p-4 bg-success-bg border border-success/20 rounded-xl">
+                    <Paperclip className="w-5 h-5 text-success shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-success truncate">{selectedFile.name}</p>
+                      <p className="text-xs text-success/70">{formatBytes(selectedFile.size)}</p>
                     </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <label className="block text-[14px] font-medium text-on-background mb-2">Text Content (Optional)</label>
-                    <textarea 
-                      value={textContent}
-                      onChange={(e) => setTextContent(e.target.value)}
-                      className="w-full border border-divider rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[150px]"
-                      placeholder="Type your answer here..."
-                    />
-                  </div>
-
-                  {error && <div className="text-error text-sm mb-4">{error}</div>}
-
-                  {/* Submit Button */}
-                  <div className="mt-auto pt-6 flex gap-3">
-                    <button className="flex-1 bg-white border border-outline-variant text-on-surface font-semibold py-3 px-6 rounded-lg hover:bg-surface-container-low transition-colors text-sm">
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={handleSubmit}
-                      disabled={submitting}
-                      className="flex-1 bg-gradient-to-r from-[#4f772d] to-[#3a5a22] text-white font-semibold py-3 px-6 rounded-lg hover:shadow-md transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                    <button
+                      onClick={() => setSelectedFile(null)}
+                      className="p-1 hover:bg-success/20 rounded-full transition-colors text-success"
                     >
-                      {submitting ? (
-                         <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
-                      ) : (
-                        <span className="material-symbols-outlined text-[20px]">send</span>
-                      )}
-                      {submitting ? 'Submitting...' : 'Submit Assignment'}
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-on-surface">
+                  Your Answer / Essay
+                </label>
+                <textarea
+                  value={textContent}
+                  onChange={e => setTextContent(e.target.value)}
+                  rows={12}
+                  placeholder="Type your answer here... (minimum 10 characters)"
+                  className="w-full border border-divider rounded-xl px-4 py-3 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container resize-y text-sm leading-relaxed"
+                />
+                <div className="flex justify-between text-xs text-body-secondary">
+                  <span>{textContent.length} characters</span>
+                  <span>{wordCount} words</span>
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* Actions */}
+            {submitting && uploadProgress > 0 && (
+              <div className="mt-4 mb-2">
+                <div className="flex justify-between text-xs text-body-secondary mb-1">
+                  <span>Uploading...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                </div>
+              </div>
+            )}
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+              <Link
+                href="/student/assignments"
+                className="px-5 py-2.5 text-sm font-semibold text-body-secondary border border-divider rounded-xl hover:bg-surface-container-low transition-colors text-center"
+              >
+                Cancel
+              </Link>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || (tab === 'file' ? !selectedFile : textContent.trim().length < 10)}
+                className="px-6 py-2.5 primary-gradient text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+              >
+                {submitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" />
+                    Submit Assignment
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

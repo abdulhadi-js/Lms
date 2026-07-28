@@ -72,7 +72,7 @@ export default function ApplicationsManagement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+      <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="flex space-x-1 bg-surface-container-low p-1 rounded-lg">
@@ -80,7 +80,7 @@ export default function ApplicationsManagement() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${statusFilter === status ? 'bg-white shadow-sm text-primary' : 'text-body-secondary hover:text-primary'}`}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${statusFilter === status ? 'bg-surface shadow-sm text-primary' : 'text-body-secondary hover:text-primary'}`}
                 >
                   {status === 'ALL' ? 'All' : status === 'PENDING_REVIEW' ? 'Pending' : status.charAt(0) + status.slice(1).toLowerCase()}
                 </button>
@@ -107,7 +107,60 @@ export default function ApplicationsManagement() {
           ) : applications.length === 0 ? (
             <div className="p-8 text-center text-body-secondary">No applications found.</div>
           ) : (
-            <table className="w-full text-left border-collapse">
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {applications
+                  .filter(app => {
+                    if (!searchQuery) return true;
+                    const searchString = `${app.firstName} ${app.lastName} ${app.email}`.toLowerCase();
+                    return searchString.includes(searchQuery.toLowerCase());
+                  })
+                  .map((app, i) => (
+                    <div key={app.id || i} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-medium text-on-surface">{app.firstName} {app.lastName}</div>
+                          <div className="text-sm text-body-secondary">{app.email}</div>
+                          <div className="text-xs text-body-secondary">{app.phone}</div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          {app.status === 'APPROVED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Approved</span>}
+                          {app.status === 'PENDING_REVIEW' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
+                          {app.status === 'REJECTED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Rejected</span>}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div className="text-body-secondary">Desired Course:</div>
+                        <div className="text-right truncate font-medium text-on-surface">{app.course?.title || app.courseId}</div>
+                        
+                        <div className="text-body-secondary">Applied:</div>
+                        <div className="text-right">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</div>
+                      </div>
+
+                      {app.status === 'PENDING_REVIEW' && (
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-divider">
+                          <button 
+                            onClick={() => handleRejectClick(app.id)}
+                            className="flex-1 py-2 bg-error-bg text-error hover:bg-error hover:text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                          >
+                            <X className="w-4 h-4" /> Reject
+                          </button>
+                          <button 
+                            onClick={() => handleApprove(app.id)}
+                            className="flex-1 py-2 bg-success-bg text-success hover:bg-success hover:text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                          >
+                            <Check className="w-4 h-4" /> Approve
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
               <thead>
                 <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                   <th className="py-4 px-6 font-semibold">Applicant</th>
@@ -165,13 +218,14 @@ export default function ApplicationsManagement() {
                 ))}
               </tbody>
             </table>
+            </>
           )}
         </div>
       </div>
 
       {rejectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Reject Application</h3>
             <p className="text-sm text-body-secondary mb-4">Please provide a reason for rejecting this application.</p>
             <textarea

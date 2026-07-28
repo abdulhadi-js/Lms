@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bull';
+
+import { getDatabaseConfig } from './config/database.config';
+import { CloudinaryModule } from './config/cloudinary.module';
+import { MailModule } from './mail/mail.module';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -16,38 +21,35 @@ import { FeesModule } from './fees/fees.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
-import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    // Global env config
+    // ── Global env config ────────────────────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
 
-    // PostgreSQL via TypeORM
+    // ── PostgreSQL via TypeORM (Neon cloud, with SSL) ──────────────────────
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'better-sqlite3',
-        database: 'database.sqlite',
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Always true for local sqlite
-        logging: config.get<string>('NODE_ENV') === 'development',
-        autoLoadEntities: true,
-      } as any),
+      useFactory: (config: ConfigService) => getDatabaseConfig(config),
     }),
 
-    // Rate limiting — 100 requests per minute per IP
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 100,
-      },
-    ]),
+    // ── Rate limiting — 100 requests per minute per IP ────────────────────
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
 
-    // Feature modules
+    // ── Global infrastructure modules ─────────────────────────────────────
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        redis: config.get<string>('REDIS_URL'),
+      }),
+    }),
+    CloudinaryModule,  // BUG-03 fix: global file upload service
+    MailModule,        // BUG-03 fix: global email service
+
+    // ── Feature modules ───────────────────────────────────────────────────
     AuthModule,
     UsersModule,
     CoursesModule,
@@ -63,10 +65,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
   ],
   providers: [
     // Apply rate limiting globally
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

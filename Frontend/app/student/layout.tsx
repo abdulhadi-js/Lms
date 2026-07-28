@@ -1,15 +1,19 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { NotificationBell } from '@/components/NotificationBell';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, FileText, Award, Calendar, CreditCard, MessageSquare, LogOut, HelpCircle, Bell, Menu, GraduationCap, Loader2 } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, Award, Calendar, CreditCard, MessageSquare, LogOut, HelpCircle, Bell, Menu, GraduationCap, Loader2, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import Image from 'next/image';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading) {
@@ -31,81 +35,123 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
       {/* Top Navigation (Mobile/Tablet) */}
       <header className="md:hidden flex justify-between items-center px-4 h-16 w-full bg-primary border-b border-outline/20 sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <Menu className="text-on-primary w-5 h-5" />
-          <span className="font-semibold text-[24px] text-on-primary">EduCore LMS</span>
+          <button onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu className="text-on-primary w-5 h-5" />
+          </button>
+          <Link href="/" className="font-semibold text-[24px] text-on-primary hover:text-white transition-colors">EduCore LMS</Link>
         </div>
         <div className="flex items-center gap-4 text-on-primary">
-          <Bell className="hover:opacity-80 transition-opacity cursor-pointer w-5 h-5" />
+          <ThemeToggle className="text-on-primary border-on-primary/20 hover:text-primary-fixed" />
+          <NotificationBell />
           <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20">
             {user.firstName ? user.firstName[0].toUpperCase() : 'S'}
           </div>
         </div>
       </header>
 
-      {/* Side Navigation (Desktop) */}
-      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-8 shrink-0 z-40">
-        <div className="px-6 mb-8 text-center flex flex-col items-center">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Side Navigation */}
+      <nav className={`${isMobileMenuOpen ? 'flex absolute inset-y-0 left-0 w-64 shadow-2xl z-50' : 'hidden md:flex relative z-40'} flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked h-screen transition-all duration-300 ${isCollapsed && !isMobileMenuOpen ? 'w-20' : 'w-64'} py-8 shrink-0 print:hidden`}>
+        {/* Collapse Toggle Button (Desktop Only) */}
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden md:block absolute -right-3 top-8 bg-white text-evergreen border border-divider rounded-full p-1 shadow-md hover:bg-surface-container transition-colors z-50"
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+
+        <div className="px-4 mb-8 flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
-            <div className="w-16 h-16 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xl border-2 border-on-primary/20">
+            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all ${isCollapsed && !isMobileMenuOpen ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
               {user.firstName ? user.firstName[0].toUpperCase() : 'S'}
             </div>
-            <span className="absolute bottom-0 right-0 w-4 h-4 bg-lime-cream rounded-full border-2 border-evergreen"></span>
+            {!(isCollapsed && !isMobileMenuOpen) && <span className="absolute bottom-0 right-0 w-4 h-4 bg-lime-cream rounded-full border-2 border-evergreen"></span>}
           </div>
-          <h2 className="font-semibold text-[20px] text-on-primary">{user.firstName} {user.lastName}</h2>
-          <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block">Student Portal</span>
+          {!(isCollapsed && !isMobileMenuOpen) && (
+            <>
+              <h2 className="font-semibold text-[20px] text-on-primary text-center">{user.firstName} {user.lastName}</h2>
+              <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block text-center whitespace-nowrap">Student Portal</span>
+            </>
+          )}
         </div>
-        <ul className="flex flex-col gap-1 px-4 flex-grow overflow-y-auto">
+        <ul className={`flex flex-col gap-1 ${isCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'} flex-grow overflow-y-auto`}>
           <li>
-            <Link href="/student" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname === '/student' ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <LayoutDashboard className="w-5 h-5" />
-              <span>Dashboard</span>
+            <Link href="/student" title={isCollapsed ? "Dashboard" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname === '/student' ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Dashboard</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/courses" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/courses') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <GraduationCap className="w-5 h-5" />
-              <span>My Courses</span>
+            <Link href="/student/courses" title={isCollapsed ? "My Courses" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/courses') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <GraduationCap className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">My Courses</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/assignments" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/assignments') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <FileText className="w-5 h-5" />
-              <span>Assignments</span>
+            <Link href="/student/assignments" title={isCollapsed ? "Assignments" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/assignments') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <FileText className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Assignments</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/transcript" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/transcript') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <Award className="w-5 h-5" />
-              <span>Grades & Transcripts</span>
+            <Link href="/student/transcript" title={isCollapsed ? "Grades & Transcripts" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/transcript') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <Award className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Grades & Transcripts</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/attendance" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/attendance') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <Calendar className="w-5 h-5" />
-              <span>Attendance</span>
+            <Link href="/student/attendance" title={isCollapsed ? "Attendance" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/attendance') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <Calendar className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Attendance</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/fees" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/fees') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <CreditCard className="w-5 h-5" />
-              <span>Fees & Payments</span>
+            <Link href="/student/fees" title={isCollapsed ? "Fees & Payments" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/fees') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <CreditCard className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Fees & Payments</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/chat" className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${pathname.startsWith('/student/chat') ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20' : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'}`}>
-              <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
+            <Link href="/student/chat" title={isCollapsed ? "Messages" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/chat') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <MessageSquare className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Messages</span>}
+            </Link>
+          </li>
+          <li>
+            <Link href="/student/profile" title={isCollapsed ? "Profile Settings" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/profile') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <Settings className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Profile Settings</span>}
             </Link>
           </li>
         </ul>
-        <div className="px-6 mt-auto">
-          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+        <div className={`mt-auto shrink-0 flex flex-col gap-2 ${isCollapsed && !isMobileMenuOpen ? 'px-2 items-center' : 'px-4'}`}>
+          {!(isCollapsed && !isMobileMenuOpen) ? (
+            <>
+              <div className="flex items-center justify-between mb-2 px-3 border border-white/10 rounded-lg py-2 mx-2 bg-white/5">
+                <span className="text-sm font-medium text-on-primary/80">Theme</span>
+                <ThemeToggle className="text-on-primary border-on-primary/20 hover:text-primary-fixed" />
+              </div>
+            </>
+          ) : (
+            <ThemeToggle className="mb-2 text-on-primary border-on-primary/20 hover:text-primary-fixed" />
+          )}
+          <button 
+            onClick={logout}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-on-primary/70 hover:bg-white/10 hover:text-white ${isCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
+          >
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!(isCollapsed && !isMobileMenuOpen) && <span>Sign Out</span>}
           </button>
         </div>
       </nav>

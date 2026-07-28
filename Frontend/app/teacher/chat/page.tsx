@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Paperclip, Search, MoreVertical, Circle, User, Users, Plus, X } from 'lucide-react';
 import { chatApi, coursesApi, usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { io, Socket } from 'socket.io-client';
 
 export default function TeacherChat() {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ export default function TeacherChat() {
   const [activeContact, setActiveContact] = useState<any | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
@@ -23,7 +25,49 @@ export default function TeacherChat() {
 
   useEffect(() => {
     loadConversations();
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('lms_access_token') : null;
+    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace('/api/v1', '');
+    
+    const newSocket = io(`${socketUrl}/chat`, {
+      auth: { token: `Bearer ${token}` },
+      transports: ['websocket'],
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleNewMessage = (msg: any) => {
+      setMessages(prev => {
+        if (activeContact) {
+          const activePartnerId = activeContact.courseId ? undefined : (activeContact.senderId === user?.id ? activeContact.receiverId : activeContact.senderId);
+          if (
+            (msg.courseId && msg.courseId === activeContact.courseId) ||
+            (!msg.courseId && (msg.senderId === activePartnerId || msg.receiverId === activePartnerId))
+          ) {
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          }
+        }
+        return prev;
+      });
+      
+      loadConversations();
+    };
+
+    socket.on('new_message', handleNewMessage);
+    
+    return () => {
+      socket.off('new_message', handleNewMessage);
+    };
+  }, [socket, activeContact, user?.id]);
 
   useEffect(() => {
     if (activeContact) {
@@ -70,18 +114,28 @@ export default function TeacherChat() {
     try {
       const partnerId = activeContact.courseId ? undefined : (activeContact.senderId === user?.id ? activeContact.receiverId : activeContact.senderId);
       
-      const sentMsg = await chatApi.sendMessage({
-        courseId: activeContact.courseId,
-        receiverId: partnerId,
-        body: newMessage.trim()
-      });
-      
-      // Optimistically append the new message
-      setMessages([...messages, { ...sentMsg, sender: user }]);
-      setNewMessage('');
-      
-      // Reload conversations to update the latest message in sidebar
-      loadConversations();
+      if (socket && socket.connected) {
+        socket.emit('send_message', {
+          courseId: activeContact.courseId,
+          receiverId: partnerId,
+          body: newMessage.trim()
+        }, (sentMsg: any) => {
+          setNewMessage('');
+        });
+      } else {
+        const sentMsg = await chatApi.sendMessage({
+          courseId: activeContact.courseId,
+          receiverId: partnerId,
+          body: newMessage.trim()
+        });
+        
+        // Optimistically append the new message
+        setMessages([...messages, { ...sentMsg, sender: user }]);
+        setNewMessage('');
+        
+        // Reload conversations to update the latest message in sidebar
+        loadConversations();
+      }
     } catch (err) {
       console.error('Failed to send message', err);
     }
@@ -97,7 +151,7 @@ export default function TeacherChat() {
         usersApi.list()
       ]);
 
-      const contacts = [];
+      const contacts: any[] = [];
 
       // Add courses as group chats
       coursesData.forEach((c: any) => {

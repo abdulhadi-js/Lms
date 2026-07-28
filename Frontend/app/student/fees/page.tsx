@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { feesApi } from '@/lib/api';
 
 interface Course {
@@ -56,13 +57,28 @@ export default function MyFees() {
 
   const handlePaymentSubmit = async () => {
     if (!selectedFee) return;
+
+    // B9 FIX: JS-level guard — HTML max attr alone is not enough
+    const outstanding = Number(selectedFee.amount) - (Number(selectedFee.paidAmount) || 0);
+    const amount = Number(paymentAmount);
+    if (!amount || amount <= 0) {
+      toast.error('Please enter a valid payment amount.');
+      return;
+    }
+    if (amount > outstanding) {
+      toast.error(`Amount cannot exceed the outstanding balance of PKR ${outstanding.toLocaleString()}.`);
+      return;
+    }
+
     try {
       setProcessing(true);
-      await feesApi.pay(selectedFee.id, Number(paymentAmount));
+      await feesApi.pay(selectedFee.id, amount);
       setIsModalOpen(false);
-      await fetchFees(); // Refresh data
+      // B8 FIX: replace alert() with toast
+      toast.success(`Payment of PKR ${amount.toLocaleString()} processed successfully!`);
+      await fetchFees();
     } catch (err: any) {
-      alert(err.message || 'Payment failed');
+      toast.error(err.message || 'Payment failed. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -169,7 +185,70 @@ export default function MyFees() {
           <div className="p-6">
             <h2 className="text-[16px] font-bold text-evergreen mb-4">Fee Structure Details</h2>
             <div className="overflow-x-auto rounded-lg border border-divider">
-              <table className="w-full text-left border-collapse">
+              
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-border-light bg-surface">
+                {fees.length > 0 ? fees.map(fee => {
+                  const isPaid = fee.status === 'PAID';
+                  const outstanding = Number(fee.amount) - (Number(fee.paidAmount) || 0);
+                  return (
+                    <div key={fee.id} className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="font-bold text-on-surface">{fee.description || 'General Fee'}</div>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${isPaid ? 'bg-success-bg text-success border-success/20' : 'bg-error-bg text-error border-error/20'}`}>
+                          {fee.status}
+                        </span>
+                      </div>
+                      
+                      {fee.course && <div className="text-sm text-body-secondary mb-3">{fee.course.code} - {fee.course.title}</div>}
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div className="text-body-secondary">Amount:</div>
+                        <div className="text-right font-medium">PKR {Number(fee.amount).toLocaleString()}</div>
+                        
+                        <div className="text-body-secondary">Paid:</div>
+                        <div className="text-right">PKR {(Number(fee.paidAmount) || 0).toLocaleString()}</div>
+                        
+                        <div className="text-body-secondary">Due Date:</div>
+                        <div className="text-right">{new Date(fee.dueDate).toLocaleDateString()}</div>
+                      </div>
+                      
+                      {!isPaid && (
+                        <div className="pt-2">
+                          <button 
+                            onClick={() => handlePayClick(fee)}
+                            className="w-full text-sm bg-primary-container text-on-primary px-3 py-2 rounded-lg font-bold hover:opacity-90 transition-opacity"
+                          >
+                            Pay Outstanding: PKR {outstanding.toLocaleString()}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }) : (
+                  <div className="p-8 text-center text-body-secondary italic">No fee records found.</div>
+                )}
+                
+                {fees.length > 0 && (
+                  <div className="p-4 bg-lime-cream font-bold text-evergreen">
+                    <div className="flex justify-between mb-1">
+                      <span>Total Fees:</span>
+                      <span>PKR {totalAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between mb-1">
+                      <span>Total Paid:</span>
+                      <span>PKR {totalPaid.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-primary-container/30 pt-1 mt-1">
+                      <span>Total Outstanding:</span>
+                      <span className="text-error">PKR {totalOutstanding.toLocaleString()}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-primary-container text-on-primary">
                     <th className="p-4 text-[12px] uppercase tracking-wider font-semibold">Description</th>

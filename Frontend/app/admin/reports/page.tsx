@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { reportsApi } from '@/lib/api';
 
 export default function ReportsAnalytics() {
   const searchParams = useSearchParams();
   const [overview, setOverview] = useState<any>(null);
   const [atRisk, setAtRisk] = useState<any[]>([]);
-  const [performance, setPerformance] = useState<any>(null);
+  const [performanceData, setPerformanceData] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,24 +19,19 @@ export default function ReportsAnalytics() {
       try {
         const [ovData, riskData, perfData, attData] = await Promise.all([
           reportsApi.overview(),
-          reportsApi.atRisk(60), // threshold 60
+          reportsApi.atRisk(60),
           reportsApi.performance(),
           reportsApi.attendance()
         ]);
         setOverview(ovData);
         setAtRisk(riskData);
         
-        // Aggregate performance across all courses
         const perfArray = Array.isArray(perfData) ? perfData : [];
-        const avgGrade = perfArray.length > 0 
-          ? perfArray.reduce((acc, curr) => acc + Number(curr.averagePercentage || 0), 0) / perfArray.length 
-          : 0;
-        setPerformance({ averageGrade: avgGrade });
+        setPerformanceData(perfArray);
         
-        // Aggregate attendance across all courses
         const attArray = Array.isArray(attData) ? attData : [];
-        const totalP = attArray.reduce((acc, curr) => acc + (curr.totalPresent || 0), 0);
-        const totalA = attArray.reduce((acc, curr) => acc + (curr.totalAbsent || 0), 0);
+        const totalP = attArray.reduce((acc: number, curr: any) => acc + (curr.totalPresent || 0), 0);
+        const totalA = attArray.reduce((acc: number, curr: any) => acc + (curr.totalAbsent || 0), 0);
         const totalClasses = totalP + totalA;
         setAttendance({
           overallAttendancePercentage: totalClasses > 0 ? (totalP / totalClasses) * 100 : 0,
@@ -43,20 +39,21 @@ export default function ReportsAnalytics() {
           totalAbsent: totalA
         });
 
-        // Trigger print if requested
         if (searchParams.get('print') === 'true') {
-          setTimeout(() => {
-            window.print();
-          }, 500);
+          setTimeout(() => { window.print(); }, 500);
         }
       } catch (error) {
-        console.error("Failed to load reports", error);
+        console.error('Failed to load reports', error);
       } finally {
         setLoading(false);
       }
     };
     fetchReports();
   }, [searchParams]);
+
+  const avgGrade = performanceData.length > 0
+    ? performanceData.reduce((acc, curr) => acc + Number(curr.averagePercentage || 0), 0) / performanceData.length
+    : 0;
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
@@ -65,7 +62,7 @@ export default function ReportsAnalytics() {
           <h2 className="text-3xl font-bold text-heading-on-light">Reports & Analytics</h2>
           <p className="text-sm text-body-secondary mt-1">Comprehensive insights into system performance and student progress.</p>
         </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-white border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow print:hidden">
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow print:hidden">
           <Download className="w-4 h-4" />
           Export Full Report
         </button>
@@ -76,7 +73,7 @@ export default function ReportsAnalytics() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Students</p>
@@ -88,7 +85,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Active Courses</p>
@@ -100,7 +97,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Revenue</p>
@@ -112,7 +109,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">At-Risk Students</p>
@@ -126,38 +123,58 @@ export default function ReportsAnalytics() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-divider brand-shadow">
-              <h3 className="text-lg font-bold text-heading-on-light mb-4">Performance Overview</h3>
-              <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
-                <div className="absolute left-0 bottom-0 top-0 w-full flex flex-col justify-between text-xs text-body-secondary pr-4 pb-4">
-                  <span className="text-right border-b border-divider/50 w-full relative -left-4 pb-1">100%</span>
-                  <span className="text-right border-b border-divider/50 w-full relative -left-4 pb-1">75%</span>
-                  <span className="text-right border-b border-divider/50 w-full relative -left-4 pb-1">50%</span>
-                  <span className="text-right border-b border-divider/50 w-full relative -left-4 pb-1">25%</span>
-                  <span className="text-right w-full relative -left-4">0%</span>
+            <div className="lg:col-span-2 bg-surface p-6 rounded-xl border border-divider brand-shadow">
+              <h3 className="text-lg font-bold text-heading-on-light mb-1">Performance Overview</h3>
+              <p className="text-xs text-body-secondary mb-4">Average grade percentage per course</p>
+              {performanceData.length === 0 ? (
+                <div className="h-64 flex items-center justify-center text-body-secondary text-sm">No performance data available yet.</div>
+              ) : (
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={performanceData.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--divider)" />
+                      <XAxis dataKey={(course) => course.courseTitle || course.courseId?.slice(0, 6) || 'Course'} tick={{fontSize: 12, fill: 'var(--body-secondary)'}} tickLine={false} axisLine={false} />
+                      <YAxis tick={{fontSize: 12, fill: 'var(--body-secondary)'}} tickLine={false} axisLine={false} domain={[0, 100]} />
+                      <Tooltip cursor={{fill: 'var(--surface-container-low)'}} contentStyle={{backgroundColor: 'var(--surface)', borderColor: 'var(--border-light)', borderRadius: '8px', color: 'var(--on-surface)'}} />
+                      <Bar dataKey="averagePercentage" name="Average Grade" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <div className="w-full flex justify-around items-end h-full z-10 pl-8">
-                  {/* Placeholder bars */}
-                  {[65, 78, 85, 92, 70].map((h, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2">
-                      <div className="w-12 bg-primary rounded-t-sm transition-all hover:opacity-80" style={{ height: `${h}%` }}></div>
-                      <span className="text-xs text-body-secondary">Week {i+1}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <p className="text-sm text-body-secondary mt-4 text-center">Average Course Grade: {performance?.averageGrade?.toFixed(1) || '0'}%</p>
+              )}
+              <p className="text-sm text-body-secondary mt-4 text-center">Average Course Grade: {avgGrade.toFixed(1)}%</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow flex flex-col">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex flex-col">
               <h3 className="text-lg font-bold text-heading-on-light mb-4">Attendance Stats</h3>
               <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="relative w-40 h-40 flex items-center justify-center rounded-full border-[16px] border-primary-container mb-4">
-                  <div className="absolute inset-0 rounded-full border-[16px] border-primary border-t-transparent border-l-transparent transform rotate-45"></div>
-                  <div className="text-3xl font-bold text-on-surface">{attendance?.overallAttendancePercentage?.toFixed(0) || '0'}%</div>
+                <div className="relative w-48 h-48 -mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Present', value: attendance?.totalPresent || 0 },
+                          { name: 'Absent', value: attendance?.totalAbsent || 0 }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        <Cell fill="var(--primary)" />
+                        <Cell fill="var(--error)" />
+                      </Pie>
+                      <Tooltip contentStyle={{backgroundColor: 'var(--surface)', borderColor: 'var(--border-light)', borderRadius: '8px', color: 'var(--on-surface)'}} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-2xl font-bold text-on-surface">{attendance?.overallAttendancePercentage?.toFixed(0) || '0'}%</span>
+                  </div>
                 </div>
-                <p className="text-sm text-body-secondary">Overall Attendance Rate</p>
-                <div className="mt-6 w-full space-y-3">
+                <p className="text-sm text-body-secondary mt-2">Overall Attendance Rate</p>
+                <div className="mt-4 w-full space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-body-secondary flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary"></div> Present</span>
                     <span className="font-medium">{attendance?.totalPresent || 0}</span>
@@ -171,14 +188,44 @@ export default function ReportsAnalytics() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+          <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
             <div className="p-5 border-b border-divider bg-surface">
               <h3 className="text-lg font-bold text-heading-on-light">At-Risk Students</h3>
               <p className="text-sm text-body-secondary">Students with low attendance or poor grades requiring attention.</p>
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              {/* Mobile Card View */}
+              <div className="md:hidden p-4 space-y-4">
+                {atRisk.length === 0 ? (
+                  <div className="text-center text-body-secondary py-4">No at-risk students found.</div>
+                ) : (
+                  atRisk.map((student, i) => (
+                    <div key={i} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="font-bold text-on-surface">{student.studentId}</div>
+                        <button className="px-3 py-1.5 border border-border-light rounded-lg text-xs font-medium hover:bg-surface-container">
+                          View Profile
+                        </button>
+                      </div>
+                      <div className="text-sm text-body-secondary mb-3">{student.riskReason || 'N/A'}</div>
+                      <div className="grid grid-cols-2 gap-2 text-sm pt-3 border-t border-divider">
+                        <div className="text-body-secondary">Average Grade:</div>
+                        <div className={`text-right font-medium ${student.avgMark < 50 ? 'text-error' : 'text-warning'}`}>
+                          {student.avgMark ? Number(student.avgMark).toFixed(1) + '%' : 'N/A'}
+                        </div>
+                        <div className="text-body-secondary">Attendance:</div>
+                        <div className="text-right font-medium text-warning">
+                          {student.avgAttendance ? Number(student.avgAttendance).toFixed(1) + '%' : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                     <th className="py-4 px-6 font-semibold">Student</th>

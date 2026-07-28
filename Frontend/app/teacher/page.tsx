@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Bell, Settings, ArrowRight, Edit, ClipboardCheck, MessageSquare, Upload, MapPin, Users, MoreHorizontal, Download, BookOpen } from 'lucide-react';
+import { Bell, Settings, ArrowRight, Edit, ClipboardCheck, MessageSquare, Upload, MapPin, Users, MoreHorizontal, Download, BookOpen, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { coursesApi, assignmentsApi, timetableApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 
@@ -24,7 +25,8 @@ export default function TeacherDashboard() {
         setCourses(coursesData);
         setAssignments(assignmentsData);
         setTimetable(timetableData);
-      } catch (error) {
+      } catch (error: any) {
+        toast.error('Could not load some dashboard data.');
         console.error('Failed to load dashboard data:', error);
       } finally {
         setLoading(false);
@@ -92,7 +94,9 @@ export default function TeacherDashboard() {
             </div>
             <div>
               <div className="font-bold text-[40px] leading-[1.2] mb-1">
-                {loading ? <div className="h-10 bg-white/20 rounded animate-pulse w-16 mb-1"></div> : '12'}
+                {loading ? <div className="h-10 bg-white/20 rounded animate-pulse w-16 mb-1"></div>
+                  : assignments.filter((a: any) => !a.gradedAt && new Date(a.dueDate || 0) < new Date()).length
+                }
               </div>
               <div className="font-medium text-[12px] text-white/90">Submissions to Review</div>
             </div>
@@ -117,7 +121,7 @@ export default function TeacherDashboard() {
             ))
           ) : courses.length > 0 ? (
             courses.slice(0, 3).map((course, i) => (
-              <div key={course.id || i} className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden group">
+              <div key={course.id || i} className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
                 <div className="h-32 relative bg-surface-container">
                   <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundColor: '#2f4f2f' }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[rgba(19,42,19,0.9)] to-[rgba(19,42,19,0.2)]"></div>
@@ -230,42 +234,64 @@ export default function TeacherDashboard() {
       </div>
 
       {/* Recent Activity Feed */}
-      <div className="bg-white rounded-xl border border-divider brand-shadow p-6">
+      <div className="bg-surface rounded-xl border border-divider shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-semibold text-[20px] font-bold text-evergreen">Recent Activity Feed</h3>
-          <button className="text-body-secondary hover:text-primary transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
+          <h3 className="font-semibold text-[20px] font-bold text-on-surface">Recent Activity</h3>
         </div>
-        <div className="space-y-4">
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-info/10 flex items-center justify-center text-info shrink-0 mt-1">
-              <Download className="w-5 h-5" />
-            </div>
-            <div className="flex-1 border-b border-divider pb-4">
-              <p className="font-normal text-[14px] text-on-surface"><span className="font-semibold text-[16px] font-semibold">12 new submissions</span> received for CS101 Assignment 2.</p>
-              <span className="font-medium text-[12px] text-body-secondary">10 mins ago</span>
-            </div>
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-surface-container animate-pulse shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-surface-container rounded animate-pulse w-3/4" />
+                  <div className="h-3 bg-surface-container rounded animate-pulse w-1/4" />
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success shrink-0 mt-1">
-              <Edit className="w-5 h-5" />
-            </div>
-            <div className="flex-1 border-b border-divider pb-4">
-              <p className="font-normal text-[14px] text-on-surface">You published grades for <span className="font-semibold text-[16px] font-semibold">SE305 Midterm Project</span>.</p>
-              <span className="font-medium text-[12px] text-body-secondary">2 hours ago</span>
-            </div>
+        ) : (
+          <div className="space-y-4">
+            {assignments.slice(0, 3).map((a: any, i: number) => (
+              <div key={i} className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-1">
+                  <Edit className="w-4 h-4" />
+                </div>
+                <div className="flex-1 border-b border-divider pb-4">
+                  <p className="text-sm text-on-surface">
+                    Assignment <span className="font-semibold">{a.title}</span> is active
+                    {a.course?.title && <span className="text-body-secondary"> in {a.course.title}</span>}.
+                  </p>
+                  <span className="text-xs text-body-secondary">
+                    Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No date set'}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {courses.slice(0, 2).map((c: any, i: number) => (
+              <div key={`c-${i}`} className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success shrink-0 mt-1">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div className="flex-1 border-b border-divider pb-4 last:border-0">
+                  <p className="text-sm text-on-surface">
+                    You are teaching <span className="font-semibold">{c.title}</span>
+                    {c.code && <span className="text-body-secondary"> ({c.code})</span>}.
+                  </p>
+                  <span className="text-xs text-body-secondary">
+                    {c.status === 'ACTIVE' ? 'Active this semester' : c.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {assignments.length === 0 && courses.length === 0 && (
+              <div className="text-center py-8 text-body-secondary">
+                <ClipboardCheck className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">No recent activity yet.</p>
+              </div>
+            )}
           </div>
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center text-warning shrink-0 mt-1">
-              <ClipboardCheck className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <p className="font-normal text-[14px] text-on-surface">Attendance recorded for <span className="font-semibold text-[16px] font-semibold">CS201 Lecture</span>.</p>
-              <span className="font-medium text-[12px] text-body-secondary">Yesterday, 4:30 PM</span>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

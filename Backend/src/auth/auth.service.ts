@@ -1,8 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './dto/login.dto';
+import { MailService } from '../mail/mail.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -11,22 +12,18 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailService: MailService,
   ) {}
 
-  private generateTokens(payload: {
-    sub: string;
-    email: string;
-    role: string;
-  }) {
-    // Pass expiresIn as seconds to satisfy JwtSignOptions type (number)
+  private generateTokens(payload: { sub: string; email: string; role: string }) {
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET')!,
-      expiresIn: 900, // 15 minutes in seconds
+      expiresIn: 900, // 15 minutes in seconds (JWT_EXPIRES_IN=15m)
     });
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET')!,
-      expiresIn: 604800, // 7 days in seconds
+      expiresIn: 604800, // 7 days in seconds (JWT_REFRESH_EXPIRES_IN=7d)
     });
 
     return { accessToken, refreshToken };
@@ -81,5 +78,46 @@ export class AuthService {
   async logout(_userId: string) {
     // In production: add token to Redis blacklist with TTL = remaining token expiry
     return { success: true, message: 'Logged out successfully' };
+  }
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    // Always return success to prevent email enumeration attacks
+    try {
+      const user = await this.usersService.findByEmail(email);
+      if (user && user.status === 'ACTIVE') {
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
+        // Generate a simple reset token (in production use a signed JWT with short expiry)
+        const resetToken = this.jwtService.sign(
+          { sub: user.id, email: user.email, type: 'password-reset' },
+          { secret: this.configService.get<string>('JWT_SECRET'), expiresIn: '15m' },
+        );
+        await this.mailService.sendPasswordReset(
+          user.email,
+          `${user.firstName} ${user.lastName}`,
+          resetToken,
+          frontendUrl,
+        );
+      }
+    } catch {
+      // Silently ignore errors — never reveal if email exists
+    }
+    return { success: true, message: 'If an account with that email exists, a reset link has been sent.' };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
+
+      if (payload.type !== 'password-reset') {
+        throw new BadRequestException('Invalid token type');
+      }
+
+      await this.usersService.resetPassword(payload.sub, newPassword);
+      return { success: true, message: 'Password reset successfully' };
+    } catch (e) {
+      throw new BadRequestException('Invalid or expired password reset token');
+    }
   }
 }

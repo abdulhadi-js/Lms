@@ -11,6 +11,7 @@ import { Submission } from './entities/submission.entity';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { SubmitAssignmentDto } from './dto/submit-assignment.dto';
 import { GradeSubmissionDto } from './dto/grade-submission.dto';
+import { CloudinaryService } from '../config/cloudinary.service';
 
 @Injectable()
 export class AssignmentsService {
@@ -19,6 +20,7 @@ export class AssignmentsService {
     private assignmentRepo: Repository<Assignment>,
     @InjectRepository(Submission)
     private submissionRepo: Repository<Submission>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(dto: CreateAssignmentDto, teacherId: string) {
@@ -76,7 +78,11 @@ export class AssignmentsService {
       submission = this.submissionRepo.create({ assignmentId, studentId });
     }
     submission.textContent = dto.textContent ?? (null as any);
-    if (file) submission.fileUrl = file.path;
+    
+    if (file) {
+      const uploadResult = await this.cloudinaryService.uploadFile(file, 'assignments');
+      submission.fileUrl = uploadResult.secureUrl;
+    }
 
     return this.submissionRepo.save(submission);
   }

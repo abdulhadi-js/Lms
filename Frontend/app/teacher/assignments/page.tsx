@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Plus, CheckCircle, Clock, MoreHorizontal, Trash, Edit, X } from 'lucide-react';
 import { assignmentsApi, coursesApi } from '@/lib/api';
+import RichTextEditor from '@/components/RichTextEditor';
 
 export default function TeacherAssignments() {
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -149,7 +150,62 @@ export default function TeacherAssignments() {
 
       <div className="bg-white rounded-[12px] border border-[#c6c6c6] overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {loading ? (
+            <div className="p-8 text-center text-[#5f5f5f]">Loading assignments...</div>
+          ) : assignments.length === 0 ? (
+            <div className="p-8 text-center text-[#5f5f5f]">No assignments created yet.</div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden p-4 space-y-4 bg-surface">
+                {assignments.map((assignment) => {
+                  const isPastDue = new Date(assignment.dueDate) <= new Date();
+                  return (
+                    <div key={assignment.id} className="bg-white p-4 rounded-xl border border-[#c6c6c6] shadow-sm relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-[#132a13] flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-[#4f772d]" />
+                            {assignment.title}
+                          </div>
+                          <div className="text-xs text-[#5f5f5f] mt-1">{assignment.course?.title || 'Unknown Course'}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => openEditModal(assignment)}
+                            className="p-1.5 text-[#5f5f5f] hover:text-info hover:bg-info/10 rounded transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(assignment.id)}
+                            className="p-1.5 text-[#5f5f5f] hover:text-error hover:bg-error-bg rounded transition-colors"
+                            title="Delete"
+                          >
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs text-[#5f5f5f] mb-3 line-clamp-2">{assignment.description}</div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm pt-3 border-t border-[#c6c6c6]">
+                        <div className="text-[#5f5f5f] flex items-center gap-1"><Clock className="w-4 h-4" /> Due:</div>
+                        <div className={`text-right font-medium ${isPastDue ? 'text-error' : 'text-[#31572c]'}`}>
+                          {new Date(assignment.dueDate).toLocaleDateString()}
+                        </div>
+                        
+                        <div className="text-[#5f5f5f]">Marks:</div>
+                        <div className="text-right">{assignment.maxMarks} ({assignment.weightPercent}%)</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#31572c] text-white text-sm">
                 <th className="p-4 font-semibold">Assignment Details</th>
@@ -160,12 +216,7 @@ export default function TeacherAssignments() {
               </tr>
             </thead>
             <tbody className="text-[#444444]">
-              {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center">Loading assignments...</td></tr>
-              ) : assignments.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center">No assignments created yet.</td></tr>
-              ) : (
-                assignments.map((assignment, index) => {
+                {assignments.map((assignment, index) => {
                   const isPastDue = new Date(assignment.dueDate) <= new Date();
                   
                   return (
@@ -206,10 +257,12 @@ export default function TeacherAssignments() {
                       </div>
                     </td>
                   </tr>
-                )})
-              )}
-            </tbody>
-          </table>
+                  );
+                })}
+              </tbody>
+            </table>
+            </>
+          )}
         </div>
       </div>
 
@@ -268,11 +321,9 @@ export default function TeacherAssignments() {
                 
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Description</label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
-                  />
+                  <div className="prose-container">
+                    <RichTextEditor value={description} onChange={setDescription} />
+                  </div>
                 </div>
                 
                 <div>

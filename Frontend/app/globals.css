@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+
   --color-evergreen: #132a13;
   --color-hunter: #31572c;
   --color-fern: #4f772d;
@@ -44,7 +47,36 @@
   --color-secondary: #4f772d;
   --color-secondary-container: #4f772d;
   --color-secondary-fixed: #c2f198;
+  --color-secondary-fixed: #c2f198;
   --color-secondary-fixed-dim: #a6d47e;
+}
+
+/* Dark Mode Variant for next-themes */
+@custom-variant dark (&:is(.dark *));
+
+/* Dark Mode Variables */
+.dark {
+  --color-page-bg: #0d120d;
+  --color-neutral-bg: #141b14;
+  --color-border-light: #2b3d2b;
+  --color-divider: #3a4f3a;
+  --color-placeholder: #5f7a5f;
+  --color-icon-inactive: #81a481;
+  --color-body-secondary: #a6c0a6;
+  --color-heading-on-light: #ecf39e;
+
+  --color-surface: #131a13;
+  --color-on-surface: #e0e6e0;
+  --color-surface-container: #1b261b;
+  --color-surface-container-lowest: #0d120d;
+  --color-surface-container-low: #131a13;
+  --color-surface-container-high: #243324;
+  --color-surface-container-highest: #2b3d2b;
+
+  --color-primary: #90a955;
+  --color-primary-container: #1a2f17;
+  --color-on-primary-container: #c2f198;
+  --color-on-primary: #0a140a;
 }
 
 body {
@@ -62,6 +94,20 @@ body {
 }
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .brand-shadow {

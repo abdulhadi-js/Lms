@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { coursesApi, attendanceApi, authApi, AuthUser } from '@/lib/api';
+import { enrollmentsApi, attendanceApi, authApi, AuthUser } from '@/lib/api';
 
 interface Course {
   id: string;
@@ -33,15 +33,18 @@ export default function MyAttendance() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Get user for student ID
+        // Get current user
         const currentUser = await authApi.me();
         setUser(currentUser);
 
-        // Fetch courses the student is enrolled in
-        const courses: Course[] = await coursesApi.list();
+        // B7 FIX: fetch only the student's enrolled courses, not all courses in the system
+        const enrollments = await enrollmentsApi.list();
+        const enrolledCourses: Course[] = (Array.isArray(enrollments) ? enrollments : [])
+          .filter((e: any) => e.status === 'ENROLLED' && e.course)
+          .map((e: any) => e.course as Course);
 
-        // For each course, fetch attendance summary
-        const attendancePromises = courses.map(async (course) => {
+        // For each enrolled course, fetch attendance summary
+        const attendancePromises = enrolledCourses.map(async (course) => {
           let summary: AttendanceSummary | null = null;
           try {
             const summaries = await attendanceApi.getSummary(course.id, currentUser.id);
@@ -97,7 +100,8 @@ export default function MyAttendance() {
     }
   });
 
-  const overallPercent = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 100;
+  // B6 FIX: show 0% when no classes have occurred — not 100% (misleading)
+  const overallPercent = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0;
   
   // Calculate SVG stroke offset for gauge (339.29 is circumference of r=54)
   const strokeDashoffset = 339.29 - (339.29 * overallPercent) / 100;
@@ -185,7 +189,7 @@ export default function MyAttendance() {
               const absent = summary ? Math.round((summary.absentPercent / 100) * summary.totalClasses) : 0;
               const late = summary ? Math.round((summary.latePercent / 100) * summary.totalClasses) : 0;
               const total = summary ? summary.totalClasses : 0;
-              const percent = total > 0 ? Math.round((present / total) * 100) : 100;
+              const percent = total > 0 ? Math.round((present / total) * 100) : 0;
               const isAtRisk = total > 0 && percent < 75;
 
               return (

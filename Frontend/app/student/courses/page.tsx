@@ -1,21 +1,41 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { enrollmentsApi } from '@/lib/api';
+import { enrollmentsApi, assignmentsApi, marksApi, authApi } from '@/lib/api';
 import Link from 'next/link';
 import { BookOpen, GraduationCap, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 
 export default function StudentCoursesPage() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [marks, setMarks] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await enrollmentsApi.list();
-        setEnrollments(data);
+        const [enrs, assts, me] = await Promise.all([
+          enrollmentsApi.list(),
+          assignmentsApi.list(),
+          authApi.me()
+        ]);
+        
+        let m: any[] = [];
+        if (me?.id) {
+          try {
+            m = await marksApi.getStudentMarks(me.id);
+          } catch (e) {
+            console.error('Failed to load marks:', e);
+          }
+        }
+
+        setEnrollments(enrs);
+        setAssignments(assts);
+        setMarks(m);
+        setUser(me);
       } catch (error) {
-        console.error('Failed to load courses:', error);
+        console.error('Failed to load courses data:', error);
       } finally {
         setLoading(false);
       }
@@ -41,7 +61,7 @@ export default function StudentCoursesPage() {
   };
 
   return (
-    <div className="max-w-[1024px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-8">
+    <div className="max-w-[1200px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-8">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-heading-on-light flex items-center gap-3">
@@ -53,32 +73,54 @@ export default function StudentCoursesPage() {
         <p className="text-body-secondary mt-2">View and manage all your enrolled courses for current and past semesters.</p>
       </div>
 
-      {/* Courses List */}
-      <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
-        <div className="p-5 border-b border-divider bg-surface">
-          <h2 className="text-lg font-semibold text-heading-on-light">All Enrollments</h2>
+      {/* Courses Content */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array(3).fill(0).map((_, i) => (
+            <div key={i} className="h-64 bg-surface-container-lowest rounded-xl animate-pulse"></div>
+          ))}
         </div>
-        
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {Array(3).fill(0).map((_, i) => (
-              <div key={i} className="h-24 bg-surface-container-lowest rounded-xl animate-pulse"></div>
-            ))}
-          </div>
-        ) : enrollments.length > 0 ? (
-          <div className="divide-y divide-divider">
-            {enrollments.map((enrollment, i) => (
-              <Link 
-                href={`/student/courses/${enrollment.course?.id}`} 
+      ) : enrollments.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {enrollments.map((enrollment, i) => {
+            const courseId = enrollment.course?.id;
+            const courseAssts = assignments.filter((a: any) => a.courseId === courseId);
+            const totalAssts = courseAssts.length;
+            let gradedAssts = 0;
+            if (totalAssts > 0) {
+              courseAssts.forEach(a => {
+                if (marks.some((m: any) => m.assignmentId === a.id)) {
+                  gradedAssts++;
+                }
+              });
+            }
+            
+            let progress = totalAssts === 0 ? 0 : Math.round((gradedAssts / totalAssts) * 100);
+            progress = Math.min(100, Math.max(0, progress));
+
+            const isCompleted = enrollment.status === 'COMPLETED';
+            const isDropped = enrollment.status === 'DROPPED';
+
+            return (
+              <div 
                 key={enrollment.id || i}
-                className="flex items-center p-6 hover:bg-surface-container-lowest transition-colors group block"
+                className={`bg-surface rounded-xl border border-divider brand-shadow p-6 hover:-translate-y-1 transition-all group relative overflow-hidden flex flex-col h-full ${
+                  isDropped ? 'opacity-70 grayscale-[50%]' : ''
+                }`}
               >
-                <div className="w-14 h-14 rounded-lg bg-surface-container-low flex flex-shrink-0 items-center justify-center text-primary mr-5 group-hover:scale-105 transition-transform">
-                  <BookOpen className="w-6 h-6" />
-                </div>
+                {/* Accent Bar */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary to-lime-cream"></div>
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
+                {/* Completed Overlay */}
+                {isCompleted && (
+                  <div className="absolute -top-3 -right-3 w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-success absolute bottom-3 left-3" />
+                  </div>
+                )}
+
+                <div className="flex-1">
+                  {/* Badges */}
+                  <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold text-primary-container bg-primary-container/10 px-2 py-0.5 rounded uppercase tracking-wider">
                       {enrollment.course?.code || 'CODE'}
                     </span>
@@ -86,22 +128,55 @@ export default function StudentCoursesPage() {
                       {getStatusIcon(enrollment.status)}
                       {enrollment.status}
                     </span>
+                    {enrollment.course?.credits && (
+                      <span className="text-[10px] font-semibold bg-surface-container text-body-secondary px-2 py-0.5 rounded-full border border-divider">
+                        {enrollment.course.credits} Credits
+                      </span>
+                    )}
                   </div>
-                  <h3 className="text-lg font-bold text-on-surface truncate group-hover:text-primary transition-colors">
+
+                  {/* Title & Info */}
+                  <h3 className="text-xl font-bold text-on-surface line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                     {enrollment.course?.title || 'Untitled Course'}
                   </h3>
-                  <p className="text-sm text-body-secondary truncate mt-0.5">
-                    {enrollment.course?.department || 'Department'} • Credits: {enrollment.course?.credits || 3}
-                  </p>
+                  
+                  {enrollment.course?.teacher && (
+                    <p className="text-sm text-body-secondary mb-4 flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center text-[10px] text-on-surface">
+                        {enrollment.course.teacher.name?.charAt(0) || 'T'}
+                      </span>
+                      {enrollment.course.teacher.name}
+                    </p>
+                  )}
                 </div>
-                
-                <div className="ml-4 text-icon-inactive group-hover:text-primary transition-colors">
-                  <ChevronRight className="w-6 h-6" />
+
+                {/* Progress Bar & Footer */}
+                <div className="mt-6 pt-5 border-t border-divider">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Course Progress</span>
+                    <span className="text-sm font-bold text-on-surface">{progress}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-surface-container-highest overflow-hidden mb-5">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary-container to-lime-cream transition-all duration-1000 ease-out rounded-full"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+
+                  <Link 
+                    href={`/student/courses/${courseId}`}
+                    className="w-full py-2.5 rounded-lg bg-surface-container-lowest border border-divider text-sm font-semibold text-on-surface flex items-center justify-center gap-2 hover:bg-primary hover:text-on-primary hover:border-primary transition-colors"
+                  >
+                    View Course
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
           <div className="p-12 text-center flex flex-col items-center justify-center">
             <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-icon-inactive mb-4">
               <BookOpen className="w-8 h-8" />
@@ -109,8 +184,8 @@ export default function StudentCoursesPage() {
             <h3 className="text-lg font-bold text-heading-on-light mb-2">No Courses Found</h3>
             <p className="text-body-secondary max-w-md">You are not currently enrolled in any courses. Browse the course catalog to enroll in upcoming classes.</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

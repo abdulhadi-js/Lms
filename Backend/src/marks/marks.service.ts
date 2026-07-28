@@ -10,13 +10,19 @@ import { GradingCriteria } from './entities/grading-criteria.entity';
 import { CreateMarkDto } from './dto/create-mark.dto';
 import { UpdateMarkDto } from './dto/update-mark.dto';
 import { GradingCriteriaDto } from './dto/grading-criteria.dto';
-
+import { UsersService } from '../users/users.service';
+import { CoursesService } from '../courses/courses.service';
+import type { Response } from 'express';
+const PDFDocument = require('pdfkit');
 @Injectable()
 export class MarksService {
   constructor(
-    @InjectRepository(Mark) private markRepo: Repository<Mark>,
+    @InjectRepository(Mark)
+    private markRepo: Repository<Mark>,
     @InjectRepository(GradingCriteria)
     private criteriaRepo: Repository<GradingCriteria>,
+    private readonly usersService: UsersService,
+    private readonly coursesService: CoursesService,
   ) {}
 
   async calculateGrade(
@@ -91,6 +97,70 @@ export class MarksService {
     const marks = await this.markRepo.find({ where: { studentId } });
     const gpa = await this.calculateCumulativeGPA(studentId);
     return { marks, cumulativeGPA: gpa };
+  }
+
+  async generateTranscriptPdf(studentId: string, currentUser: any, res: Response) {
+    if (currentUser.role === 'STUDENT' && currentUser.userId !== studentId) {
+      throw new ForbiddenException('Cannot view other student transcripts');
+    }
+
+    const student = await this.usersService.findOne(studentId);
+    if (!student) throw new NotFoundException('Student not found');
+
+    const marks = await this.markRepo.find({ where: { studentId } });
+    const gpa = await this.calculateCumulativeGPA(studentId);
+
+    const doc = new PDFDocument({ margin: 50 });
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=transcript-${student.firstName}-${student.lastName}.pdf`);
+    
+    doc.pipe(res);
+
+    // Header
+    doc.fontSize(24).font('Helvetica-Bold').text('EduCore LMS', { align: 'center' });
+    doc.moveDown(0.5);
+    doc.fontSize(18).font('Helvetica').text('Official Academic Transcript', { align: 'center' });
+    doc.moveDown(2);
+
+    // Student Info
+    doc.fontSize(12).font('Helvetica-Bold').text('Student Information:');
+    doc.font('Helvetica').text(`Name: ${student.firstName} ${student.lastName}`);
+    doc.text(`Email: ${student.email}`);
+    doc.text(`Student ID: ${student.id}`);
+    doc.moveDown();
+
+    doc.font('Helvetica-Bold').text(`Cumulative GPA: ${gpa.toFixed(2)} / 4.00`);
+    doc.moveDown(2);
+
+    // Academic Record
+    doc.fontSize(16).font('Helvetica-Bold').text('Academic Record', { underline: true });
+    doc.moveDown();
+
+    if (marks.length === 0) {
+      doc.font('Helvetica').fontSize(12).text('No grades recorded yet.');
+    } else {
+      // Fetch course names to display nicely
+      for (const mark of marks) {
+        let courseTitle = 'Unknown Course';
+        try {
+          const course = await this.coursesService.findOne(mark.courseId);
+          if (course) courseTitle = course.title;
+        } catch (e) {
+          // Ignore
+        }
+        
+        doc.font('Helvetica-Bold').fontSize(12).text(`${courseTitle} (${mark.component})`);
+        doc.font('Helvetica').fontSize(11).text(`Score: ${mark.score} / ${mark.maxScore} (Weight: ${mark.weightPercent}%)`);
+        doc.text(`Grade: ${mark.gradeLetter || 'N/A'} (Points: ${mark.gpaPoints || 0})`);
+        if (mark.overrideReason) {
+          doc.fillColor('red').text(`* Grade Overridden: ${mark.overrideReason}`).fillColor('black');
+        }
+        doc.moveDown(1);
+      }
+    }
+
+    doc.end();
   }
 
   async createGradingCriteria(dto: GradingCriteriaDto) {

@@ -155,7 +155,7 @@ export default function UserManagement() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+      <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-80">
@@ -165,7 +165,7 @@ export default function UserManagement() {
                 placeholder="Search by name or email..." 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-white border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
+                className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
               />
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function UserManagement() {
             <select 
               value={roleFilter}
               onChange={e => setRoleFilter(e.target.value)}
-              className="bg-white border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">All Roles</option>
               <option value="STUDENT">Students</option>
@@ -194,7 +194,68 @@ export default function UserManagement() {
                <p>No users found.</p>
              </div>
           ) : (
-            <table className="w-full text-left border-collapse">
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {filteredUsers.map((row) => (
+                  <div key={row.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold text-sm">
+                          {row.firstName?.[0]}{row.lastName?.[0]}
+                        </div>
+                        <div>
+                          <div className="font-medium text-on-surface">{row.firstName} {row.lastName}</div>
+                          <div className="text-xs text-body-secondary">{row.email}</div>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setOpenDropdown(openDropdown === row.id ? null : row.id)}
+                        className="text-icon-inactive hover:text-primary p-1 rounded-md"
+                      >
+                        <MoreVertical className="h-5 w-5" />
+                      </button>
+                      
+                      {openDropdown === row.id && (
+                        <div className="absolute right-4 top-12 w-40 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50">
+                          <button 
+                            onClick={() => { handleOpenModal(row); setOpenDropdown(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
+                          >
+                            <Edit className="w-4 h-4 text-icon-inactive" /> Edit User
+                          </button>
+                          <hr className="my-1 border-divider" />
+                          <button className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error-bg flex items-center gap-2">
+                            <Trash2 className="w-4 h-4" /> Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="text-body-secondary">Role:</div>
+                      <div className="font-medium flex items-center justify-end gap-1">
+                        {row.role === 'ADMIN' && <span className="flex items-center gap-1 text-primary"><Shield className="w-3 h-3" /> Admin</span>}
+                        {row.role === 'INSTRUCTOR' && <span className="text-info">Instructor</span>}
+                        {row.role === 'STUDENT' && <span className="text-body-secondary">Student</span>}
+                      </div>
+                      
+                      <div className="text-body-secondary">Status:</div>
+                      <div className="flex justify-end">
+                        {row.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Active</span>}
+                        {row.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
+                        {row.status === 'INACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Inactive</span>}
+                      </div>
+                      
+                      <div className="text-body-secondary">Joined:</div>
+                      <div className="text-right">{new Date(row.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
               <thead>
                 <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                   <th className="py-4 px-6 font-semibold">User</th>
@@ -240,7 +301,7 @@ export default function UserManagement() {
                       </button>
                       
                       {openDropdown === row.id && (
-                        <div className="absolute right-6 top-10 w-40 bg-white rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
+                        <div className="absolute right-6 top-10 w-40 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
                           <button 
                             onClick={() => handleOpenModal(row)}
                             className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
@@ -261,6 +322,7 @@ export default function UserManagement() {
                 ))}
               </tbody>
             </table>
+            </>
           )}
         </div>
       </div>
@@ -268,7 +330,7 @@ export default function UserManagement() {
       {/* User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">
                 {isEditMode ? 'Edit User' : 'Add New User'}

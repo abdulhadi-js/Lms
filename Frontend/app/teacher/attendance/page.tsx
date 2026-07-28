@@ -239,7 +239,67 @@ export default function TeacherAttendance() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {loading ? (
+            <div className="py-8 text-center text-body-secondary">Loading students...</div>
+          ) : filteredStudents.length === 0 ? (
+            <div className="py-8 text-center text-body-secondary">No students found.</div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4 px-4 pb-4">
+                {filteredStudents.map((student, i) => {
+                  const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
+                  
+                  return (
+                    <div key={student.id} className="bg-white p-4 rounded-xl border border-divider shadow-sm relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>
+                          <div className="text-sm text-body-secondary">{student.email}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center gap-4 mb-4">
+                        <button 
+                          onClick={() => handleStatusChange(student.id, 'PRESENT')}
+                          disabled={!isToday}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${state.status === 'PRESENT' ? 'bg-success text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'PRESENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Present"
+                        >
+                          <Check className="w-6 h-6" />
+                        </button>
+                        <button 
+                          onClick={() => handleStatusChange(student.id, 'ABSENT')}
+                          disabled={!isToday}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${state.status === 'ABSENT' ? 'bg-error text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'ABSENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Absent"
+                        >
+                          <X className="w-6 h-6" />
+                        </button>
+                        <button 
+                          onClick={() => handleStatusChange(student.id, 'LATE')}
+                          disabled={!isToday}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${state.status === 'LATE' ? 'bg-warning text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'LATE' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Late"
+                        >
+                          L
+                        </button>
+                      </div>
+
+                      <div className="pt-2 border-t border-divider">
+                        <input 
+                          type="text" 
+                          placeholder={isToday ? "Add note..." : ""} 
+                          value={state.notes}
+                          disabled={!isToday}
+                          onChange={(e) => handleNotesChange(student.id, e.target.value)}
+                          className="w-full bg-surface-container-lowest border border-border-light rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none transition-colors disabled:cursor-not-allowed" 
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                 <th className="py-4 px-6 font-semibold w-12">#</th>
@@ -250,12 +310,7 @@ export default function TeacherAttendance() {
               </tr>
             </thead>
             <tbody className="text-sm">
-              {loading ? (
-                <tr><td colSpan={5} className="py-8 text-center text-body-secondary">Loading students...</td></tr>
-              ) : filteredStudents.length === 0 ? (
-                <tr><td colSpan={5} className="py-8 text-center text-body-secondary">No students found.</td></tr>
-              ) : (
-                filteredStudents.map((student, i) => {
+                {filteredStudents.map((student, i) => {
                   const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
                   
                   return (
@@ -301,10 +356,12 @@ export default function TeacherAttendance() {
                       />
                     </td>
                   </tr>
-                )})
-              )}
-            </tbody>
-          </table>
+                  );
+                })}
+              </tbody>
+            </table>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -130,7 +130,7 @@ export default function CourseManagement() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <div key={course.id} className="bg-white rounded-xl border border-divider brand-shadow overflow-visible flex flex-col group hover:-translate-y-1 transition-transform duration-300">
+            <div key={course.id} className="bg-surface rounded-xl border border-divider brand-shadow overflow-visible flex flex-col group hover:-translate-y-1 transition-transform duration-300">
               <div className="p-5 border-b border-divider flex-1 relative">
                 <div className="flex justify-between items-start mb-4">
                   <span className="text-xs font-bold text-primary-container bg-primary-container/10 px-2.5 py-1 rounded-md uppercase tracking-wider">
@@ -145,7 +145,7 @@ export default function CourseManagement() {
                     </button>
                     
                     {openDropdown === course.id && (
-                      <div className="absolute right-0 top-6 w-48 bg-white rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
+                      <div className="absolute right-0 top-6 w-48 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
                         <button 
                           onClick={() => handleOpenModal(course)}
                           className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
@@ -197,7 +197,7 @@ export default function CourseManagement() {
       {/* Course Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">
                 {isEditMode ? 'Edit Course' : 'Create New Course'}

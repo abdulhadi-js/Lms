@@ -30,6 +30,7 @@ export class CoursesService {
   }
 
   async findAll(currentUser: any) {
+    console.log('CoursesService.findAll currentUser:', currentUser);
     if (currentUser.role === 'ADMIN') {
       return this.courseRepo.find();
     } else if (currentUser.role === 'INSTRUCTOR') {

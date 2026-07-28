@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Paperclip, Search, MoreVertical, Circle } from 'lucide-react';
 import { chatApi, authApi, AuthUser, coursesApi } from '@/lib/api';
+import { io, Socket } from 'socket.io-client';
 
 interface UserInfo {
   id: string;
@@ -48,6 +49,7 @@ export default function StudentChat() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
+  const [socket, setSocket] = useState<Socket | null>(null);
   
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -57,7 +59,60 @@ export default function StudentChat() {
 
   useEffect(() => {
     fetchInitialData();
+    
+    const token = typeof window !== 'undefined' ? localStorage.getItem('lms_access_token') : null;
+    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace('/api/v1', '');
+    
+    const newSocket = io(`${socketUrl}/chat`, {
+      auth: { token: `Bearer ${token}` },
+      transports: ['websocket'],
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleNewMessage = (msg: Message) => {
+      setMessages(prev => {
+        if (activeContact) {
+          if (
+            (msg.courseId && msg.courseId === activeContact.courseId) ||
+            (!msg.courseId && (msg.senderId === activeContact.partnerId || msg.receiverId === activeContact.partnerId))
+          ) {
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          }
+        }
+        return prev;
+      });
+      
+      setContacts(prev => prev.map(c => {
+        const isMatch = (msg.courseId && msg.courseId === c.courseId) || 
+                        (!msg.courseId && (msg.senderId === c.partnerId || msg.receiverId === c.partnerId));
+        if (isMatch) {
+          return {
+            ...c,
+            lastMessage: msg.body,
+            time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            unread: c.id !== activeContact?.id
+          };
+        }
+        return c;
+      }));
+    };
+
+    socket.on('new_message', handleNewMessage);
+    
+    return () => {
+      socket.off('new_message', handleNewMessage);
+    };
+  }, [socket, activeContact]);
 
   useEffect(() => {
     if (activeContact) {
@@ -183,21 +238,31 @@ export default function StudentChat() {
 
     try {
       setSending(true);
-      const newMsg = await chatApi.sendMessage({
-        receiverId: activeContact.partnerId,
-        courseId: activeContact.courseId,
-        body: messageInput.trim()
-      });
-      
-      setMessages(prev => [...prev, newMsg]);
-      setMessageInput('');
-      
-      // Update last message in contact list
-      setContacts(prev => prev.map(c => 
-        c.id === activeContact.id 
-          ? { ...c, lastMessage: newMsg.body, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) } 
-          : c
-      ));
+      if (socket && socket.connected) {
+        socket.emit('send_message', {
+          receiverId: activeContact.partnerId,
+          courseId: activeContact.courseId,
+          body: messageInput.trim()
+        }, (newMsg: Message) => {
+          setMessageInput('');
+        });
+      } else {
+        const newMsg = await chatApi.sendMessage({
+          receiverId: activeContact.partnerId,
+          courseId: activeContact.courseId,
+          body: messageInput.trim()
+        });
+        
+        setMessages(prev => [...prev, newMsg]);
+        setMessageInput('');
+        
+        // Update last message in contact list
+        setContacts(prev => prev.map(c => 
+          c.id === activeContact.id 
+            ? { ...c, lastMessage: newMsg.body, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) } 
+            : c
+        ));
+      }
     } catch (error) {
       console.error("Failed to send message", error);
       alert("Failed to send message");

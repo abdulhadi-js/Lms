@@ -1,15 +1,17 @@
 "use client";
 
-import { Menu, Bell, LayoutDashboard, GraduationCap, FileText, Edit, ClipboardCheck, MessageSquare, BarChart3, LogOut } from 'lucide-react';
+import { Menu, Bell, LayoutDashboard, GraduationCap, FileText, Edit, ClipboardCheck, MessageSquare, BarChart3, LogOut, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/auth-context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     if (!isLoading) {
@@ -34,17 +36,19 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     { href: '/teacher/attendance', label: 'Attendance', icon: ClipboardCheck },
     { href: '/teacher/chat', label: 'Chat', icon: MessageSquare },
     { href: '/teacher/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/teacher/profile', label: 'Profile Settings', icon: Settings },
   ];
 
   return (
-    <div className="flex h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
       {/* Top Navigation (Mobile/Tablet) */}
       <header className="md:hidden flex justify-between items-center px-4 h-16 w-full bg-primary border-b border-outline/20 sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <Menu className="text-on-primary w-5 h-5" />
-          <span className="font-semibold text-[24px] text-on-primary">EduCore LMS</span>
+          <Link href="/" className="font-semibold text-[24px] text-on-primary hover:text-white transition-colors">EduCore LMS</Link>
         </div>
         <div className="flex items-center gap-4 text-on-primary">
+          <ThemeToggle className="text-on-primary border-on-primary/20 hover:text-primary-fixed" />
           <Bell className="hover:opacity-80 transition-opacity cursor-pointer w-5 h-5" />
           <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20">
             TC
@@ -53,38 +57,63 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
       </header>
 
       {/* Side Navigation (Desktop) */}
-      <nav className="hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen w-64 py-8 shrink-0 z-40">
-        <div className="px-6 mb-8 text-center flex flex-col items-center">
+      <nav className={`hidden md:flex flex-col h-full bg-gradient-to-b from-evergreen to-primary-container shadow-md docked left-0 h-screen transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} py-8 shrink-0 z-40 relative`}>
+        {/* Collapse Toggle Button */}
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-8 bg-white text-evergreen border border-divider rounded-full p-1 shadow-md hover:bg-surface-container transition-colors z-50"
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+
+        <div className="px-4 mb-8 flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
-            <div className="w-16 h-16 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xl border-2 border-on-primary/20">
+            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all ${isCollapsed ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
               TC
             </div>
-            <span className="absolute bottom-0 right-0 w-4 h-4 bg-lime-cream rounded-full border-2 border-evergreen"></span>
+            {!isCollapsed && <span className="absolute bottom-0 right-0 w-4 h-4 bg-lime-cream rounded-full border-2 border-evergreen"></span>}
           </div>
-          <h2 className="font-semibold text-[20px] text-on-primary">EduCore LMS</h2>
-          <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block">Teacher Dashboard</span>
+          {!isCollapsed && (
+            <>
+              <Link href="/" className="font-semibold text-[20px] text-on-primary hover:text-white transition-colors text-center block mt-1">EduCore LMS</Link>
+              <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block text-center whitespace-nowrap">Teacher Dashboard</span>
+            </>
+          )}
         </div>
-        <ul className="flex flex-col gap-1 px-4 flex-grow overflow-y-auto">
+        <ul className={`flex flex-col gap-1 ${isCollapsed ? 'px-2' : 'px-4'} flex-grow overflow-y-auto`}>
           {navLinks.map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link
                 href={href}
-                className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-colors ${
+                title={isCollapsed ? label : undefined}
+                className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${
                   isActive(href)
-                    ? 'text-primary-fixed font-bold border-l-4 border-primary-fixed pl-4 bg-primary-container/20'
-                    : 'text-on-primary/70 pl-5 hover:bg-primary-container/50 hover:text-white'
+                    ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}`
+                    : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span>{label}</span>
+                <Icon className="w-5 h-5 shrink-0" />
+                {!isCollapsed && <span className="truncate">{label}</span>}
               </Link>
             </li>
           ))}
         </ul>
-        <div className="px-6 mt-auto">
-          <button onClick={() => logout()} className="flex items-center justify-center gap-2 w-full text-on-primary/70 font-medium text-[14px] py-2 hover:text-white transition-colors">
+        <div className={`mt-auto shrink-0 flex flex-col gap-2 ${isCollapsed ? 'px-2 items-center' : 'px-6'}`}>
+          {!isCollapsed ? (
+            <div className="flex items-center justify-between mb-2 px-2 border border-divider rounded-lg p-2 bg-surface-container/50">
+              <span className="text-sm font-medium text-on-primary/80">Theme</span>
+              <ThemeToggle />
+            </div>
+          ) : (
+            <ThemeToggle className="mb-2" />
+          )}
+
+          <button onClick={() => logout()} 
+            title={isCollapsed ? "Logout" : undefined}
+            className={`flex items-center justify-center text-on-primary/70 font-medium hover:text-white transition-colors ${isCollapsed ? 'w-10 h-10' : 'w-full gap-2 py-2 text-[14px]'}`}
+          >
             <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+            {!isCollapsed && <span>Logout</span>}
           </button>
         </div>
       </nav>

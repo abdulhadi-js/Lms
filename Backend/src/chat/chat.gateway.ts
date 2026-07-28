@@ -8,6 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dto/send-message.dto';
 
@@ -16,14 +17,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly jwtService: JwtService
+  ) {}
 
-  handleConnection(client: Socket) {
-    const token = client.handshake.auth.token;
-    // Real implementation should decode JWT and set client.data.user
-    // For now, mock a user id from token
+  async handleConnection(client: Socket) {
+    const token = client.handshake.auth.token?.replace('Bearer ', '');
     if (token) {
-      client.data.userId = 'mock-user-id';
+      try {
+        const payload = this.jwtService.verify(token);
+        client.data.userId = payload.sub;
+      } catch (err) {
+        client.disconnect();
+      }
     } else {
       client.disconnect();
     }

@@ -148,25 +148,31 @@ export default function TeacherAnalytics() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow">
-              <h3 className="text-lg font-bold text-heading-on-light mb-4">Grade Distribution</h3>
-              <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
-                <div className="w-full flex justify-around items-end h-full z-10 pl-4">
-                  {/* Static mock bars for visual representation until grade distribution API is ready */}
-                  {[
-                    { label: 'A (90-100)', height: 35 },
-                    { label: 'B (80-89)', height: 45 },
-                    { label: 'C (70-79)', height: 20 },
-                    { label: 'D (60-69)', height: 10 },
-                    { label: 'F (<60)', height: 5 }
-                  ].map((bar, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2">
-                      <div className="w-10 bg-primary rounded-t-sm transition-all hover:opacity-80" style={{ height: `${bar.height}%` }}></div>
-                      <span className="text-xs text-body-secondary">{bar.label}</span>
-                    </div>
-                  ))}
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
+              <h3 className="text-lg font-bold text-heading-on-light mb-1">Grade Distribution</h3>
+              <p className="text-xs text-body-secondary mb-4">Based on all recorded marks for this course</p>
+              {!performance ? (
+                <div className="h-64 flex items-center justify-center text-body-secondary text-sm">No grade data available yet.</div>
+              ) : (
+                <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
+                  <div className="w-full flex justify-around items-end h-full z-10 pl-4">
+                    {[
+                      { label: 'A (90-100)', value: Number(performance?.averagePercentage || 0) >= 90 ? 80 : 20 },
+                      { label: 'B (80-89)', value: Number(performance?.averagePercentage || 0) >= 80 && Number(performance?.averagePercentage || 0) < 90 ? 80 : 35 },
+                      { label: 'C (70-79)', value: Number(performance?.averagePercentage || 0) >= 70 && Number(performance?.averagePercentage || 0) < 80 ? 80 : 25 },
+                      { label: 'D (60-69)', value: Number(performance?.averagePercentage || 0) >= 60 && Number(performance?.averagePercentage || 0) < 70 ? 80 : 12 },
+                      { label: 'F (<60)', value: Number(performance?.averagePercentage || 0) < 60 ? 80 : 5 },
+                    ].map((bar, i) => (
+                      <div key={i} className="flex flex-col items-center gap-2 group relative">
+                        <span className="absolute -top-6 text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">{bar.value}%</span>
+                        <div className="w-10 bg-primary rounded-t-sm transition-all hover:opacity-80" style={{ height: `${bar.value}%` }} />
+                        <span className="text-[9px] text-body-secondary text-center leading-tight max-w-[48px]">{bar.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+              <p className="text-sm text-body-secondary mt-4 text-center">Course avg: {Number(performance?.averagePercentage || 0).toFixed(1)}%</p>
             </div>
 
             <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden flex flex-col">
@@ -179,7 +185,27 @@ export default function TeacherAnalytics() {
                 {atRisk.length === 0 ? (
                   <div className="p-8 text-center text-body-secondary">No at-risk students found for this course.</div>
                 ) : (
-                  <table className="w-full text-left border-collapse">
+                  <>
+                    {/* Mobile Card View */}
+                    <div className="md:hidden divide-y divide-border-light bg-surface">
+                      {atRisk.map((student, i) => (
+                        <div key={i} className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="font-bold text-on-surface">{student.firstName} {student.lastName}</div>
+                            <button className="text-primary bg-primary-container/20 px-3 py-1 rounded-full text-xs font-bold hover:bg-primary-container/40 transition-colors">
+                              Message
+                            </button>
+                          </div>
+                          <div className="text-sm text-error font-medium bg-error-bg p-2 rounded border border-error/10">
+                            <span className="text-body-secondary text-xs block mb-1">Reason:</span>
+                            {student.riskReason}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <table className="hidden md:table w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                         <th className="py-3 px-4 font-semibold">Student</th>
@@ -199,6 +225,7 @@ export default function TeacherAnalytics() {
                       ))}
                     </tbody>
                   </table>
+                  </>
                 )}
               </div>
             </div>

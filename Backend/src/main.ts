@@ -1,12 +1,39 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ValidationPipe, Catch, ExceptionFilter, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    
+    const status = exception instanceof HttpException 
+      ? exception.getStatus() 
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const isProd = process.env.NODE_ENV === 'production';
+    response.status(status).json({
+      statusCode: status,
+      message: exception instanceof Error ? exception.message : 'Unknown error',
+      // WARN-04: Never expose stack traces in production
+      ...(isProd ? {} : { stack: exception instanceof Error ? exception.stack : undefined }),
+    });
+  }
+}
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
+
+  // Serve static uploads
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Apply helmet for secure HTTP headers
   const helmet = await import('helmet');
@@ -27,9 +54,13 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
+  // Apply Global Exception Filter to see what is crashing
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // CORS — WARN-01 fix: read from env so deployment works
+  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [frontendUrl, 'http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   });
 

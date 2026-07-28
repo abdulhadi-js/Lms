@@ -1,4 +1,6 @@
-const API_BASE = 'http://localhost:3001/api/v1';
+import axios from 'axios';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -8,9 +10,29 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
       ...options.headers,
     },
   });
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status}`);
+
+  // Global 401 handler — clear tokens and redirect to login
+  if (res.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('lms_access_token');
+      localStorage.removeItem('lms_refresh_token');
+      window.location.href = '/login';
+    }
+    throw new Error('Session expired. Please log in again.');
   }
+
+  if (!res.ok) {
+    // Try to parse backend error message
+    let message = `API error: ${res.status}`;
+    try {
+      const errBody = await res.json();
+      message = errBody?.message || errBody?.error || message;
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(message);
+  }
+
   return res.json();
 }
 
@@ -37,17 +59,38 @@ async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
   });
 }
 
-export type AuthUser = { id: string; email: string; role: string; firstName: string; lastName: string };
+export type AuthUser = { id: string; email: string; role: string; firstName: string; lastName: string; phone?: string; profilePicture?: string; };
 export type LoginResponse = { accessToken: string; refreshToken: string; user: AuthUser };
 
 export const authApi = {
+  forgotPassword: async (email: string): Promise<{ success: boolean; message: string }> => {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.message || 'Failed to send reset link.');
+    }
+    return res.json();
+  },
   login: async (email: string, password: string): Promise<LoginResponse> => {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
     if (!res.ok) throw new Error('Login failed');
+    return res.json();
+  },
+  refresh: async (refreshToken: string): Promise<LoginResponse> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${refreshToken}` },
+      body: JSON.stringify({ refreshToken })
+    });
+    if (!res.ok) throw new Error('Token refresh failed');
     return res.json();
   },
   logout: () => fetchAuthApi('/auth/logout', { method: 'POST' }),
@@ -116,7 +159,23 @@ export const assignmentsApi = {
   create: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/assignments`, { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/assignments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/assignments/${id}`, { method: 'DELETE' }),
-  submit: (id: string, data: any) => fetchAuthApi(`/assignments/${id}/submissions`, { method: 'POST', body: JSON.stringify(data) }),
+  submit: async (id: string, data: any, onUploadProgress?: (progressEvent: any) => void) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('lms_access_token') : null;
+    let payload = data;
+    let headers: any = { Authorization: `Bearer ${token}` };
+
+    if (data instanceof FormData) {
+      headers['Content-Type'] = 'multipart/form-data';
+    } else {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const response = await axios.post(`${API_BASE}/assignments/${id}/submissions`, data, {
+      headers,
+      onUploadProgress,
+    });
+    return response.data;
+  },
 };
 
 export const timetableApi = {
@@ -128,8 +187,27 @@ export const timetableApi = {
 
 export const marksApi = {
   getGradebook: (courseId: string) => fetchAuthApi(`/marks/gradebook?courseId=${courseId}`),
+  getStudentMarks: (studentId: string) => fetchAuthApi(`/marks?studentId=${studentId}`),
+  getTranscript: (studentId: string) => fetchAuthApi(`/marks/transcript/${studentId}`),
   enterMark: (data: any) => fetchAuthApi('/marks', { method: 'POST', body: JSON.stringify(data) }),
   updateMark: (id: string, data: any) => fetchAuthApi(`/marks/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  downloadTranscriptPdf: async (studentId: string) => {
+    const token = tokens.getAccessToken();
+    const res = await fetch(`${API_BASE}/marks/transcript/${studentId}/pdf`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to download PDF');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    // Filename is ideally parsed from Content-Disposition, but we provide a fallback
+    a.download = `Transcript.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  }
 };
 
 
@@ -163,4 +241,9 @@ export const chatApi = {
     method: 'POST',
     body: JSON.stringify(data)
   }),
+};
+
+export const notificationsApi = {
+  list: () => fetchAuthApi('/notifications'),
+  markAllRead: () => fetchAuthApi('/notifications/read-all', { method: 'PATCH' }),
 };
