@@ -1,6 +1,7 @@
 services:
   - type: web
     name: educore-backend
+    plan: free
     env: node
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
@@ -38,5 +39,6 @@ services:
 
 databases:
   - name: educore-db
+    plan: free
     databaseName: educore
     user: educore_user
