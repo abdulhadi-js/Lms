@@ -60,7 +60,7 @@ async function bootstrap() {
   // CORS — WARN-01 fix: read from env so deployment works
   const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000', 'http://localhost:3001'],
+    origin: [frontendUrl, 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
     credentials: true,
   });
 

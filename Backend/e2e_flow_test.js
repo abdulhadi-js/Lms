@@ -29,7 +29,7 @@ async function runTests() {
     console.log('\n[1] Testing Admin Login...');
     const adminLogin = await fetchApi('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email: 'admin@educore.com', password: 'Admin@123' })
+      body: JSON.stringify({ email: 'admin@educore.com', password: 'Admin@123!' })
     });
     adminToken = adminLogin.accessToken;
     console.log('✅ Admin login successful');

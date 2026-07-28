@@ -1,6 +1,5 @@
 import { MailerModule } from '@nestjs-modules/mailer';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { HandlebarsAdapter } = require('@nestjs-modules/mailer/dist/adapters/handlebars.adapter');
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module, Global } from '@nestjs/common';
 import { join } from 'path';

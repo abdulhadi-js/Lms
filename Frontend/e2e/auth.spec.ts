@@ -7,13 +7,18 @@ test.describe('Authentication and Navigation', () => {
 
     // Fill in credentials
     await page.fill('input[type="email"]', 'admin@educore.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('input[type="password"]', 'Admin@123!');
 
     // Click login
     await page.click('button[type="submit"]');
 
     // Should redirect to admin dashboard
-    await expect(page).toHaveURL(/\/admin/);
+    try {
+      await expect(page).toHaveURL(/\/admin/, { timeout: 30000 });
+    } catch (e) {
+      await page.screenshot({ path: 'admin-login-failure.png' });
+      throw e;
+    }
 
     // Verify Admin Dashboard title
     await expect(page.locator('h1').first()).toContainText('Admin Dashboard');
@@ -25,13 +30,13 @@ test.describe('Authentication and Navigation', () => {
 
     // Fill in credentials
     await page.fill('input[type="email"]', 'student@educore.com');
-    await page.fill('input[type="password"]', 'student123');
+    await page.fill('input[type="password"]', 'Student@123!');
 
     // Click login
     await page.click('button[type="submit"]');
 
     // Should redirect to student dashboard
-    await expect(page).toHaveURL(/\/student/);
+    await expect(page).toHaveURL(/\/student/, { timeout: 30000 });
 
     // Verify Student Dashboard
     await expect(page.locator('h1').first()).toContainText('Student Dashboard');

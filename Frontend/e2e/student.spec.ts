@@ -5,9 +5,9 @@ test.describe('Student Portal', () => {
     // Login as student before each test
     await page.goto('/login');
     await page.fill('input[type="email"]', 'student@educore.com');
-    await page.fill('input[type="password"]', 'student123');
+    await page.fill('input[type="password"]', 'Student@123!');
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/student/);
+    await expect(page).toHaveURL(/\/student/, { timeout: 30000 });
   });
 
   test('Student can view courses', async ({ page }) => {

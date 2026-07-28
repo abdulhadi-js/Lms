@@ -38,6 +38,6 @@ export class AuditLog {
   @JoinColumn({ name: 'actor_id' })
   actor: User;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 }
