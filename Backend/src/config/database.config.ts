@@ -4,6 +4,19 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 export const getDatabaseConfig = (
   configService: ConfigService,
 ): TypeOrmModuleOptions => {
+  const dbUrl = configService.get<string>('DATABASE_URL');
+  if (dbUrl) {
+    return {
+      type: 'postgres',
+      url: dbUrl,
+      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      synchronize: configService.get<string>('NODE_ENV') !== 'production',
+      logging: configService.get<string>('NODE_ENV') === 'development',
+      ssl: true,
+      extra: { ssl: { rejectUnauthorized: false } },
+    };
+  }
+
   const host = configService.get<string>('DB_HOST', 'localhost');
   const isCloud = host !== 'localhost' && host !== '127.0.0.1';
 
@@ -17,7 +30,6 @@ export const getDatabaseConfig = (
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     synchronize: configService.get<string>('NODE_ENV') !== 'production',
     logging: configService.get<string>('NODE_ENV') === 'development',
-    // SSL required for Neon and other cloud providers
     ssl: isCloud,
     extra: isCloud
       ? { ssl: { rejectUnauthorized: false } }
