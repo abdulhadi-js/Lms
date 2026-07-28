@@ -3,7 +3,7 @@ services:
     name: educore-backend
     plan: free
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run start:prod
     rootDir: Backend
     envVars:
