@@ -25,6 +25,16 @@ import { Role } from '../common/enums/roles.enum';
 export class MarksController {
   constructor(private readonly marksService: MarksService) {}
 
+  // M-05 fix: frontend calls GET /marks?studentId= — delegate to getGradebook scoped by student
+  @Get()
+  getMarks(@Query('studentId') studentId: string, @Query('courseId') courseId: string, @Req() req: any) {
+    // If studentId provided, proxy to transcript; otherwise use gradebook
+    if (studentId) {
+      return this.marksService.getTranscript(studentId, req.user);
+    }
+    return this.marksService.getGradebook(courseId, req.user);
+  }
+
   @Get('gradebook')
   getGradebook(@Query('courseId') courseId: string, @Req() req: any) {
     return this.marksService.getGradebook(courseId, req.user);

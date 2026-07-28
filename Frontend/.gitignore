@@ -7,3 +7,9 @@ coverage/
 !.env.example
 
 testsprite_tests\tmp\config.json
+
+# Playwright artifacts — never commit these
+test-results/
+playwright-report/
+*.png
+*.jpg

@@ -76,12 +76,15 @@ export const authApi = {
     return res.json();
   },
   login: async (email: string, password: string): Promise<LoginResponse> => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/login`, {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    if (!res.ok) throw new Error('Login failed');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.message || 'Invalid email or password. Please try again.');
+    }
     return res.json();
   },
   refresh: async (refreshToken: string): Promise<LoginResponse> => {
