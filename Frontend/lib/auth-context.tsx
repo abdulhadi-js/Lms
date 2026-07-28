@@ -131,10 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       scheduleRefresh();
 
-      // Route based on role
+      // Route based on role — backend uses INSTRUCTOR (not TEACHER)
       const redirectPaths: Record<string, string> = {
         ADMIN: "/admin",
-        TEACHER: "/teacher",
         INSTRUCTOR: "/teacher",
         STUDENT: "/student",
       };

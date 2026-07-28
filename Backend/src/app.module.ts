@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { BullModule } from '@nestjs/bull';
+
 
 import { getDatabaseConfig } from './config/database.config';
 import { CloudinaryModule } from './config/cloudinary.module';
@@ -40,12 +40,7 @@ import { ReportsModule } from './reports/reports.module';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
 
     // ── Global infrastructure modules ─────────────────────────────────────
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: config.get<string>('REDIS_URL'),
-      }),
-    }),
+
     CloudinaryModule,  // BUG-03 fix: global file upload service
     MailModule,        // BUG-03 fix: global email service
 
