@@ -31,8 +31,8 @@ export class AssignmentsController {
   }
 
   @Get('assignments')
-  findAllGlobal() {
-    return this.assignmentsService.findAllGlobal();
+  findAllGlobal(@Request() req: any) {
+    return this.assignmentsService.findAllGlobal(req.user);
   }
 
   @Post('courses/:courseId/assignments')

@@ -10,7 +10,8 @@ export const getDatabaseConfig = (
       type: 'postgres',
       url: dbUrl,
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      synchronize: configService.get<string>('NODE_ENV') !== 'production',
+      // SAFETY: synchronize only in local development — never in production/staging
+      synchronize: configService.get<string>('NODE_ENV') === 'development',
       logging: configService.get<string>('NODE_ENV') === 'development',
       ssl: true,
       extra: { ssl: { rejectUnauthorized: false } },
@@ -28,7 +29,8 @@ export const getDatabaseConfig = (
     password: configService.get<string>('DB_PASSWORD', 'postgres'),
     database: configService.get<string>('DB_NAME', 'educore_lms'),
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: configService.get<string>('NODE_ENV') !== 'production',
+    // SAFETY: synchronize only in local development — never in production/staging
+    synchronize: configService.get<string>('NODE_ENV') === 'development',
     logging: configService.get<string>('NODE_ENV') === 'development',
     ssl: isCloud,
     extra: isCloud

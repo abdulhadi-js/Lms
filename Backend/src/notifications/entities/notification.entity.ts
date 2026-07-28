@@ -1,9 +1,9 @@
-import { Index, 
+import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
- } from 'typeorm';
+} from 'typeorm';
 
 @Entity('notifications')
 export class Notification {
@@ -17,13 +17,16 @@ export class Notification {
   body: string;
 
   @Column({ nullable: true })
-  audienceRole: string; // e.g. 'STUDENT', 'TEACHER', 'ADMIN'
+  audienceRole: string; // e.g. 'STUDENT', 'INSTRUCTOR', 'ADMIN'
 
   @Column({ type: 'uuid', nullable: true })
   courseId: string;
 
   @Column({ type: 'uuid' })
   senderId: string;
+
+  @Column({ default: false })
+  isRead: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

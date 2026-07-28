@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Req,
@@ -28,6 +29,12 @@ export class NotificationsController {
       dto,
       req.user.id || req.user.userId,
     );
+  }
+
+  // H-01 fix: frontend calls PATCH /notifications/read-all
+  @Patch('read-all')
+  markAllRead(@Req() req: any) {
+    return this.notificationsService.markAllRead(req.user);
   }
 
   @Get(':id')

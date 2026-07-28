@@ -32,8 +32,28 @@ export class AssignmentsService {
     return this.assignmentRepo.find({ where: { courseId } });
   }
 
-  async findAllGlobal() {
-    return this.assignmentRepo.find();
+  async findAllGlobal(currentUser?: any) {
+    // Scope by role — no unfiltered dumps
+    if (!currentUser || currentUser.role === 'ADMIN') {
+      return this.assignmentRepo.find({ order: { dueDate: 'ASC' } });
+    }
+    if (currentUser.role === 'INSTRUCTOR') {
+      // Return assignments for courses this instructor owns
+      return this.assignmentRepo
+        .createQueryBuilder('a')
+        .innerJoin('courses', 'c', 'c.id = a.courseId AND c.teacherId = :tid', { tid: currentUser.id })
+        .orderBy('a.dueDate', 'ASC')
+        .getMany();
+    }
+    // STUDENT: return only assignments from enrolled courses
+    return this.assignmentRepo
+      .createQueryBuilder('a')
+      .innerJoin('enrollments', 'e', 'e.courseId = a.courseId AND e.studentId = :sid AND e.status = :status', {
+        sid: currentUser.id,
+        status: 'ACTIVE',
+      })
+      .orderBy('a.dueDate', 'ASC')
+      .getMany();
   }
 
   async findOne(id: string) {

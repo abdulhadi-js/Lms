@@ -20,21 +20,31 @@ export class NotificationsService {
   }
 
   async findAll(currentUser: any) {
-    const query = this.notificationRepo
+    return this.notificationRepo
       .createQueryBuilder('notif')
       .where('notif.audienceRole = :role OR notif.audienceRole IS NULL', {
         role: currentUser.role,
       })
-      .orderBy('notif.createdAt', 'DESC');
-
-    // If student, theoretically join with enrollments to match courseId.
-    // For simplicity, returning all global role-matched notifications.
-    return query.getMany();
+      .orderBy('notif.createdAt', 'DESC')
+      .getMany();
   }
 
   async findOne(id: string) {
     const notif = await this.notificationRepo.findOne({ where: { id } });
     if (!notif) throw new NotFoundException('Notification not found');
     return notif;
+  }
+
+  async markAllRead(currentUser: any): Promise<{ updated: number }> {
+    const result = await this.notificationRepo
+      .createQueryBuilder()
+      .update(Notification)
+      .set({ isRead: true })
+      .where('(audienceRole = :role OR audienceRole IS NULL) AND isRead = false', {
+        role: currentUser.role,
+      })
+      .execute();
+
+    return { updated: result.affected ?? 0 };
   }
 }

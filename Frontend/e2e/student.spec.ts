@@ -26,7 +26,7 @@ test.describe('Student Portal', () => {
   test('Student can view grades and transcript', async ({ page }) => {
     await page.click('a[href="/student/transcript"]');
     await expect(page).toHaveURL(/\/student\/transcript/);
-    await expect(page.locator('h1').first()).toContainText('Grades & Transcripts');
+    await expect(page.locator('h1').first()).toContainText('Unofficial Transcript');
     
     // Verify download PDF button is present
     const downloadBtn = page.getByRole('button', { name: /Download PDF/i });

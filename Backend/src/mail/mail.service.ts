@@ -1,14 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
-import type { Queue } from 'bull';
+import { Injectable, Logger } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class MailService {
-  constructor(@InjectQueue('mail') private mailQueue: Queue) {}
+  private readonly logger = new Logger(MailService.name);
+
+  constructor(private readonly mailerService: MailerService) {}
+
+  private async sendMail(options: {
+    to: string;
+    subject: string;
+    template: string;
+    context: Record<string, any>;
+  }) {
+    try {
+      await this.mailerService.sendMail(options);
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${options.to}: ${error.message}`);
+      // Don't throw — email failures should not break core app flows
+    }
+  }
 
   async sendPasswordReset(email: string, name: string, resetToken: string, frontendUrl: string) {
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
-    await this.mailQueue.add('send', {
+    await this.sendMail({
       to: email,
       subject: 'Reset Your EduCore Password',
       template: './password-reset',
@@ -17,7 +32,7 @@ export class MailService {
   }
 
   async sendWelcome(email: string, name: string, tempPassword: string) {
-    await this.mailQueue.add('send', {
+    await this.sendMail({
       to: email,
       subject: 'Welcome to EduCore LMS!',
       template: './welcome',
@@ -26,7 +41,7 @@ export class MailService {
   }
 
   async sendApplicationApproved(email: string, name: string, courseName: string) {
-    await this.mailQueue.add('send', {
+    await this.sendMail({
       to: email,
       subject: 'Application Approved — EduCore LMS',
       template: './application-approved',
@@ -35,7 +50,7 @@ export class MailService {
   }
 
   async sendApplicationRejected(email: string, name: string, courseName: string, reason: string) {
-    await this.mailQueue.add('send', {
+    await this.sendMail({
       to: email,
       subject: 'Application Update — EduCore LMS',
       template: './application-rejected',
@@ -44,7 +59,7 @@ export class MailService {
   }
 
   async sendFeeReminder(email: string, name: string, amount: number, dueDate: string) {
-    await this.mailQueue.add('send', {
+    await this.sendMail({
       to: email,
       subject: `Fee Payment Reminder — PKR ${amount.toLocaleString()} Due`,
       template: './fee-reminder',

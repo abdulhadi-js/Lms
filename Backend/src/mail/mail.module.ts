@@ -3,9 +3,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module, Global } from '@nestjs/common';
 import { join } from 'path';
-import { BullModule } from '@nestjs/bull';
 import { MailService } from './mail.service';
-import { MailProcessor } from './mail.processor';
 
 @Global()
 @Module({
@@ -33,11 +31,8 @@ import { MailProcessor } from './mail.processor';
         },
       }),
     }),
-    BullModule.registerQueue({
-      name: 'mail',
-    }),
   ],
-  providers: [MailService, MailProcessor],
+  providers: [MailService],
   exports: [MailService],
 })
 export class MailModule {}
