@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         INSTRUCTOR: "/teacher",
         STUDENT: "/student",
       };
-      router.push(redirectPaths[data.user.role] ?? "/");
+      router.push(redirectPaths[data.user.role ?? ''] ?? "/");
     } catch (err: any) {
       setError(err.message ?? "Login failed. Please check your credentials.");
       throw err;
