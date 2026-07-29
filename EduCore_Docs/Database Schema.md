@@ -62,6 +62,8 @@ chat_messages ─────── (senderId, receiverId / courseId)
 | `description` | `varchar` | NULLABLE | |
 | `teacherId` | `uuid` | FK → `users.id` | Nullable — course can be unassigned |
 | `credits` | `int` | DEFAULT `3` | |
+| `schedule` | `simple-json` | NULLABLE | Array of `{ day, time }` slots |
+| `room` | `varchar` | NULLABLE | |
 | `status` | `varchar` | DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED` |
 
 **Relations:** `teacher` (ManyToOne → User), `modules` (OneToMany → CourseModule)
@@ -226,4 +228,10 @@ ACTIVE | ARCHIVED
 
 // Content type (lessons)
 VIDEO | PDF | LINK | TEXT
+
+// Schedule Days
+Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
+
+// Schedule Time
+08:00 AM - 09:30 AM | 10:00 AM - 11:30 AM | 12:00 PM - 01:30 PM | 02:00 PM - 03:30 PM | 04:00 PM - 05:30 PM | 06:00 PM - 07:30 PM
 ```

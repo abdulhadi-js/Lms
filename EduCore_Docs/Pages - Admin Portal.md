@@ -43,8 +43,9 @@ API calls: `usersApi.list(role?)`, `usersApi.create()`, `usersApi.update()`, `us
 
 Features:
 - List all courses with status badges (ACTIVE / ARCHIVED)
-- **Create course** — set code, title, description, credits
-- **Assign teacher** — link an Instructor to a course
+- **Create course** — set code, title, description, credits, room, and assign a teacher
+- **Dynamic 7-Day Schedule** — Select multiple days and assign specific timeslots per day
+- **Strict Validation** — Teacher assignment, room, credits, and schedule are all strictly required
 - **Edit course** — update metadata or archive
 - **Module management** — add/edit/remove modules and lessons inside a course
 
