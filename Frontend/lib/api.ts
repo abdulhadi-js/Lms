@@ -133,12 +133,17 @@ export const enrollmentsApi = {
     method: 'POST',
     body: JSON.stringify({ reason })
   }),
+  apply: (data: any) => fetchApi('/applications', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
   update: (id: string, data: any) => fetchAuthApi(`/enrollments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/enrollments/${id}`, { method: 'DELETE' }),
 };
 
 export const coursesApi = {
   list: () => fetchAuthApi('/courses'),
+  getPublic: () => fetchApi('/public/courses'),
   get: (id: string) => fetchAuthApi(`/courses/${id}`),
   getModules: (courseId: string) => fetchAuthApi(`/courses/${courseId}/modules`),
   createModule: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules`, { method: 'POST', body: JSON.stringify(data) }),

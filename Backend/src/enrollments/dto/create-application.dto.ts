@@ -8,7 +8,7 @@ export class CreateApplicationDto {
   lastName: string;
 
   @IsEmail()
-  applicantEmail: string;
+  email: string;
 
   @IsString()
   phone: string;

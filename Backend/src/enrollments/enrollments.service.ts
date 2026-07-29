@@ -11,6 +11,7 @@ import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { ReviewApplicationDto } from './dto/review-application.dto';
 import { RequestDropDto } from './dto/request-drop.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class EnrollmentsService {
@@ -18,6 +19,7 @@ export class EnrollmentsService {
     @InjectRepository(Enrollment)
     private enrollmentRepo: Repository<Enrollment>,
     @InjectRepository(Application) private appRepo: Repository<Application>,
+    private readonly usersService: UsersService,
   ) {}
 
   async directEnroll(dto: CreateEnrollmentDto) {
@@ -59,15 +61,24 @@ export class EnrollmentsService {
     if (dto.status === 'APPROVED') {
       console.log(`Audit: Admin ${adminId} approved application ${id}. Creating enrollment.`);
       try {
-        // Fallback: grab any student and course just to satisfy the database constraints for this demo
-        const anyStudent = await this.enrollmentRepo.manager.query("SELECT id FROM users WHERE role = 'STUDENT' LIMIT 1");
-        const anyCourse = await this.enrollmentRepo.manager.query("SELECT id FROM courses LIMIT 1");
+        let student = await this.usersService.findByEmail(app.email);
 
-        if (anyStudent.length > 0 && anyCourse.length > 0) {
+        if (!student) {
+          student = await this.usersService.create({
+            firstName: app.firstName,
+            lastName: app.lastName,
+            email: app.email,
+            phone: app.phone,
+            password: 'Password123!',
+            role: 'STUDENT' as any,
+          }) as any;
+        }
+
+        if (app.desiredCourse) {
           const enrollment = this.enrollmentRepo.create({
             status: 'ENROLLED' as any,
-            student: { id: anyStudent[0].id } as any,
-            course: { id: anyCourse[0].id } as any
+            student: { id: student.id } as any,
+            course: { id: app.desiredCourse } as any
           });
           await this.enrollmentRepo.save(enrollment);
         }

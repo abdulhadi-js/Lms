@@ -2,10 +2,11 @@
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Search, Filter, Check, X, MoreVertical } from 'lucide-react';
-import { enrollmentsApi } from '@/lib/api';
+import { enrollmentsApi, coursesApi } from '@/lib/api';
 
 export default function ApplicationsManagement() {
   const [applications, setApplications] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -18,8 +19,12 @@ export default function ApplicationsManagement() {
   const fetchApplications = async () => {
     setLoading(true);
     try {
-      const data = await enrollmentsApi.getApplications(statusFilter !== 'ALL' ? statusFilter : undefined);
+      const [data, coursesData] = await Promise.all([
+        enrollmentsApi.getApplications(statusFilter !== 'ALL' ? statusFilter : undefined),
+        coursesApi.list()
+      ]);
       setApplications(data);
+      setCourses(coursesData.data || coursesData || []);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to load applications');
@@ -133,7 +138,7 @@ export default function ApplicationsManagement() {
                       
                       <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                         <div className="text-body-secondary">Desired Course:</div>
-                        <div className="text-right truncate font-medium text-on-surface">{app.course?.title || app.courseId}</div>
+                        <div className="text-right truncate font-medium text-on-surface">{courses.find(c => c.id === app.desiredCourse)?.title || app.desiredCourse}</div>
                         
                         <div className="text-body-secondary">Applied:</div>
                         <div className="text-right">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</div>
@@ -187,7 +192,7 @@ export default function ApplicationsManagement() {
                       <div className="text-body-secondary">{app.email}</div>
                       <div className="text-xs text-body-secondary">{app.phone}</div>
                     </td>
-                    <td className="py-4 px-6 text-on-surface">{app.course?.title || app.courseId}</td>
+                    <td className="py-4 px-6 text-on-surface">{courses.find(c => c.id === app.desiredCourse)?.title || app.desiredCourse}</td>
                     <td className="py-4 px-6 text-body-secondary">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</td>
                     <td className="py-4 px-6">
                       {app.status === 'APPROVED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Approved</span>}

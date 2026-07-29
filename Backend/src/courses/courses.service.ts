@@ -49,6 +49,13 @@ export class CoursesService {
     return [];
   }
 
+  async findPublic() {
+    return this.courseRepo.find({ 
+      where: { status: 'ACTIVE' },
+      relations: { teacher: true }
+    });
+  }
+
   async findOne(id: string) {
     // Use object notation for relations (TypeORM v0.3+ FindOptionsRelations)
     const course = await this.courseRepo.findOne({
