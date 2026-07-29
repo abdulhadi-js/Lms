@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { notificationsApi } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 
 type Notification = {
   id: string;
@@ -19,6 +20,8 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLButtonElement>(null);
 
+  const { user } = useAuth();
+
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
@@ -34,10 +37,33 @@ export function NotificationBell() {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      fetchNotifications();
-    }
-  }, [isOpen]);
+    if (!user) return;
+    
+    fetchNotifications();
+    let socket: any;
+
+    import('socket.io-client').then(({ io }) => {
+      socket = io('http://localhost:3001');
+      
+      socket.on('connect', () => {
+        socket.emit('identify', { role: user.role, userId: user.id });
+      });
+
+      socket.on('new-notification', (notif: Notification) => {
+        setNotifications(prev => {
+          // Prevent duplicates if already in list
+          if (prev.find(n => n.id === notif.id)) return prev;
+          return [notif, ...prev];
+        });
+      });
+    });
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

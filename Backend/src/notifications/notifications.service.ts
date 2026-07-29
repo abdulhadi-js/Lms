@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private notificationRepo: Repository<Notification>,
+    private notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(dto: CreateNotificationDto, senderId: string) {
@@ -16,7 +18,9 @@ export class NotificationsService {
       ...dto,
       senderId,
     });
-    return this.notificationRepo.save(notif);
+    const saved = await this.notificationRepo.save(notif);
+    this.notificationsGateway.emitNewNotification(saved);
+    return saved;
   }
 
   async findAll(currentUser: any) {
