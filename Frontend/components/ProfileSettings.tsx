@@ -61,6 +61,8 @@ export default function ProfileSettings() {
         body: fd
       });
       if (res.ok) {
+        const updatedUser = await res.json();
+        localStorage.setItem('lms_user', JSON.stringify(updatedUser));
         toast.success('Profile updated successfully!');
         setTimeout(() => window.location.reload(), 1000);
       } else {

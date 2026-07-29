@@ -61,6 +61,7 @@ export class AuthService {
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
+        profilePicture: user.profilePicture,
       },
     };
   }
@@ -73,6 +74,10 @@ export class AuthService {
 
     const payload = { sub: user.id, email: user.email, role: user.role };
     return this.generateTokens(payload);
+  }
+
+  async getMe(userId: string) {
+    return this.usersService.findOne(userId);
   }
 
   async logout(_userId: string) {

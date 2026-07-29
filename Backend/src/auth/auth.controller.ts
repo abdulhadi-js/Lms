@@ -59,7 +59,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   getProfile(@CurrentUser() user: any) {
-    return user;
+    return this.authService.getMe(user.id);
   }
 
   @Post('forgot-password')
