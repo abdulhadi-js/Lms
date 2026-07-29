@@ -32,12 +32,13 @@ export class CoursesService {
   async findAll(currentUser: any) {
     console.log('CoursesService.findAll currentUser:', currentUser);
     if (currentUser.role === 'ADMIN') {
-      return this.courseRepo.find();
+      return this.courseRepo.find({ relations: { teacher: true } });
     } else if (currentUser.role === 'INSTRUCTOR') {
-      return this.courseRepo.find({ where: { teacherId: currentUser.id } });
+      return this.courseRepo.find({ where: { teacherId: currentUser.id }, relations: { teacher: true } });
     } else if (currentUser.role === 'STUDENT') {
       return this.courseRepo
         .createQueryBuilder('course')
+        .leftJoinAndSelect('course.teacher', 'teacher')
         .innerJoin('course.enrollments', 'enrollment')
         .where('enrollment.studentId = :studentId', {
           studentId: currentUser.id,

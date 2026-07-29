@@ -36,6 +36,12 @@ export class Course {
   @Column({ default: 'ACTIVE' })
   status: string;
 
+  @Column({ type: 'simple-json', nullable: true })
+  schedule: { day: string; time: string }[];
+
+  @Column({ nullable: true })
+  room: string;
+
   @OneToMany(() => CourseModule, (module) => module.course)
   modules: CourseModule[];
 }

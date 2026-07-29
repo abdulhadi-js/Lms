@@ -14,7 +14,7 @@ export default function CourseManagement() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [formData, setFormData] = useState({ id: '', code: '', title: '', description: '', teacherId: '', credits: 3 });
+  const [formData, setFormData] = useState({ id: '', code: '', title: '', description: '', teacherId: '', credits: 3, schedule: [] as {day: string, time: string}[], room: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchData = async () => {
@@ -56,10 +56,12 @@ export default function CourseManagement() {
         description: course.description || '',
         teacherId: course.teacher?.id || course.teacherId || '',
         credits: course.credits || 3,
+        schedule: course.schedule || [],
+        room: course.room || '',
       });
     } else {
       setIsEditMode(false);
-      setFormData({ id: '', code: '', title: '', description: '', teacherId: '', credits: 3 });
+      setFormData({ id: '', code: '', title: '', description: '', teacherId: '', credits: 3, schedule: [], room: '' });
     }
     setIsModalOpen(true);
     setOpenDropdown(null);
@@ -68,13 +70,22 @@ export default function CourseManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    if (formData.schedule.length === 0) {
+      toast.error('Please select at least one day and time for the schedule');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const payload = {
         code: formData.code,
         title: formData.title,
         description: formData.description,
-        teacherId: formData.teacherId || undefined,
-        credits: Number(formData.credits)
+        teacherId: formData.teacherId || null,
+        credits: Number(formData.credits),
+        schedule: formData.schedule,
+        room: formData.room
       };
 
       if (isEditMode) {
@@ -180,6 +191,17 @@ export default function CourseManagement() {
                     <Clock className="h-4 w-4 mr-2 text-icon-inactive" />
                     <span className="font-medium text-on-surface mr-1">{course.credits || 3}</span> Credit Hours
                   </div>
+                  {(course.schedule?.length > 0 || course.room) && (
+                    <div className="flex items-start text-sm text-body-secondary pt-2 border-t border-divider">
+                      <span className="font-medium text-on-surface mr-1">Schedule:</span> 
+                      <div className="flex flex-col">
+                        {course.schedule?.map((slot: any) => (
+                           <span key={slot.day}>{slot.day} ({slot.time})</span>
+                        ))}
+                        {course.room && <span>Room: {course.room}</span>}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -197,7 +219,7 @@ export default function CourseManagement() {
       {/* Course Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">
                 {isEditMode ? 'Edit Course' : 'Create New Course'}
@@ -207,7 +229,7 @@ export default function CourseManagement() {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Course Code</label>
                 <input 
@@ -239,15 +261,16 @@ export default function CourseManagement() {
                   className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Assign Teacher</label>
                   <select 
+                    required
                     value={formData.teacherId} 
                     onChange={e => setFormData({...formData, teacherId: e.target.value})}
                     className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    <option value="">-- Unassigned --</option>
+                    <option value="">-- Select Teacher --</option>
                     {teachers.map(t => (
                       <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
                     ))}
@@ -257,6 +280,7 @@ export default function CourseManagement() {
                   <label className="block text-sm font-medium text-on-surface mb-1">Credits</label>
                   <input 
                     type="number" 
+                    required
                     min="1" max="6"
                     value={formData.credits} 
                     onChange={e => setFormData({...formData, credits: Number(e.target.value)})}
@@ -264,7 +288,65 @@ export default function CourseManagement() {
                   />
                 </div>
               </div>
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider">
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-on-surface">Weekly Schedule</label>
+                <div className="border border-divider rounded-lg divide-y divide-divider bg-surface-container-lowest">
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                    const selected = formData.schedule.find(s => s.day === day);
+                    return (
+                      <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 gap-3">
+                        <label className="flex items-center space-x-3 cursor-pointer select-none">
+                          <input 
+                            type="checkbox"
+                            checked={!!selected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({ ...formData, schedule: [...formData.schedule, { day, time: '08:00 AM - 09:30 AM' }] });
+                              } else {
+                                setFormData({ ...formData, schedule: formData.schedule.filter(s => s.day !== day) });
+                              }
+                            }}
+                            className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                          />
+                          <span className={`text-sm font-medium ${selected ? 'text-on-surface' : 'text-body-secondary'}`}>{day}</span>
+                        </label>
+                        
+                        {selected && (
+                          <select
+                            value={selected.time}
+                            onChange={(e) => {
+                              setFormData({
+                                ...formData,
+                                schedule: formData.schedule.map(s => s.day === day ? { ...s, time: e.target.value } : s)
+                              });
+                            }}
+                            className="px-3 py-1.5 text-sm border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[200px]"
+                          >
+                            <option value="08:00 AM - 09:30 AM">08:00 AM - 09:30 AM</option>
+                            <option value="10:00 AM - 11:30 AM">10:00 AM - 11:30 AM</option>
+                            <option value="12:00 PM - 01:30 PM">12:00 PM - 01:30 PM</option>
+                            <option value="02:00 PM - 03:30 PM">02:00 PM - 03:30 PM</option>
+                            <option value="04:00 PM - 05:30 PM">04:00 PM - 05:30 PM</option>
+                            <option value="06:00 PM - 07:30 PM">06:00 PM - 07:30 PM</option>
+                          </select>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Room</label>
+                <input 
+                  type="text" 
+                  required
+                  value={formData.room} 
+                  onChange={e => setFormData({...formData, room: e.target.value})}
+                  placeholder="e.g. Room 101" 
+                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                />
+              </div>
+              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider shrink-0">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}

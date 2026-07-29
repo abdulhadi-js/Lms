@@ -16,10 +16,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
       ? exception.getStatus() 
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    let message = exception instanceof Error ? exception.message : 'Unknown error';
+    if (exception instanceof HttpException) {
+      const exceptionResponse = exception.getResponse();
+      console.error('Validation Error Details:', exceptionResponse);
+      if (typeof exceptionResponse === 'object' && exceptionResponse !== null && 'message' in exceptionResponse) {
+        message = (exceptionResponse as any).message;
+      }
+    }
+
     const isProd = process.env.NODE_ENV === 'production';
     response.status(status).json({
       statusCode: status,
-      message: exception instanceof Error ? exception.message : 'Unknown error',
+      message,
       // WARN-04: Never expose stack traces in production
       ...(isProd ? {} : { stack: exception instanceof Error ? exception.stack : undefined }),
     });
