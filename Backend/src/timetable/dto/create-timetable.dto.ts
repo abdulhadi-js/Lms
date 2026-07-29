@@ -1,10 +1,17 @@
-import { IsUUID, IsEnum, Matches, IsString } from 'class-validator';
+import { IsUUID, IsEnum, Matches, IsString, IsOptional } from 'class-validator';
 
 export class CreateTimetableDto {
   @IsUUID()
-  courseId: string;
+  sectionId: string;
 
-  @IsEnum(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'])
+  @IsUUID()
+  subjectId: string;
+
+  @IsUUID()
+  @IsOptional()
+  teacherId?: string;
+
+  @IsEnum(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'])
   dayOfWeek: string;
 
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {

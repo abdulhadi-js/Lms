@@ -5,13 +5,13 @@ import { MarksController } from './marks.controller';
 import { Mark } from './entities/mark.entity';
 import { GradingCriteria } from './entities/grading-criteria.entity';
 import { UsersModule } from '../users/users.module';
-import { CoursesModule } from '../courses/courses.module';
+import { AcademicsModule } from '../academics/academics.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Mark, GradingCriteria]),
     UsersModule,
-    CoursesModule,
+    AcademicsModule,
   ],
   controllers: [MarksController],
   providers: [MarksService],

@@ -1,13 +1,6 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
- } from 'typeorm';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import { Section } from '../../academics/entities/section.entity';
 
 @Entity('messages')
 export class Message {
@@ -21,7 +14,7 @@ export class Message {
   receiverId: string;
 
   @Column({ type: 'uuid', nullable: true })
-  courseId: string;
+  sectionId: string;
 
   @Column({ type: 'text' })
   body: string;
@@ -40,7 +33,7 @@ export class Message {
   @JoinColumn({ name: 'receiverId' })
   receiver: User;
 
-  @ManyToOne(() => Course)
-  @JoinColumn({ name: 'courseId' })
-  course: Course;
+  @ManyToOne(() => Section)
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 }

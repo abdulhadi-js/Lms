@@ -1,12 +1,4 @@
-import {
-  IsUUID,
-  IsString,
-  IsOptional,
-  IsNumber,
-  IsDate,
-  IsArray,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsDateString, IsUUID, IsArray } from 'class-validator';
 
 export class RubricDto {
   @IsString()
@@ -21,13 +13,19 @@ export class RubricDto {
 
 export class CreateAssignmentDto {
   @IsUUID()
-  courseId: string;
+  @IsNotEmpty()
+  sectionId: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  subjectId: string;
 
   @IsString()
+  @IsNotEmpty()
   title: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   description?: string;
 
   @IsOptional()
@@ -37,11 +35,10 @@ export class CreateAssignmentDto {
   @IsNumber()
   maxMarks: number;
 
-  @IsDate()
-  @Type(() => Date)
+  @IsDateString()
   dueDate: Date;
 
-  @IsOptional()
   @IsNumber()
+  @IsOptional()
   weightPercent?: number;
 }

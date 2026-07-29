@@ -3,45 +3,47 @@ import { GraduationCap, BookOpen, ArrowRight, CheckCircle2, Loader2 } from 'luci
 import Link from 'next/link';
 import { MarketingNavbar } from '@/components/MarketingNavbar';
 import { useState, useEffect } from 'react';
-import { enrollmentsApi, coursesApi } from '@/lib/api';
+import { enrollmentsApi, academicsApi } from '@/lib/api';
 
 export default function ApplyPage() {
-  const [courses, setCourses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    studentFirstName: '',
+    studentLastName: '',
+    dob: '',
+    gender: 'MALE',
+    fatherName: '',
+    fatherCnic: '',
     email: '',
     phone: '',
-    desiredCourse: '',
-    notes: '',
+    previousSchool: '',
+    desiredClassId: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    async function fetchCourses() {
+    async function fetchClasses() {
       try {
-        const data = await coursesApi.getPublic();
-        setCourses(data);
+        const data = await academicsApi.getPublicClasses();
+        setClasses(data);
       } catch (err) {
-        console.error('Failed to load courses', err);
+        console.error('Failed to load classes', err);
       }
     }
-    fetchCourses();
+    fetchClasses();
   }, []);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required.';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required.';
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address.';
-    }
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
-    if (!formData.desiredCourse) newErrors.desiredCourse = 'Please select a course.';
+    if (!formData.studentFirstName.trim()) newErrors.studentFirstName = 'First name is required.';
+    if (!formData.studentLastName.trim()) newErrors.studentLastName = 'Last name is required.';
+    if (!formData.dob) newErrors.dob = 'Date of birth is required.';
+    if (!formData.fatherName.trim()) newErrors.fatherName = "Father's name is required.";
+    if (!formData.fatherCnic.trim()) newErrors.fatherCnic = 'CNIC is required.';
+    if (!formData.phone.trim()) newErrors.phone = 'WhatsApp/Phone number is required.';
+    if (!formData.desiredClassId) newErrors.desiredClassId = 'Please select a class.';
     return newErrors;
   };
 
@@ -82,7 +84,7 @@ export default function ApplyPage() {
               Start Your Journey with <span className="text-primary">EduCore.</span>
             </h1>
             <p className="font-normal text-[16px] md:text-[18px] leading-[1.6] text-body-secondary max-w-[500px] mb-10">
-              Apply now to join our upcoming cohorts. Select your desired course, submit your application, and our admissions team will review it shortly.
+              Apply now for the upcoming academic session. Fill out the admission form, and our admissions office will contact you for the entry test schedule.
             </p>
 
             <div className="w-full max-w-[550px] mb-10 grid grid-cols-2 gap-4">
@@ -92,12 +94,12 @@ export default function ApplyPage() {
                     <BookOpen className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{courses.length}+</div>
-                    <div className="text-sm font-semibold text-body-secondary uppercase tracking-wider mt-1">Active Courses</div>
+                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{classes.length}+</div>
+                    <div className="text-sm font-semibold text-body-secondary uppercase tracking-wider mt-1">Open Classes</div>
                   </div>
                 </div>
                 <p className="text-sm text-body-secondary leading-relaxed">
-                  Choose from our wide variety of active courses taught by expert instructors.
+                  Admissions are currently open across multiple grades. Select your class below.
                 </p>
               </div>
             </div>
@@ -105,7 +107,7 @@ export default function ApplyPage() {
 
           {/* Right Column: Form */}
           <div className="w-full h-full flex lg:justify-end animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="w-full max-w-[500px] bg-surface border border-divider shadow-[0_30px_60px_rgba(0,0,0,0.05)] rounded-2xl p-6 md:p-10 relative overflow-hidden">
+            <div className="w-full max-w-[550px] bg-surface border border-divider shadow-[0_30px_60px_rgba(0,0,0,0.05)] rounded-2xl p-6 md:p-10 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-primary-fixed"></div>
 
               {submitted ? (
@@ -115,10 +117,10 @@ export default function ApplyPage() {
                   </div>
                   <h3 className="font-heading font-bold text-2xl text-heading-on-light">Application Received!</h3>
                   <p className="text-sm text-body-secondary max-w-[300px]">
-                    Thank you, <strong>{formData.firstName}</strong>! Your application for <strong>{courses.find(c => c.id === formData.desiredCourse)?.title || 'the course'}</strong> has been submitted.
+                    Thank you! The application for <strong>{formData.studentFirstName}</strong> has been submitted successfully.
                   </p>
                   <p className="text-sm text-body-secondary max-w-[300px]">
-                    Our admissions team will review your application and contact you at <strong>{formData.email}</strong>.
+                    Our admissions team will review it and contact you at <strong>{formData.phone}</strong> to schedule an admission test.
                   </p>
                   <Link href="/" className="mt-4 text-sm text-primary font-semibold hover:underline">
                     Return to Home →
@@ -126,64 +128,96 @@ export default function ApplyPage() {
                 </div>
               ) : (
                 <>
-                  <h3 className="font-heading font-bold text-2xl text-heading-on-light mb-2">Student Application</h3>
-                  <p className="text-sm text-body-secondary mb-8">Fill out the form below to apply for admission.</p>
+                  <h3 className="font-heading font-bold text-2xl text-heading-on-light mb-2">School Admission Form</h3>
+                  <p className="text-sm text-body-secondary mb-8">Please fill out the applicant and guardian details.</p>
 
                   {errors.general && (
                     <div className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg text-sm text-error">{errors.general}</div>
                   )}
 
                   <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+                    {/* Student Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div className="space-y-1">
-                        <label htmlFor="firstName" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">First Name</label>
-                        <input id="firstName" name="firstName" type="text" value={formData.firstName} onChange={handleChange}
-                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.firstName ? 'border-error' : 'border-divider'}`}
-                          placeholder="John" />
-                        {errors.firstName && <p className="text-xs text-error">{errors.firstName}</p>}
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Student First Name *</label>
+                        <input name="studentFirstName" type="text" value={formData.studentFirstName} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.studentFirstName ? 'border-error' : 'border-divider'}`} />
+                        {errors.studentFirstName && <p className="text-xs text-error">{errors.studentFirstName}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label htmlFor="lastName" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Last Name</label>
-                        <input id="lastName" name="lastName" type="text" value={formData.lastName} onChange={handleChange}
-                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.lastName ? 'border-error' : 'border-divider'}`}
-                          placeholder="Doe" />
-                        {errors.lastName && <p className="text-xs text-error">{errors.lastName}</p>}
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Student Last Name *</label>
+                        <input name="studentLastName" type="text" value={formData.studentLastName} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.studentLastName ? 'border-error' : 'border-divider'}`} />
+                        {errors.studentLastName && <p className="text-xs text-error">{errors.studentLastName}</p>}
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label htmlFor="email" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Email Address</label>
-                      <input id="email" name="email" type="email" value={formData.email} onChange={handleChange}
-                        className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.email ? 'border-error' : 'border-divider'}`}
-                        placeholder="john.doe@example.com" />
-                      {errors.email && <p className="text-xs text-error">{errors.email}</p>}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Date of Birth *</label>
+                        <input name="dob" type="date" value={formData.dob} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.dob ? 'border-error' : 'border-divider'}`} />
+                        {errors.dob && <p className="text-xs text-error">{errors.dob}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Gender</label>
+                        <select name="gender" value={formData.gender} onChange={handleChange}
+                          className="w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider">
+                          <option value="MALE">Male</option>
+                          <option value="FEMALE">Female</option>
+                        </select>
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label htmlFor="phone" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Phone Number</label>
-                      <input id="phone" name="phone" type="text" value={formData.phone} onChange={handleChange}
-                        className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.phone ? 'border-error' : 'border-divider'}`}
-                        placeholder="+1 (555) 000-0000" />
-                      {errors.phone && <p className="text-xs text-error">{errors.phone}</p>}
+                    {/* Guardian Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-divider">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Father / Guardian Name *</label>
+                        <input name="fatherName" type="text" value={formData.fatherName} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.fatherName ? 'border-error' : 'border-divider'}`} />
+                        {errors.fatherName && <p className="text-xs text-error">{errors.fatherName}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Father CNIC *</label>
+                        <input name="fatherCnic" type="text" value={formData.fatherCnic} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.fatherCnic ? 'border-error' : 'border-divider'}`}
+                          placeholder="e.g. 35202-1234567-1" />
+                        {errors.fatherCnic && <p className="text-xs text-error">{errors.fatherCnic}</p>}
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label htmlFor="desiredCourse" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Desired Course</label>
-                      <select id="desiredCourse" name="desiredCourse" value={formData.desiredCourse} onChange={handleChange}
-                        className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors appearance-none cursor-pointer ${errors.desiredCourse ? 'border-error' : 'border-divider'}`}>
-                        <option value="" disabled>Select a course...</option>
-                        {courses.map(c => (
-                          <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
-                        ))}
-                      </select>
-                      {errors.desiredCourse && <p className="text-xs text-error">{errors.desiredCourse}</p>}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">WhatsApp / Phone *</label>
+                        <input name="phone" type="text" value={formData.phone} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.phone ? 'border-error' : 'border-divider'}`} />
+                        {errors.phone && <p className="text-xs text-error">{errors.phone}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Email (Optional)</label>
+                        <input name="email" type="email" value={formData.email} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider`} />
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label htmlFor="notes" className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Additional Notes (Optional)</label>
-                      <textarea id="notes" name="notes" value={formData.notes} onChange={handleChange}
-                        className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider`}
-                        placeholder="Any previous experience or questions?" rows={3} />
+                    {/* Academic Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-divider">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Desired Class *</label>
+                        <select name="desiredClassId" value={formData.desiredClassId} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors appearance-none cursor-pointer ${errors.desiredClassId ? 'border-error' : 'border-divider'}`}>
+                          <option value="" disabled>Select a class...</option>
+                          {classes.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                        {errors.desiredClassId && <p className="text-xs text-error">{errors.desiredClassId}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Previous School (Optional)</label>
+                        <input name="previousSchool" type="text" value={formData.previousSchool} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider`} />
+                      </div>
                     </div>
 
                     <div className="pt-4">
@@ -192,7 +226,7 @@ export default function ApplyPage() {
                         {isLoading ? (
                           <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
                         ) : (
-                          <>Submit Application <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+                          <>Submit Admission Form <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
                         )}
                       </button>
                     </div>

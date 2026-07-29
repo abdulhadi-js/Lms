@@ -1,11 +1,15 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { Search, Filter, Plus, MoreVertical, Shield, UserX, UserCheck, Edit, Trash2, Loader2, Users } from 'lucide-react';
-import { usersApi } from '@/lib/api';
+import { usersApi, rolesApi, campusesApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '@/lib/auth-context';
 
 export default function UserManagement() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [campuses, setCampuses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -22,18 +26,26 @@ export default function UserManagement() {
     id: '',
     email: '',
     password: '',
-    role: 'STUDENT',
+    roleId: '',
+    campusId: '',
     status: 'ACTIVE',
     firstName: '',
     lastName: '',
-    phone: ''
+    phone: '',
+    isSuperAdmin: false
   });
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined);
-      setUsers(data.data || data || []);
+      const [usersData, rolesData, campusesData] = await Promise.all([
+        usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined),
+        rolesApi.list().catch(() => []),
+        campusesApi.list().catch(() => [])
+      ]);
+      setUsers(usersData.data || usersData || []);
+      setRoles(rolesData);
+      setCampuses(campusesData);
     } catch (error) {
       toast.error('Failed to load users');
     } finally {
@@ -61,11 +73,13 @@ export default function UserManagement() {
         id: user.id,
         email: user.email || '',
         password: '', // Don't populate password on edit
-        role: user.role || 'STUDENT',
+        roleId: user.role?.id || '',
+        campusId: user.campus?.id || '',
         status: user.status || 'ACTIVE',
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        phone: user.phone || ''
+        phone: user.phone || '',
+        isSuperAdmin: user.isSuperAdmin || false
       });
     } else {
       setIsEditMode(false);
@@ -73,11 +87,13 @@ export default function UserManagement() {
         id: '',
         email: '',
         password: '',
-        role: 'STUDENT',
+        roleId: roles.length > 0 ? roles[0].id : '',
+        campusId: currentUser?.isSuperAdmin ? '' : (currentUser?.campusId || ''),
         status: 'ACTIVE',
         firstName: '',
         lastName: '',
-        phone: ''
+        phone: '',
+        isSuperAdmin: false
       });
     }
     setIsModalOpen(true);
@@ -90,11 +106,13 @@ export default function UserManagement() {
     try {
       const payload: any = {
         email: formData.email,
-        role: formData.role,
+        roleId: formData.roleId || undefined,
+        campusId: formData.campusId || undefined,
         status: formData.status,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone || undefined
+        phone: formData.phone || undefined,
+        isSuperAdmin: formData.isSuperAdmin
       };
       
       if (formData.password) {
@@ -144,7 +162,7 @@ export default function UserManagement() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-3xl font-bold text-heading-on-light">User Management</h2>
-          <p className="text-sm text-body-secondary mt-1">Manage system accounts, enrollments, and statuses.</p>
+          <p className="text-sm text-body-secondary mt-1">Manage staff, students, roles, and campus assignments.</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
@@ -176,9 +194,9 @@ export default function UserManagement() {
               className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">All Roles</option>
-              <option value="STUDENT">Students</option>
-              <option value="INSTRUCTOR">Instructors</option>
-              <option value="ADMIN">Admins</option>
+              {roles.map(r => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -195,73 +213,14 @@ export default function UserManagement() {
              </div>
           ) : (
             <>
-              {/* Mobile Card View */}
-              <div className="md:hidden space-y-4">
-                {filteredUsers.map((row) => (
-                  <div key={row.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold text-sm">
-                          {row.firstName?.[0]}{row.lastName?.[0]}
-                        </div>
-                        <div>
-                          <div className="font-medium text-on-surface">{row.firstName} {row.lastName}</div>
-                          <div className="text-xs text-body-secondary">{row.email}</div>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => setOpenDropdown(openDropdown === row.id ? null : row.id)}
-                        className="text-icon-inactive hover:text-primary p-1 rounded-md"
-                      >
-                        <MoreVertical className="h-5 w-5" />
-                      </button>
-                      
-                      {openDropdown === row.id && (
-                        <div className="absolute right-4 top-12 w-40 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50">
-                          <button 
-                            onClick={() => { handleOpenModal(row); setOpenDropdown(null); }}
-                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
-                          >
-                            <Edit className="w-4 h-4 text-icon-inactive" /> Edit User
-                          </button>
-                          <hr className="my-1 border-divider" />
-                          <button className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error-bg flex items-center gap-2">
-                            <Trash2 className="w-4 h-4" /> Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="text-body-secondary">Role:</div>
-                      <div className="font-medium flex items-center justify-end gap-1">
-                        {row.role === 'ADMIN' && <span className="flex items-center gap-1 text-primary"><Shield className="w-3 h-3" /> Admin</span>}
-                        {row.role === 'INSTRUCTOR' && <span className="text-info">Instructor</span>}
-                        {row.role === 'STUDENT' && <span className="text-body-secondary">Student</span>}
-                      </div>
-                      
-                      <div className="text-body-secondary">Status:</div>
-                      <div className="flex justify-end">
-                        {row.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Active</span>}
-                        {row.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
-                        {row.status === 'INACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Inactive</span>}
-                      </div>
-                      
-                      <div className="text-body-secondary">Joined:</div>
-                      <div className="text-right">{new Date(row.createdAt).toLocaleDateString()}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
               {/* Desktop Table View */}
-              <table className="hidden md:table w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                   <th className="py-4 px-6 font-semibold">User</th>
                   <th className="py-4 px-6 font-semibold">Role</th>
+                  <th className="py-4 px-6 font-semibold">Campus</th>
                   <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold">Joined Date</th>
                   <th className="py-4 px-6 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
@@ -274,23 +233,34 @@ export default function UserManagement() {
                           {row.firstName?.[0]}{row.lastName?.[0]}
                         </div>
                         <div>
-                          <div className="font-medium text-on-surface">{row.firstName} {row.lastName}</div>
+                          <div className="font-medium text-on-surface flex items-center gap-2">
+                            {row.firstName} {row.lastName}
+                            {row.isSuperAdmin && <Shield className="w-3.5 h-3.5 text-primary" title="Super Admin" />}
+                          </div>
                           <div className="text-xs text-body-secondary">{row.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-body-secondary font-medium">
-                      {row.role === 'ADMIN' && <span className="flex items-center gap-1 text-primary"><Shield className="w-3 h-3" /> Admin</span>}
-                      {row.role === 'INSTRUCTOR' && <span className="text-info">Instructor</span>}
-                      {row.role === 'STUDENT' && <span className="text-body-secondary">Student</span>}
+                    <td className="py-4 px-6 font-medium">
+                      {row.isSuperAdmin ? (
+                        <span className="text-primary font-bold text-xs uppercase tracking-wider">Super Admin</span>
+                      ) : (
+                        <span className="text-body-secondary">{row.role?.name || 'No Role Assigned'}</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6">
+                      {row.campus ? (
+                        <span className="bg-surface-container px-2 py-1 rounded text-xs text-body-secondary border border-border-light">
+                          {row.campus.name}
+                        </span>
+                      ) : (
+                        <span className="text-body-secondary text-xs italic">Global / Not Assigned</span>
+                      )}
                     </td>
                     <td className="py-4 px-6">
                       {row.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20"><UserCheck className="w-3 h-3 mr-1" /> Active</span>}
                       {row.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
                       {row.status === 'INACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20"><UserX className="w-3 h-3 mr-1" /> Inactive</span>}
-                    </td>
-                    <td className="py-4 px-6 text-body-secondary">
-                      {new Date(row.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-6 text-right relative actions-dropdown">
                       <button 
@@ -332,7 +302,7 @@ export default function UserManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-divider flex justify-between items-center">
-              <h3 className="text-xl font-bold text-heading-on-light">
+              <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
                 {isEditMode ? 'Edit User' : 'Add New User'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">
@@ -381,18 +351,67 @@ export default function UserManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Role</label>
-                  <select 
-                    value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  >
-                    <option value="STUDENT">Student</option>
-                    <option value="INSTRUCTOR">Instructor</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
+              {currentUser?.isSuperAdmin && (
+                <div className="flex items-center gap-2 p-3 bg-surface-container-lowest border border-border-light rounded-lg">
+                  <input 
+                    type="checkbox" 
+                    id="isSuperAdmin"
+                    checked={formData.isSuperAdmin} 
+                    onChange={e => setFormData({...formData, isSuperAdmin: e.target.checked})}
+                    className="w-4 h-4 text-primary rounded border-border-light focus:ring-primary"
+                  />
+                  <label htmlFor="isSuperAdmin" className="text-sm font-medium text-on-surface cursor-pointer flex items-center gap-1">
+                    Grant Global Super Admin Privileges <Shield className="w-3.5 h-3.5 text-primary" />
+                  </label>
                 </div>
+              )}
+
+              {!formData.isSuperAdmin && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-on-surface mb-1">Role Assignment</label>
+                    <select 
+                      required
+                      value={formData.roleId} onChange={e => setFormData({...formData, roleId: e.target.value})}
+                      className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="" disabled>Select a Role</option>
+                      {roles.map(r => (
+                        <option key={r.id} value={r.id}>{r.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {currentUser?.isSuperAdmin ? (
+                    <div>
+                      <label className="block text-sm font-medium text-on-surface mb-1">Assign to Campus</label>
+                      <select 
+                        required
+                        value={formData.campusId} onChange={e => setFormData({...formData, campusId: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      >
+                        <option value="" disabled>Select a Campus</option>
+                        {campuses.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
+                      <select 
+                        value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      >
+                        <option value="ACTIVE">Active</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="INACTIVE">Inactive</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {(!formData.isSuperAdmin && currentUser?.isSuperAdmin) && (
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
                   <select 
@@ -404,7 +423,7 @@ export default function UserManagement() {
                     <option value="INACTIVE">Inactive</option>
                   </select>
                 </div>
-              </div>
+              )}
 
               <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider">
                 <button 

@@ -1,10 +1,10 @@
 import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
@@ -39,8 +39,8 @@ export class ReportsController {
     return this.reportsService.getOverview();
   }
 
-  @Get('courses/:id')
-  getCourseAnalytics(@Param('id') id: string) {
-    return this.reportsService.getCourseAnalytics(id);
+  @Get('sections/:id')
+  getSectionAnalytics(@Param('id') id: string) {
+    return this.reportsService.getSectionAnalytics(id);
   }
 }

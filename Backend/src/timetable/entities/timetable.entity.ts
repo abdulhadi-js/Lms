@@ -1,36 +1,47 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
- } from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Section } from '../../academics/entities/section.entity';
+import { Subject } from '../../academics/entities/subject.entity';
 
 @Entity('timetable')
 export class Timetable {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  courseId: string;
+  @Index()
+  @Column('uuid')
+  sectionId: string;
 
-  @ManyToOne(() => Course)
-  @JoinColumn({ name: 'courseId' })
-  course: Course;
+  @ManyToOne(() => Section, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 
-  @Column({ type: 'varchar' })
+  @Index()
+  @Column('uuid')
+  subjectId: string;
+
+  @ManyToOne(() => Subject, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'subjectId' })
+  subject: Subject;
+
+  @Column({ type: 'uuid', nullable: true })
+  teacherId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'teacherId' })
+  teacher: User;
+
+  @Column()
   dayOfWeek: string;
 
   @Column()
-  startTime: string; // e.g., '09:00'
+  startTime: string; // HH:mm
 
   @Column()
-  endTime: string; // e.g., '10:30'
+  endTime: string; // HH:mm
 
-  @Column()
+  @Column({ nullable: true })
   room: string;
 
   @CreateDateColumn()
@@ -38,4 +49,10 @@ export class Timetable {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

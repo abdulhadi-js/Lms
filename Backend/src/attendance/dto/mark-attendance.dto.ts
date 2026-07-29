@@ -24,7 +24,10 @@ export class StudentAttendanceDto {
 
 export class MarkAttendanceDto {
   @IsUUID()
-  courseId: string;
+  sectionId: string;
+
+  @IsUUID()
+  subjectId: string;
 
   @IsDateString()
   classDate: string;

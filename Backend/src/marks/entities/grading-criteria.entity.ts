@@ -1,4 +1,4 @@
-import { Index,  Entity, PrimaryGeneratedColumn, Column  } from 'typeorm';
+import { Index, Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 @Entity('grading_criteria')
 export class GradingCriteria {

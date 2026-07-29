@@ -1,22 +1,43 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail, IsUUID, IsDateString } from 'class-validator';
 
 export class CreateApplicationDto {
   @IsString()
-  firstName: string;
+  @IsNotEmpty()
+  studentFirstName: string;
 
   @IsString()
-  lastName: string;
+  @IsNotEmpty()
+  studentLastName: string;
 
-  @IsEmail()
-  email: string;
+  @IsDateString()
+  @IsOptional()
+  dob?: Date;
 
   @IsString()
+  @IsOptional()
+  gender?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fatherName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fatherCnic: string;
+
+  @IsString()
+  @IsNotEmpty()
   phone: string;
 
-  @IsString()
-  desiredCourse: string;
-
+  @IsEmail()
   @IsOptional()
+  email?: string;
+
   @IsString()
-  notes?: string;
+  @IsOptional()
+  previousSchool?: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  desiredClassId: string;
 }

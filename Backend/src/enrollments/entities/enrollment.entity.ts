@@ -1,13 +1,7 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
- } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import { Section } from '../../academics/entities/section.entity';
 
 @Entity('enrollments')
 export class Enrollment {
@@ -15,23 +9,26 @@ export class Enrollment {
   id: string;
 
   @Index()
-  @Column()
+  @Column('uuid')
   studentId: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'studentId' })
   student: User;
 
   @Index()
-  @Column()
-  courseId: string;
+  @Column({ nullable: true })
+  sectionId: string;
 
-  @ManyToOne(() => Course)
-  @JoinColumn({ name: 'courseId' })
-  course: Course;
+  @ManyToOne(() => Section, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 
-  @Column({ default: 'ENROLLED' })
+  @Column({ default: 'ACTIVE' }) // ACTIVE, DROPPED, GRADUATED
   status: string;
+
+  @Column({ nullable: true })
+  academicYear: string; // e.g. "2026-2027"
 
   @Column({ nullable: true })
   dropReason: string;
@@ -41,4 +38,13 @@ export class Enrollment {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

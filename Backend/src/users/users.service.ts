@@ -4,10 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import ImageKit from 'imagekit';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import * as nodemailer from 'nodemailer';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role } from '../common/enums/roles.enum';
+import { Role } from '../roles/entities/role.entity';
 
 // Safe user shape without sensitive fields
 export type SafeUser = Omit<User, 'passwordHash'>;
@@ -26,31 +27,99 @@ export class UsersService {
     return rest as SafeUser;
   }
 
+  private async sendWelcomeEmail(user: User, rawPassword?: string) {
+    try {
+      let transporter;
+      if (this.configService.get('MAIL_HOST')) {
+        transporter = nodemailer.createTransport({
+          host: this.configService.get('MAIL_HOST'),
+          port: this.configService.get('MAIL_PORT'),
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: this.configService.get('MAIL_USER'),
+            pass: this.configService.get('MAIL_PASS'),
+          },
+        });
+      } else {
+        const testAccount = await nodemailer.createTestAccount();
+        transporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: { user: testAccount.user, pass: testAccount.pass },
+        });
+      }
+
+      const roleName = user.role?.name ? user.role.name.charAt(0).toUpperCase() + user.role.name.slice(1).toLowerCase() : 'User';
+      
+      const pwdHtml = rawPassword ? '<p>Your temporary password is: <strong>' + rawPassword + '</strong></p><p>Please log in and change it immediately.</p>' : '';
+      
+      const info = await transporter.sendMail({
+        from: this.configService.get('MAIL_FROM') || '"EduCore Admissions" <admissions@educore.school>',
+        to: user.email,
+        subject: `Welcome to EduCore! Your ${roleName} Account is Ready`,
+        html: `
+          <h2>Welcome to EduCore LMS!</h2>
+          <p>Dear ${user.firstName},</p>
+          <p>Your account has been successfully created with the role: <strong>${roleName}</strong>.</p>
+          ${pwdHtml}
+          <br/>
+          <p>Regards,<br/>The EduCore Team</p>
+        `,
+      });
+
+      console.log(`\n📧 Email sent successfully to ${user.email}!`);
+      if (!this.configService.get('MAIL_HOST')) {
+        console.log(`🔗 Preview your email here: ${nodemailer.getTestMessageUrl(info)}\n`);
+      }
+    } catch (error) {
+      console.error('Failed to send welcome email:', error);
+    }
+  }
+
   async create(createUserDto: CreateUserDto): Promise<SafeUser> {
     const { password, ...rest } = createUserDto;
+    
+    const existingUser = await this.userRepo.findOne({ where: { email: rest.email } });
+    if (existingUser) {
+      throw new BadRequestException('A user with this email already exists.');
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Use raw save() — TypeORM accepts plain objects that match the schema
     const saved = await this.userRepo.save({ ...rest, passwordHash } as any);
+    
+    // Send welcome email asynchronously without blocking the request
+    this.sendWelcomeEmail(saved as User, password);
+    
     return this.sanitize(saved as User);
   }
 
-  async findAll(role?: Role, limit: number = 50, offset: number = 0): Promise<SafeUser[]> {
-    const qb = this.userRepo.createQueryBuilder('user');
-    if (role) qb.where('user.role = :role', { role });
+  async findAll(roleId?: string, limit: number = 50, offset: number = 0): Promise<SafeUser[]> {
+    const qb = this.userRepo.createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('user.campus', 'campus');
+    if (roleId) qb.where('user.roleId = :roleId', { roleId });
     const users = await qb.take(limit).skip(offset).getMany();
     return users.map((u) => this.sanitize(u));
   }
 
   async findOne(id: string): Promise<SafeUser> {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ 
+      where: { id },
+      relations: { role: true, campus: true }
+    });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return this.sanitize(user);
   }
 
   /** Returns the full entity including passwordHash — for AuthService use only */
   async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepo.findOne({ where: { email } });
+    return await this.userRepo.findOne({ 
+      where: { email },
+      relations: { role: true, campus: true }
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUser> {

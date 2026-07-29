@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useUIStore } from '@/lib/store';
@@ -37,8 +37,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navLinks = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { name: 'Course Catalog', path: '/admin/courses', icon: BookOpen },
-    { name: 'Users & Roles', path: '/admin/users', icon: Users },
+    { name: 'Campuses', path: '/admin/campuses', icon: Building2 },
+    { name: 'Roles & Permissions', path: '/admin/roles', icon: ShieldCheck },
+    { name: 'Academics', path: '/admin/academics', icon: BookOpen },
+    { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Timetable', path: '/admin/timetable', icon: Calendar },
     { name: 'Enrollments', path: '/admin/enrollments', icon: Users },
     { name: 'Applications', path: '/admin/applications', icon: BookOpen },

@@ -8,44 +8,44 @@ import { Fee } from '../fees/entities/fee.entity';
 export class ReportsService {
   constructor(private dataSource: DataSource) {}
 
-  async getPerformanceReport(courseId?: string, studentId?: string) {
+  async getPerformanceReport(sectionId?: string, studentId?: string) {
     const query = this.dataSource
       .getRepository(Mark)
       .createQueryBuilder('mark')
-      .select('mark.courseId', 'courseId')
+      .select('mark.sectionId', 'sectionId')
       .addSelect('AVG(mark.score / mark.maxScore * 100)', 'averagePercentage')
       .addSelect('COUNT(mark.id)', 'totalMarks');
 
-    if (courseId) query.andWhere('mark.courseId = :courseId', { courseId });
+    if (sectionId) query.andWhere('mark.sectionId = :sectionId', { sectionId });
     if (studentId) query.andWhere('mark.studentId = :studentId', { studentId });
 
-    query.groupBy('mark.courseId');
+    query.groupBy('mark.sectionId');
     return query.getRawMany();
   }
 
   async getAttendanceReport(
-    courseId?: string,
+    sectionId?: string,
     startDate?: string,
     endDate?: string,
   ) {
     const query = this.dataSource
       .getRepository(Attendance)
       .createQueryBuilder('att')
-      .select('att.courseId', 'courseId')
+      .select('att.sectionId', 'sectionId')
       .addSelect('COUNT(att.id)', 'totalClasses')
       .addSelect(
         `SUM(CASE WHEN att.status = 'PRESENT' THEN 1 ELSE 0 END)`,
         'presentCount',
       );
 
-    if (courseId) query.andWhere('att.courseId = :courseId', { courseId });
+    if (sectionId) query.andWhere('att.sectionId = :sectionId', { sectionId });
     if (startDate) query.andWhere('att.classDate >= :startDate', { startDate });
     if (endDate) query.andWhere('att.classDate <= :endDate', { endDate });
 
-    query.groupBy('att.courseId');
+    query.groupBy('att.sectionId');
     const results = await query.getRawMany();
     return results.map((r) => ({
-      courseId: r.courseId,
+      sectionId: r.sectionId,
       totalClasses: Number(r.totalClasses) || 0,
       totalPresent: Number(r.presentCount) || 0,
       totalAbsent: (Number(r.totalClasses) || 0) - (Number(r.presentCount) || 0),
@@ -54,9 +54,6 @@ export class ReportsService {
   }
 
   async getAtRiskStudents(threshold: number = 70) {
-    // Finding students with <70% attendance OR avg marks <50
-    // As a simplification, we can do this in two queries or using a combined query if we have a student entity.
-    // For now, we will fetch average marks and average attendance separately, then merge them.
     const marksQuery = await this.dataSource
       .getRepository(Mark)
       .createQueryBuilder('mark')
@@ -83,7 +80,6 @@ export class ReportsService {
         (Number(r.presentCount) / Number(r.totalClasses)) * 100 < threshold,
     );
 
-    // Merge results
     const riskStudents = new Map();
     marksQuery.forEach((m) =>
       riskStudents.set(m.studentId, {
@@ -127,19 +123,21 @@ export class ReportsService {
       .count({ where: { role: 'STUDENT' } });
     const totalTeachers = await this.dataSource
       .getRepository('User')
-      .count({ where: { role: 'INSTRUCTOR' } });
-    const totalCourses = await this.dataSource.getRepository('Course').count();
+      .count({ where: { role: 'TEACHER' } });
+    const totalClasses = await this.dataSource.getRepository('AcademicClass').count();
+    const totalSections = await this.dataSource.getRepository('Section').count();
     const totalEnrollments = await this.dataSource
       .getRepository('Enrollment')
       .count();
     const pendingApplications = await this.dataSource
       .getRepository('Application')
-      .count({ where: { status: 'PENDING_REVIEW' } });
+      .count({ where: { status: 'PENDING' } });
 
     return {
       totalStudents,
       totalTeachers,
-      totalCourses,
+      totalClasses,
+      totalSections,
       totalEnrollments,
       pendingApplications,
       totalFeesCollected: Number(totalFeesCollected.total) || 0,
@@ -147,11 +145,11 @@ export class ReportsService {
     };
   }
 
-  async getCourseAnalytics(courseId: string) {
-    const performance = await this.getPerformanceReport(courseId);
-    const attendance = await this.getAttendanceReport(courseId);
+  async getSectionAnalytics(sectionId: string) {
+    const performance = await this.getPerformanceReport(sectionId);
+    const attendance = await this.getAttendanceReport(sectionId);
     return {
-      courseId,
+      sectionId,
       performance: performance[0] || null,
       attendance: attendance[0] || null,
     };

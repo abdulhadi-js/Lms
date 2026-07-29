@@ -11,7 +11,7 @@ import { MailModule } from './mail/mail.module';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { CoursesModule } from './courses/courses.module';
+import { AcademicsModule } from './academics/academics.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { MarksModule } from './marks/marks.module';
@@ -21,6 +21,8 @@ import { FeesModule } from './fees/fees.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
+import { RolesModule } from './roles/roles.module';
+import { CampusesModule } from './campuses/campuses.module';
 
 @Module({
   imports: [
@@ -47,7 +49,7 @@ import { ReportsModule } from './reports/reports.module';
     // ── Feature modules ───────────────────────────────────────────────────
     AuthModule,
     UsersModule,
-    CoursesModule,
+    AcademicsModule,
     EnrollmentsModule,
     AssignmentsModule,
     MarksModule,
@@ -57,6 +59,8 @@ import { ReportsModule } from './reports/reports.module';
     ChatModule,
     NotificationsModule,
     ReportsModule,
+    RolesModule,
+    CampusesModule,
   ],
   providers: [
     // Apply rate limiting globally

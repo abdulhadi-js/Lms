@@ -1,4 +1,5 @@
-import { Index,  Entity, PrimaryGeneratedColumn, Column  } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 @Entity('assignments')
 export class Assignment {
@@ -6,8 +7,12 @@ export class Assignment {
   id: string;
 
   @Index()
-  @Column()
-  courseId: string;
+  @Column('uuid')
+  sectionId: string;
+
+  @Index()
+  @Column('uuid')
+  subjectId: string;
 
   @Column()
   title: string;
@@ -26,4 +31,10 @@ export class Assignment {
 
   @Column({ nullable: true })
   weightPercent: number;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

@@ -11,8 +11,8 @@ export class ChatService {
   ) {}
 
   async sendMessage(senderId: string, dto: SendMessageDto) {
-    if (!dto.receiverId && !dto.courseId) {
-      throw new BadRequestException('Must provide receiverId or courseId');
+    if (!dto.receiverId && !dto.sectionId) {
+      throw new BadRequestException('Must provide receiverId or sectionId');
     }
     const msg = this.messageRepo.create({
       senderId,
@@ -26,7 +26,7 @@ export class ChatService {
       .createQueryBuilder('msg')
       .leftJoinAndSelect('msg.sender', 'sender')
       .leftJoinAndSelect('msg.receiver', 'receiver')
-      .leftJoinAndSelect('msg.course', 'course')
+      .leftJoinAndSelect('msg.section', 'section')
       .where('msg.senderId = :userId OR msg.receiverId = :userId', { userId })
       .orderBy('msg.createdAt', 'DESC');
 
@@ -35,7 +35,7 @@ export class ChatService {
 
     for (const msg of messages) {
       const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      const key = msg.courseId ? `course_${msg.courseId}` : `user_${partnerId}`;
+      const key = msg.sectionId ? `section_${msg.sectionId}` : `user_${partnerId}`;
       if (!convos.has(key)) {
         convos.set(key, msg);
       }
@@ -46,7 +46,7 @@ export class ChatService {
   async getMessages(
     userId: string,
     partnerId?: string,
-    courseId?: string,
+    sectionId?: string,
     page: number = 1,
     limit: number = 50,
   ) {
@@ -54,17 +54,17 @@ export class ChatService {
       .createQueryBuilder('msg')
       .leftJoinAndSelect('msg.sender', 'sender')
       .leftJoinAndSelect('msg.receiver', 'receiver')
-      .leftJoinAndSelect('msg.course', 'course');
+      .leftJoinAndSelect('msg.section', 'section');
 
-    if (courseId) {
-      query.where('msg.courseId = :courseId', { courseId });
+    if (sectionId) {
+      query.where('msg.sectionId = :sectionId', { sectionId });
     } else if (partnerId) {
       query.where(
         '(msg.senderId = :userId AND msg.receiverId = :partnerId) OR (msg.senderId = :partnerId AND msg.receiverId = :userId)',
         { userId, partnerId },
       );
     } else {
-      throw new BadRequestException('Must provide partnerId or courseId');
+      throw new BadRequestException('Must provide partnerId or sectionId');
     }
 
     query

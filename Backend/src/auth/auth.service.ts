@@ -15,7 +15,7 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  private generateTokens(payload: { sub: string; email: string; role: string }) {
+  private generateTokens(payload: { sub: string; email: string; isSuperAdmin: boolean; campusId: string | null; permissions: string[] }) {
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET')!,
       expiresIn: 900, // 15 minutes in seconds (JWT_EXPIRES_IN=15m)
@@ -49,7 +49,13 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      isSuperAdmin: user.isSuperAdmin,
+      campusId: user.campusId,
+      permissions: user.role?.permissions || []
+    };
     const { accessToken, refreshToken } = this.generateTokens(payload);
 
     return {
@@ -58,7 +64,9 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
+        isSuperAdmin: user.isSuperAdmin,
+        campusId: user.campusId,
+        permissions: user.role?.permissions || [],
         firstName: user.firstName,
         lastName: user.lastName,
         profilePicture: user.profilePicture,
@@ -72,7 +80,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid user status');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      isSuperAdmin: user.isSuperAdmin,
+      campusId: user.campusId,
+      permissions: (user as any).role?.permissions || []
+    };
     return this.generateTokens(payload);
   }
 

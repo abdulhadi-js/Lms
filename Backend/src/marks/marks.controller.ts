@@ -16,33 +16,30 @@ import { CreateMarkDto } from './dto/create-mark.dto';
 import { UpdateMarkDto } from './dto/update-mark.dto';
 import { GradingCriteriaDto } from './dto/grading-criteria.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/roles.enum';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 
 @Controller('marks')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class MarksController {
   constructor(private readonly marksService: MarksService) {}
 
-  // M-05 fix: frontend calls GET /marks?studentId= — delegate to getGradebook scoped by student
   @Get()
-  getMarks(@Query('studentId') studentId: string, @Query('courseId') courseId: string, @Req() req: any) {
-    // If studentId provided, proxy to transcript; otherwise use gradebook
+  getMarks(@Query('studentId') studentId: string, @Query('sectionId') sectionId: string, @Query('subjectId') subjectId: string, @Req() req: any) {
     if (studentId) {
       return this.marksService.getTranscript(studentId, req.user);
     }
-    return this.marksService.getGradebook(courseId, req.user);
+    return this.marksService.getGradebook(sectionId, subjectId, req.user);
   }
 
   @Get('gradebook')
-  getGradebook(@Query('courseId') courseId: string, @Req() req: any) {
-    return this.marksService.getGradebook(courseId, req.user);
+  getGradebook(@Query('sectionId') sectionId: string, @Query('subjectId') subjectId: string, @Req() req: any) {
+    return this.marksService.getGradebook(sectionId, subjectId, req.user);
   }
 
   @Post()
   enterMark(@Body() dto: CreateMarkDto, @Req() req: any) {
-    return this.marksService.enterMark(dto, req.user.id);
+    return this.marksService.enterMark(dto, req.user);
   }
 
   @Patch(':id')
@@ -74,7 +71,7 @@ export class MarksController {
   }
 
   @Post('grading-criteria')
-  @Roles(Role.ADMIN)
+  @RequirePermissions('MANAGE_ALL')
   createGradingCriteria(@Body() dto: GradingCriteriaDto) {
     return this.marksService.createGradingCriteria(dto);
   }

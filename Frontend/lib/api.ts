@@ -154,6 +154,32 @@ export const coursesApi = {
   remove: (id: string) => fetchAuthApi(`/courses/${id}`, { method: 'DELETE' }),
 };
 
+export const academicsApi = {
+  getPublicClasses: () => fetchApi('/public/classes'),
+  listClasses: () => fetchAuthApi('/academics/classes'),
+  createClass: (data: any) => fetchAuthApi('/academics/classes', { method: 'POST', body: JSON.stringify(data) }),
+  listSections: (classId: string) => fetchAuthApi(`/academics/classes/${classId}/sections`),
+  createSection: (classId: string, data: any) => fetchAuthApi(`/academics/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify(data) }),
+  listSubjects: (classId: string) => fetchAuthApi(`/academics/classes/${classId}/subjects`),
+  createSubject: (classId: string, data: any) => fetchAuthApi(`/academics/classes/${classId}/subjects`, { method: 'POST', body: JSON.stringify(data) }),
+};
+
+export const campusesApi = {
+  list: () => fetchAuthApi('/campuses'),
+  get: (id: string) => fetchAuthApi(`/campuses/${id}`),
+  create: (data: any) => fetchAuthApi('/campuses', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/campuses/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/campuses/${id}`, { method: 'DELETE' }),
+};
+
+export const rolesApi = {
+  list: () => fetchAuthApi('/roles'),
+  get: (id: string) => fetchAuthApi(`/roles/${id}`),
+  create: (data: any) => fetchAuthApi('/roles', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAuthApi(`/roles/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  remove: (id: string) => fetchAuthApi(`/roles/${id}`, { method: 'DELETE' }),
+};
+
 export const feesApi = {
   list: () => fetchAuthApi('/fees'),
   create: (data: any) => fetchAuthApi('/fees', { method: 'POST', body: JSON.stringify(data) }),

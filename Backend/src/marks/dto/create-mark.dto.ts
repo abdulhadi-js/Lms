@@ -5,7 +5,10 @@ export class CreateMarkDto {
   studentId: string;
 
   @IsUUID()
-  courseId: string;
+  sectionId: string;
+
+  @IsUUID()
+  subjectId: string;
 
   @IsString()
   component: string;

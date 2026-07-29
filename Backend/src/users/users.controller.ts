@@ -20,33 +20,31 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Role } from '../common/enums/roles.enum';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles(Role.ADMIN)
+  @RequirePermissions('MANAGE_USERS')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.INSTRUCTOR, Role.STUDENT)
-  @ApiQuery({ name: 'role', enum: Role, required: false })
-  findAll(@Query('role') role?: Role, @Query('limit') limit?: number, @Query('offset') offset?: number) {
-    return this.usersService.findAll(role, limit, offset);
+  @RequirePermissions('VIEW_USERS')
+  @ApiQuery({ name: 'roleId', required: false })
+  findAll(@Query('roleId') roleId?: string, @Query('limit') limit?: number, @Query('offset') offset?: number) {
+    return this.usersService.findAll(roleId, limit, offset);
   }
 
   @Patch('profile')
-  @Roles(Role.ADMIN, Role.INSTRUCTOR, Role.STUDENT)
   @UseInterceptors(
     FileInterceptor('profilePicture', {
       storage: memoryStorage(),
@@ -68,25 +66,25 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermissions('VIEW_USERS')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermissions('MANAGE_USERS')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
+  @RequirePermissions('MANAGE_USERS')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 
   @Post(':id/reset-password')
-  @Roles(Role.ADMIN)
+  @RequirePermissions('MANAGE_USERS')
   resetPassword(
     @Param('id') id: string,
     @Body('newPassword') newPassword: string,

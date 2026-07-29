@@ -1,10 +1,5 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
- } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 
 export enum AttendanceStatus {
   PRESENT = 'PRESENT',
@@ -22,7 +17,10 @@ export class Attendance {
   studentId: string;
 
   @Column({ type: 'uuid' })
-  courseId: string;
+  sectionId: string;
+
+  @Column({ type: 'uuid' })
+  subjectId: string;
 
   @Column({ type: 'date' })
   classDate: string;
@@ -40,4 +38,10 @@ export class Attendance {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

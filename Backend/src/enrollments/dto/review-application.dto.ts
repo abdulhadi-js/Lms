@@ -1,15 +1,23 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-
-export enum ApplicationStatus {
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import { IsString, IsOptional, IsIn, IsNumber, IsDateString, IsUUID } from 'class-validator';
 
 export class ReviewApplicationDto {
-  @IsEnum(ApplicationStatus)
-  status: ApplicationStatus;
-
+  @IsIn(['PENDING', 'TEST_SCHEDULED', 'APPROVED_WAITING_FEE', 'ENROLLED', 'REJECTED'])
   @IsOptional()
+  status?: string;
+
+  @IsDateString()
+  @IsOptional()
+  testDate?: Date;
+
+  @IsNumber()
+  @IsOptional()
+  testMarks?: number;
+
   @IsString()
-  notes?: string;
+  @IsOptional()
+  reviewNotes?: string;
+
+  @IsUUID()
+  @IsOptional()
+  sectionId?: string; // provided when changing to ENROLLED
 }

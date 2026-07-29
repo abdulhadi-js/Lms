@@ -11,9 +11,10 @@ import { CreateMarkDto } from './dto/create-mark.dto';
 import { UpdateMarkDto } from './dto/update-mark.dto';
 import { GradingCriteriaDto } from './dto/grading-criteria.dto';
 import { UsersService } from '../users/users.service';
-import { CoursesService } from '../courses/courses.service';
+import { AcademicsService } from '../academics/academics.service';
 import type { Response } from 'express';
 const PDFDocument = require('pdfkit');
+
 @Injectable()
 export class MarksService {
   constructor(
@@ -22,7 +23,7 @@ export class MarksService {
     @InjectRepository(GradingCriteria)
     private criteriaRepo: Repository<GradingCriteria>,
     private readonly usersService: UsersService,
-    private readonly coursesService: CoursesService,
+    private readonly academicsService: AcademicsService,
   ) {}
 
   async calculateGrade(
@@ -38,33 +39,35 @@ export class MarksService {
     return { gradeLetter: matched.gradeLetter, gpaPoints: matched.gpaPoints };
   }
 
-  async enterMark(dto: CreateMarkDto, graderId: string) {
+  async enterMark(dto: CreateMarkDto, currentUser: any) {
     const { gradeLetter, gpaPoints } = await this.calculateGrade(
       dto.score,
       dto.maxScore,
     );
     const mark = this.markRepo.create({
       ...dto,
-      graderId,
+      graderId: currentUser.id,
       gradeLetter,
       gpaPoints,
+      campusId: currentUser.campusId,
     });
     return this.markRepo.save(mark);
   }
 
   async updateMark(id: string, dto: UpdateMarkDto, currentUser: any) {
-    const mark = await this.markRepo.findOne({ where: { id } });
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const mark = await this.markRepo.findOne({ where: whereClause });
     if (!mark) throw new NotFoundException('Mark not found');
 
-    if (currentUser.role !== 'ADMIN' && mark.graderId !== currentUser.userId) {
+    if (!currentUser.permissions?.includes('MANAGE_MARKS') && !currentUser.isSuperAdmin && mark.graderId !== currentUser.id) {
       throw new ForbiddenException(
-        'Cannot edit marks you did not enter unless ADMIN',
+        'Cannot edit marks you did not enter unless you have permission',
       );
     }
 
-    if (currentUser.role === 'ADMIN' && dto.overrideReason) {
+    if ((currentUser.permissions?.includes('MANAGE_MARKS') || currentUser.isSuperAdmin) && dto.overrideReason) {
       mark.overrideReason = dto.overrideReason;
-      // In a real app, also write to an AuditLog entity here.
     }
 
     Object.assign(mark, dto);
@@ -81,34 +84,40 @@ export class MarksService {
     return this.markRepo.save(mark);
   }
 
-  async getGradebook(courseId: string, currentUser: any) {
-    if (currentUser.role === 'STUDENT') {
-      return this.markRepo.find({
-        where: { courseId, studentId: currentUser.userId },
-      });
+  async getGradebook(sectionId: string, subjectId: string, currentUser: any) {
+    const whereClause: any = { sectionId, subjectId };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+
+    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin) {
+      whereClause.studentId = currentUser.id;
+      return this.markRepo.find({ where: whereClause });
     }
-    return this.markRepo.find({ where: { courseId } });
+    return this.markRepo.find({ where: whereClause });
   }
 
   async getTranscript(studentId: string, currentUser: any) {
-    if (currentUser.role === 'STUDENT' && currentUser.userId !== studentId) {
+    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin && currentUser.id !== studentId) {
       throw new ForbiddenException('Cannot view other student transcripts');
     }
-    const marks = await this.markRepo.find({ where: { studentId } });
-    const gpa = await this.calculateCumulativeGPA(studentId);
+    const whereClause: any = { studentId };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const marks = await this.markRepo.find({ where: whereClause });
+    const gpa = await this.calculateCumulativeGPA(studentId, currentUser);
     return { marks, cumulativeGPA: gpa };
   }
 
   async generateTranscriptPdf(studentId: string, currentUser: any, res: Response) {
-    if (currentUser.role === 'STUDENT' && currentUser.userId !== studentId) {
+    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin && currentUser.id !== studentId) {
       throw new ForbiddenException('Cannot view other student transcripts');
     }
 
     const student = await this.usersService.findOne(studentId);
     if (!student) throw new NotFoundException('Student not found');
 
-    const marks = await this.markRepo.find({ where: { studentId } });
-    const gpa = await this.calculateCumulativeGPA(studentId);
+    const whereClause: any = { studentId };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const marks = await this.markRepo.find({ where: whereClause });
+    const gpa = await this.calculateCumulativeGPA(studentId, currentUser);
 
     const doc = new PDFDocument({ margin: 50 });
     
@@ -117,13 +126,11 @@ export class MarksService {
     
     doc.pipe(res);
 
-    // Header
     doc.fontSize(24).font('Helvetica-Bold').text('EduCore LMS', { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(18).font('Helvetica').text('Official Academic Transcript', { align: 'center' });
     doc.moveDown(2);
 
-    // Student Info
     doc.fontSize(12).font('Helvetica-Bold').text('Student Information:');
     doc.font('Helvetica').text(`Name: ${student.firstName} ${student.lastName}`);
     doc.text(`Email: ${student.email}`);
@@ -133,24 +140,14 @@ export class MarksService {
     doc.font('Helvetica-Bold').text(`Cumulative GPA: ${gpa.toFixed(2)} / 4.00`);
     doc.moveDown(2);
 
-    // Academic Record
     doc.fontSize(16).font('Helvetica-Bold').text('Academic Record', { underline: true });
     doc.moveDown();
 
     if (marks.length === 0) {
       doc.font('Helvetica').fontSize(12).text('No grades recorded yet.');
     } else {
-      // Fetch course names to display nicely
       for (const mark of marks) {
-        let courseTitle = 'Unknown Course';
-        try {
-          const course = await this.coursesService.findOne(mark.courseId);
-          if (course) courseTitle = course.title;
-        } catch (e) {
-          // Ignore
-        }
-        
-        doc.font('Helvetica-Bold').fontSize(12).text(`${courseTitle} (${mark.component})`);
+        doc.font('Helvetica-Bold').fontSize(12).text(`Subject/Section: ${mark.subjectId}/${mark.sectionId} (${mark.component})`);
         doc.font('Helvetica').fontSize(11).text(`Score: ${mark.score} / ${mark.maxScore} (Weight: ${mark.weightPercent}%)`);
         doc.text(`Grade: ${mark.gradeLetter || 'N/A'} (Points: ${mark.gpaPoints || 0})`);
         if (mark.overrideReason) {
@@ -172,11 +169,11 @@ export class MarksService {
     return this.criteriaRepo.find();
   }
 
-  async calculateCumulativeGPA(studentId: string): Promise<number> {
-    const marks = await this.markRepo.find({ where: { studentId } });
+  async calculateCumulativeGPA(studentId: string, currentUser: any): Promise<number> {
+    const whereClause: any = { studentId };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const marks = await this.markRepo.find({ where: whereClause });
     if (marks.length === 0) return 0;
-
-    // Simplistic calculation: average of all gpaPoints
     const totalGPA = marks.reduce(
       (sum, mark) => sum + (mark.gpaPoints || 0),
       0,

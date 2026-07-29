@@ -14,7 +14,7 @@ export class CreateFeeDto {
 
   @IsOptional()
   @IsUUID()
-  courseId?: string;
+  sectionId?: string;
 
   @IsNumber()
   amount: number;

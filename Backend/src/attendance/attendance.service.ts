@@ -15,22 +15,25 @@ export class AttendanceService {
     private attendanceRepo: Repository<Attendance>,
   ) {}
 
-  async markAttendance(dto: MarkAttendanceDto, teacherId: string) {
-    // In real app, verify teacherId teaches dto.courseId
+  async markAttendance(dto: MarkAttendanceDto, currentUser: any) {
     const records = [];
     for (const student of dto.students) {
       let record = await this.attendanceRepo.findOne({
         where: {
-          courseId: dto.courseId,
+          sectionId: dto.sectionId,
+          subjectId: dto.subjectId,
           studentId: student.studentId,
           classDate: dto.classDate,
+          campusId: currentUser.isSuperAdmin ? undefined : currentUser.campusId
         },
       });
       if (!record) {
         record = this.attendanceRepo.create({
-          courseId: dto.courseId,
+          sectionId: dto.sectionId,
+          subjectId: dto.subjectId,
           studentId: student.studentId,
           classDate: dto.classDate,
+          campusId: currentUser.campusId,
         });
       }
       record.status = student.status;
@@ -41,18 +44,21 @@ export class AttendanceService {
   }
 
   async getAttendance(
-    courseId: string,
+    sectionId: string,
+    subjectId: string,
     studentId: string,
     startDate: string,
     endDate: string,
     currentUser: any,
   ) {
-    if (currentUser.role === 'STUDENT' && currentUser.userId !== studentId) {
+    if (currentUser.role === 'STUDENT' && currentUser.id !== studentId) {
       throw new ForbiddenException('Can only view own attendance');
     }
 
     const query = this.attendanceRepo.createQueryBuilder('att');
-    if (courseId) query.andWhere('att.courseId = :courseId', { courseId });
+    if (!currentUser.isSuperAdmin) query.andWhere('att.campusId = :campusId', { campusId: currentUser.campusId });
+    if (sectionId) query.andWhere('att.sectionId = :sectionId', { sectionId });
+    if (subjectId) query.andWhere('att.subjectId = :subjectId', { subjectId });
     if (studentId) query.andWhere('att.studentId = :studentId', { studentId });
     if (startDate) query.andWhere('att.classDate >= :startDate', { startDate });
     if (endDate) query.andWhere('att.classDate <= :endDate', { endDate });
@@ -60,7 +66,7 @@ export class AttendanceService {
     return query.getMany();
   }
 
-  async getAttendanceSummary(courseId: string, studentId?: string) {
+  async getAttendanceSummary(sectionId: string, subjectId: string, studentId: string | undefined, currentUser: any) {
     const query = this.attendanceRepo
       .createQueryBuilder('att')
       .select('att.studentId', 'studentId')
@@ -77,7 +83,15 @@ export class AttendanceService {
         `SUM(CASE WHEN att.status = '${AttendanceStatus.LATE}' THEN 1 ELSE 0 END)`,
         'lateCount',
       )
-      .where('att.courseId = :courseId', { courseId });
+      .where('att.sectionId = :sectionId', { sectionId });
+
+    if (!currentUser.isSuperAdmin) {
+      query.andWhere('att.campusId = :campusId', { campusId: currentUser.campusId });
+    }
+
+    if (subjectId) {
+      query.andWhere('att.subjectId = :subjectId', { subjectId });
+    }
 
     if (studentId) query.andWhere('att.studentId = :studentId', { studentId });
 
@@ -93,8 +107,10 @@ export class AttendanceService {
     }));
   }
 
-  async updateAttendance(id: string, updateData: Partial<Attendance>) {
-    const record = await this.attendanceRepo.findOne({ where: { id } });
+  async updateAttendance(id: string, updateData: Partial<Attendance>, currentUser: any) {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const record = await this.attendanceRepo.findOne({ where: whereClause });
     if (!record) throw new NotFoundException('Attendance record not found');
     Object.assign(record, updateData);
     return this.attendanceRepo.save(record);

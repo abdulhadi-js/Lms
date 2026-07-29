@@ -1,14 +1,7 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
- } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Course } from '../../courses/entities/course.entity';
+import { Section } from '../../academics/entities/section.entity';
 
 export enum FeeStatus {
   PENDING = 'PENDING',
@@ -22,6 +15,7 @@ export class Fee {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Index()
   @Column({ type: 'uuid' })
   studentId: string;
 
@@ -29,12 +23,13 @@ export class Fee {
   @JoinColumn({ name: 'studentId' })
   student: User;
 
+  @Index()
   @Column({ type: 'uuid', nullable: true })
-  courseId: string;
+  sectionId: string;
 
-  @ManyToOne(() => Course)
-  @JoinColumn({ name: 'courseId' })
-  course: Course;
+  @ManyToOne(() => Section)
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 
   @Column({ type: 'float' })
   amount: number;
@@ -62,4 +57,10 @@ export class Fee {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

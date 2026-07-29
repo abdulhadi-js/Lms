@@ -1,9 +1,15 @@
-import { IsUUID } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateEnrollmentDto {
   @IsUUID()
+  @IsNotEmpty()
   studentId: string;
 
   @IsUUID()
-  courseId: string;
+  @IsNotEmpty()
+  sectionId: string;
+
+  @IsString()
+  @IsOptional()
+  academicYear?: string;
 }

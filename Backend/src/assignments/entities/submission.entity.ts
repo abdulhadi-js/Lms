@@ -1,9 +1,5 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
- } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity('submissions')
 export class Submission {
@@ -34,4 +30,10 @@ export class Submission {
 
   @CreateDateColumn()
   submittedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

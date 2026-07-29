@@ -10,12 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dto/send-message.dto';
 
 @Controller('chat')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
@@ -27,7 +27,7 @@ export class ChatController {
   @Get('messages')
   getMessages(
     @Query('partnerId') partnerId: string,
-    @Query('courseId') courseId: string,
+    @Query('sectionId') sectionId: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Req() req: any,
@@ -35,7 +35,7 @@ export class ChatController {
     return this.chatService.getMessages(
       req.user.id || req.user.userId,
       partnerId,
-      courseId,
+      sectionId,
       page,
       limit,
     );

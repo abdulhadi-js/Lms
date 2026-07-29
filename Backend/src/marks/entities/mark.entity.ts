@@ -1,10 +1,5 @@
-import { Index, 
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
- } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
+import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity('marks')
 export class Mark {
@@ -15,10 +10,13 @@ export class Mark {
   studentId: string;
 
   @Column({ type: 'uuid' })
-  courseId: string;
+  sectionId: string;
+
+  @Column({ type: 'uuid' })
+  subjectId: string;
 
   @Column()
-  component: string;
+  component: string; // e.g. Midterm, Final, Homework 1
 
   @Column({ type: 'float' })
   score: number;
@@ -49,4 +47,10 @@ export class Mark {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }
