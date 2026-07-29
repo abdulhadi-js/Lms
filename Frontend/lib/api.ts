@@ -88,7 +88,7 @@ export const authApi = {
     return res.json();
   },
   refresh: async (refreshToken: string): Promise<LoginResponse> => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`, {
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${refreshToken}` },
       body: JSON.stringify({ refreshToken })

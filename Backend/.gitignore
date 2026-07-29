@@ -1,1 +1,27 @@
+# Backend build output
+dist/
+
+# Dependencies
+node_modules/
+
+# Environment variables — never commit secrets
+.env
+.env.*
+!.env.example
+
+# SQLite dev database
+*.sqlite
+database.sqlite
+
+# Log files
+*.log
+logs/
+
+# File uploads (stored locally in dev)
+uploads/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# TestSprite temp config
 testsprite_tests\tmp\config.json
