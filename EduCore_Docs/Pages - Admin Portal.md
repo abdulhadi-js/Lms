@@ -59,11 +59,12 @@ API calls: `coursesApi.list()`, `coursesApi.create()`, `coursesApi.update()`, `c
 
 Features:
 - List all enrollments with status indicators
-- **Direct enroll** — immediately enroll a student in a course (bypass application)
+- **Bulk enroll** — quickly select multiple students and enroll them in a single course at once
+- **Direct enroll** — immediately enroll a single student in a course (bypass application)
 - **Manage drops** — review and approve/reject drop requests from students
 - **Remove enrollment** — hard remove an enrollment record
 
-API calls: `enrollmentsApi.list()`, `enrollmentsApi.directEnroll()`, `enrollmentsApi.update()`, `enrollmentsApi.remove()`
+API calls: `enrollmentsApi.list()`, `enrollmentsApi.bulkEnroll()`, `enrollmentsApi.directEnroll()`, `enrollmentsApi.update()`, `enrollmentsApi.remove()`
 
 ---
 
@@ -73,9 +74,10 @@ API calls: `enrollmentsApi.list()`, `enrollmentsApi.directEnroll()`, `enrollment
 
 Features:
 - List all public enrollment applications (from `/apply` page)
+- View dynamic course titles mapped from the public active courses catalog
 - Filter by status: `PENDING_REVIEW`, `APPROVED`, `REJECTED`
 - **Review application** — approve or reject with optional notes
-- Approved applications trigger a welcome email to the student
+- **Automated Provisioning** — Approved applications automatically provision a new `STUDENT` user account with a default password and directly create the corresponding course enrollment record.
 
 API calls: `enrollmentsApi.getApplications(status)`, `enrollmentsApi.reviewApplication(id, status, notes)`
 

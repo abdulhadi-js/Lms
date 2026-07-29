@@ -74,7 +74,7 @@ export class EnrollmentsService {
           }) as any;
         }
 
-        if (app.desiredCourse) {
+        if (app.desiredCourse && student) {
           const enrollment = this.enrollmentRepo.create({
             status: 'ENROLLED' as any,
             student: { id: student.id } as any,

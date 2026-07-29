@@ -37,6 +37,7 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
+| `GET` | `/public/courses` | ❌ Public | List active courses (used for student applications) |
 | `GET` | `/courses` | ✅ JWT | List courses (scoped by role) |
 | `POST` | `/courses` | ADMIN | Create a new course |
 | `GET` | `/courses/:id` | ✅ JWT | Get a course with its modules |
@@ -57,6 +58,7 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 |---|---|---|---|
 | `GET` | `/enrollments` | ✅ JWT | List enrollments (scoped by role) |
 | `POST` | `/enrollments` | ADMIN | Directly enroll a student in a course |
+| `POST` | `/enrollments/bulk` | ADMIN | Bulk enroll multiple students in a single course |
 | `PATCH` | `/enrollments/:id` | ADMIN | Update an enrollment record |
 | `DELETE` | `/enrollments/:id` | ADMIN | Remove an enrollment record |
 | `POST` | `/enrollments/:id/drop` | ✅ JWT | Student or admin requests a course drop |

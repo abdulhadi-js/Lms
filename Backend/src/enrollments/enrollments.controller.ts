@@ -76,7 +76,6 @@ export class EnrollmentsController {
   }
 }
 @Controller('applications')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class ApplicationsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
@@ -86,12 +85,14 @@ export class ApplicationsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   getApplications(@Query('status') status: string, @Request() req: any) {
     if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
     return this.enrollmentsService.getApplications(status);
   }
 
   @Patch(':id/review')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   reviewApplication(
     @Param('id') id: string,
     @Body() dto: ReviewApplicationDto,
