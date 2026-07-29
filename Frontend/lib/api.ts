@@ -150,7 +150,7 @@ export const feesApi = {
   create: (data: any) => fetchAuthApi('/fees', { method: 'POST', body: JSON.stringify(data) }),
   pay: (id: string, amount: number) => fetchAuthApi(`/fees/${id}/pay`, {
     method: 'POST',
-    body: JSON.stringify({ amount })
+    body: JSON.stringify({ paidAmount: amount })
   }),
   update: (id: string, data: any) => fetchAuthApi(`/fees/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/fees/${id}`, { method: 'DELETE' }),
