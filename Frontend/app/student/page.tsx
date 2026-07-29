@@ -58,6 +58,26 @@ export default function StudentDashboard() {
   // Compute CGPA from marks is now partly handled by backend, but we'll use transcript.cumulativeGPA if available
   const cgpa = transcript.cumulativeGPA > 0 ? transcript.cumulativeGPA.toFixed(2) : '0.00';
 
+  const currentDayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const allScheduleSlots: Array<{courseCode: string, courseTitle: string, room: string, day: string, time: string}> = [];
+  activeEnrollments.forEach((enrollment: any) => {
+    if (enrollment.course?.schedule && Array.isArray(enrollment.course.schedule)) {
+      enrollment.course.schedule.forEach((slot: any) => {
+        allScheduleSlots.push({
+          courseCode: enrollment.course.code,
+          courseTitle: enrollment.course.title,
+          room: enrollment.course.room,
+          day: slot.day,
+          time: slot.time
+        });
+      });
+    }
+  });
+
+  const todayClasses = allScheduleSlots
+    .filter(s => s.day === currentDayName)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
   // Upcoming assignment deadlines (due in the next 7 days)
   const now = new Date();
   const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -198,6 +218,44 @@ export default function StudentDashboard() {
                   <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
                   <p className="font-medium">No active courses found.</p>
                   <p className="text-xs mt-1">Contact admin to get enrolled in courses.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Today's Schedule */}
+          <div className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-divider flex justify-between items-center bg-surface">
+              <h3 className="text-lg font-semibold text-heading-on-light">Today's Classes ({currentDayName})</h3>
+            </div>
+            <div className="p-5">
+              {loading ? (
+                <div className="space-y-3">
+                  <div className="h-16 border border-divider rounded-lg animate-pulse bg-surface-container" />
+                  <div className="h-16 border border-divider rounded-lg animate-pulse bg-surface-container" />
+                </div>
+              ) : todayClasses.length > 0 ? (
+                <div className="space-y-3">
+                  {todayClasses.map((cls, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-4 rounded-lg border border-divider hover:border-primary/50 transition-colors group">
+                      <div className="w-16 h-16 shrink-0 rounded-lg bg-primary/10 text-primary flex flex-col items-center justify-center font-bold text-sm">
+                        <span>{cls.time.split('-')[0].trim()}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-on-surface truncate">{cls.courseTitle}</h4>
+                        <div className="flex items-center text-xs text-body-secondary mt-1 gap-3">
+                          <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {cls.courseCode}</span>
+                          {cls.room && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Room {cls.room}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-body-secondary">
+                  <CheckCircle className="w-10 h-10 mx-auto mb-3 text-success opacity-50" />
+                  <p className="font-medium">No classes scheduled for today.</p>
+                  <p className="text-xs mt-1">Enjoy your free time!</p>
                 </div>
               )}
             </div>

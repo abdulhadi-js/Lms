@@ -38,17 +38,44 @@ export default function AdminTimetable() {
     room: ''
   });
 
+  const parseTimeStr = (timeStr: string) => {
+    const [time, modifier] = timeStr.trim().split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return [hours, minutes];
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [scheduleData, courseData] = await Promise.all([
-        timetableApi.list(),
-        coursesApi.list()
-      ]);
-      setSchedules(scheduleData.data || scheduleData || []);
-      setCourses(courseData.data || courseData || []);
+      const courseData = await coursesApi.list();
+      const coursesList = courseData.data || courseData || [];
+      setCourses(coursesList);
+      
+      const newSchedules: any[] = [];
+      coursesList.forEach((course: any) => {
+        if (course.schedule && Array.isArray(course.schedule)) {
+          course.schedule.forEach((s: any, idx: number) => {
+            const parts = s.time.split('-');
+            if (parts.length === 2) {
+              const startStr = parts[0].trim();
+              const endStr = parts[1].trim();
+              newSchedules.push({
+                id: `${course.id}-${idx}`,
+                course: course,
+                dayOfWeek: s.day.substring(0, 3).toUpperCase(),
+                startTimeStr: startStr,
+                endTimeStr: endStr,
+                room: course.room || 'TBD',
+              });
+            }
+          });
+        }
+      });
+      setSchedules(newSchedules);
     } catch (error) {
-      toast.error('Failed to load timetable data');
+      toast.error('Failed to load courses data');
     } finally {
       setIsLoading(false);
     }
@@ -128,8 +155,8 @@ export default function AdminTimetable() {
       const targetDate = new Date(currentWeekStart);
       targetDate.setDate(targetDate.getDate() + dayOffset);
       
-      const [startHour, startMin] = (slot.startTime || '09:00').split(':').map(Number);
-      const [endHour, endMin] = (slot.endTime || '10:00').split(':').map(Number);
+      const [startHour, startMin] = parseTimeStr(slot.startTimeStr);
+      const [endHour, endMin] = parseTimeStr(slot.endTimeStr);
       
       const start = new Date(targetDate);
       start.setHours(startHour, startMin, 0, 0);
@@ -153,13 +180,13 @@ export default function AdminTimetable() {
           <h2 className="text-3xl font-bold text-heading-on-light">Timetable Scheduling</h2>
           <p className="text-sm text-body-secondary mt-1">Manage class schedules and allocate resources.</p>
         </div>
-        <button 
-          onClick={() => handleOpenModal()}
+        <a 
+          href="/admin/courses"
           className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
         >
-          <Plus className="h-4 w-4" />
-          Add Schedule
-        </button>
+          <Edit className="h-4 w-4" />
+          Manage Courses
+        </a>
       </div>
 
       <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
@@ -198,27 +225,12 @@ export default function AdminTimetable() {
                           <Users className="w-4 h-4" /> {slot.course?.teacher ? `${slot.course.teacher.firstName} ${slot.course.teacher.lastName}` : 'Unassigned'}
                         </div>
                       </div>
-                      <div className="flex gap-1 ml-2">
-                        <button 
-                          onClick={() => handleOpenModal(slot)}
-                          className="p-1.5 text-info hover:bg-info/10 rounded transition-colors bg-info-bg"
-                          title="Edit Schedule"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(slot.id)}
-                          className="p-1.5 text-error hover:bg-error-bg rounded transition-colors bg-error-bg"
-                          title="Delete Schedule"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+
                     </div>
                     
                     <div className="grid grid-cols-2 gap-2 text-sm mt-3 pt-3 border-t border-divider">
                       <div className="text-body-secondary flex items-center gap-1"><Clock className="w-4 h-4" /> Timing:</div>
-                      <div className="text-right text-primary font-medium">{slot.startTime} - {slot.endTime}</div>
+                      <div className="text-right text-primary font-medium">{slot.startTimeStr} - {slot.endTimeStr}</div>
                       
                       <div className="text-body-secondary flex items-center gap-1"><MapPin className="w-4 h-4" /> Room:</div>
                       <div className="text-right">{slot.room}</div>
@@ -254,10 +266,6 @@ export default function AdminTimetable() {
                           <div className="font-semibold truncate">{slot.course?.title || slot.course?.code}</div>
                           <div className="flex justify-between items-end mt-1">
                             <span>{slot.room}</span>
-                            <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                              <button onClick={() => handleOpenModal(slot)} className="text-white hover:text-white/80"><Edit className="w-3 h-3" /></button>
-                              <button onClick={() => handleDelete(slot.id)} className="text-white hover:text-white/80"><Trash2 className="w-3 h-3" /></button>
-                            </div>
                           </div>
                         </div>
                       )
@@ -273,109 +281,7 @@ export default function AdminTimetable() {
         </div>
       </div>
 
-      {/* Timetable Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
-              <h3 className="text-xl font-bold text-heading-on-light">
-                {isEditMode ? 'Edit Schedule Slot' : 'Add Schedule Slot'}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">
-                <Trash2 className="h-5 w-5 hidden" />
-                &times;
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Select Course</label>
-                <select 
-                  required
-                  value={formData.courseId} 
-                  onChange={e => setFormData({...formData, courseId: e.target.value})}
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                >
-                  <option value="">-- Choose Course --</option>
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id}>{c.code} - {c.title}</option>
-                  ))}
-                </select>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Day of Week</label>
-                  <select 
-                    required
-                    value={formData.dayOfWeek} 
-                    onChange={e => setFormData({...formData, dayOfWeek: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  >
-                    <option value="MON">Monday</option>
-                    <option value="TUE">Tuesday</option>
-                    <option value="WED">Wednesday</option>
-                    <option value="THU">Thursday</option>
-                    <option value="FRI">Friday</option>
-                    <option value="SAT">Saturday</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Room/Location</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. Room 201"
-                    value={formData.room} 
-                    onChange={e => setFormData({...formData, room: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Start Time</label>
-                  <input 
-                    type="time" 
-                    required
-                    value={formData.startTime} 
-                    onChange={e => setFormData({...formData, startTime: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">End Time</label>
-                  <input 
-                    type="time" 
-                    required
-                    value={formData.endTime} 
-                    onChange={e => setFormData({...formData, endTime: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-semibold text-body-secondary hover:bg-surface-container-low rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className="px-4 py-2 text-sm font-semibold text-white primary-gradient rounded-lg hover:shadow-md transition-shadow disabled:opacity-70 flex items-center"
-                >
-                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {isEditMode ? 'Save Changes' : 'Create Schedule'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

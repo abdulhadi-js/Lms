@@ -26,6 +26,8 @@ interface Course {
   title: string;
   description: string;
   modules: Module[];
+  schedule?: { day: string, time: string }[];
+  room?: string;
 }
 
 export default function CourseContent() {
@@ -112,6 +114,14 @@ export default function CourseContent() {
             <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
             {course.title}
           </h3>
+          {(course.schedule?.length || course.room) ? (
+            <div className="mt-3 text-xs text-body-secondary space-y-1.5 border-t border-divider/50 pt-2">
+              {course.room && <div className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">meeting_room</span> Room {course.room}</div>}
+              {course.schedule?.map(s => (
+                <div key={s.day} className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">schedule</span> {s.day} ({s.time.split('-')[0].trim()})</div>
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="flex-1 pb-20">
           {course.modules && course.modules.length > 0 ? (
