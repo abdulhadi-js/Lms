@@ -59,7 +59,7 @@ async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
   });
 }
 
-export type AuthUser = { id: string; email: string; role: string; firstName: string; lastName: string; phone?: string; profilePicture?: string; };
+export type AuthUser = { id: string; email: string; role?: string; isSuperAdmin?: boolean; campusId?: string; firstName: string; lastName: string; phone?: string; profilePicture?: string; };
 export type LoginResponse = { accessToken: string; refreshToken: string; user: AuthUser };
 
 export const authApi = {
