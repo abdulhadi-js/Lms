@@ -47,8 +47,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         <div className="flex items-center gap-4 text-on-primary">
           <ThemeToggle className="text-on-primary border-on-primary/20 hover:text-primary-fixed" />
           <NotificationBell />
-          <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20">
-            {user.firstName ? user.firstName[0].toUpperCase() : 'S'}
+          <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20 overflow-hidden">
+            {user?.profilePicture ? (
+              <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              user?.firstName ? user.firstName[0].toUpperCase() : 'S'
+            )}
           </div>
         </div>
       </header>
@@ -73,8 +77,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
         <div className="px-4 mb-8 flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
-            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all ${isCollapsed && !isMobileMenuOpen ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
-              {user.firstName ? user.firstName[0].toUpperCase() : 'S'}
+            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all overflow-hidden ${isCollapsed && !isMobileMenuOpen ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
+              {user?.profilePicture ? (
+                <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user?.firstName ? user.firstName[0].toUpperCase() : 'S'
+              )}
             </div>
             {!(isCollapsed && !isMobileMenuOpen) && <span className="absolute bottom-0 right-0 w-4 h-4 bg-lime-cream rounded-full border-2 border-evergreen"></span>}
           </div>
