@@ -125,6 +125,10 @@ export const enrollmentsApi = {
     method: 'POST',
     body: JSON.stringify({ studentId, courseId })
   }),
+  bulkEnroll: (courseId: string, studentIds: string[]) => fetchAuthApi('/enrollments/bulk', {
+    method: 'POST',
+    body: JSON.stringify({ courseId, studentIds })
+  }),
   requestDrop: (enrollmentId: string, reason: string) => fetchAuthApi(`/enrollments/${enrollmentId}/drop`, {
     method: 'POST',
     body: JSON.stringify({ reason })

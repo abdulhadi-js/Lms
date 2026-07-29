@@ -18,7 +18,7 @@ export default function EnrollmentsManagement() {
   const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
 
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
 
   const [dropModalOpen, setDropModalOpen] = useState(false);
@@ -61,19 +61,19 @@ export default function EnrollmentsManagement() {
   }, []);
 
   const handleEnrollSubmit = async () => {
-    if (!selectedStudent || !selectedCourse) {
-      toast.error("Please select both a student and a course.");
+    if (selectedStudents.length === 0 || !selectedCourse) {
+      toast.error("Please select at least one student and a course.");
       return;
     }
     try {
-      await enrollmentsApi.directEnroll(selectedStudent, selectedCourse);
+      await enrollmentsApi.bulkEnroll(selectedCourse, selectedStudents);
       setEnrollModalOpen(false);
-      setSelectedStudent('');
+      setSelectedStudents([]);
       setSelectedCourse('');
-      toast.success('Student enrolled successfully');
+      toast.success(`${selectedStudents.length} student(s) enrolled successfully`);
       fetchData();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to enroll student');
+      toast.error(err.message || 'Failed to enroll students');
     }
   };
 
@@ -343,7 +343,10 @@ export default function EnrollmentsManagement() {
             
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Select Student</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-on-surface">Select Students</label>
+                  <span className="text-xs text-primary font-semibold">{selectedStudents.length} selected</span>
+                </div>
                 <input 
                   type="text" 
                   placeholder="Filter students..." 
@@ -351,16 +354,28 @@ export default function EnrollmentsManagement() {
                   onChange={(e) => setStudentSearch(e.target.value)}
                   className="w-full mb-2 border border-border-light rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-                <select 
-                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                  value={selectedStudent}
-                  onChange={(e) => setSelectedStudent(e.target.value)}
-                >
-                  <option value="">-- Choose a Student --</option>
+                <div className="max-h-48 overflow-y-auto border border-border-light rounded-lg p-2 space-y-1">
                   {students.filter(s => `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase())).map(s => (
-                    <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.email})</option>
+                    <label key={s.id} className="flex items-center gap-3 p-2 hover:bg-surface-container-low rounded-lg cursor-pointer border border-transparent hover:border-border-light transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-border-light text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                        checked={selectedStudents.includes(s.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStudents([...selectedStudents, s.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== s.id));
+                          }
+                        }}
+                      />
+                      <span className="text-sm font-medium text-on-surface flex-1">{s.firstName} {s.lastName} <span className="text-body-secondary font-normal text-xs ml-1">({s.email})</span></span>
+                    </label>
                   ))}
-                </select>
+                  {students.filter(s => `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase())).length === 0 && (
+                    <div className="text-sm text-body-secondary p-4 text-center">No students found.</div>
+                  )}
+                </div>
               </div>
               
               <div>

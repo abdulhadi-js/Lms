@@ -29,6 +29,17 @@ export class EnrollmentsService {
     return enrollment;
   }
 
+  async bulkEnroll(courseId: string, studentIds: string[]) {
+    const enrollments = studentIds.map(studentId => 
+      this.enrollmentRepo.create({ courseId, studentId })
+    );
+    await this.enrollmentRepo.save(enrollments);
+    console.log(
+      `Audit: Bulk enrolled ${studentIds.length} students in course ${courseId}`,
+    );
+    return enrollments;
+  }
+
   async applyForCourse(dto: CreateApplicationDto) {
     const app = this.appRepo.create({ ...dto, status: 'PENDING_REVIEW' });
     return this.appRepo.save(app);

@@ -30,6 +30,12 @@ export class EnrollmentsController {
     return this.enrollmentsService.directEnroll(dto);
   }
 
+  @Post('bulk')
+  bulkEnroll(@Body() body: { courseId: string; studentIds: string[] }, @Request() req: any) {
+    if (req.user?.role !== 'ADMIN') throw new ForbiddenException();
+    return this.enrollmentsService.bulkEnroll(body.courseId, body.studentIds);
+  }
+
   @Get()
   findEnrollments(@Request() req: any) {
     return this.enrollmentsService.findEnrollments(req.user);
