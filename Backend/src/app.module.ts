@@ -23,6 +23,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { RolesModule } from './roles/roles.module';
 import { CampusesModule } from './campuses/campuses.module';
+import { FamiliesModule } from './families/families.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { CampusesModule } from './campuses/campuses.module';
     ReportsModule,
     RolesModule,
     CampusesModule,
+    FamiliesModule,
   ],
   providers: [
     // Apply rate limiting globally

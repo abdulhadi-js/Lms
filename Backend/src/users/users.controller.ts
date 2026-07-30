@@ -66,6 +66,12 @@ export class UsersController {
     }
   }
 
+  @Get('students/:id/unified')
+  @RequirePermission(ModuleId.USERS_STUDENTS, 'VIEW')
+  getUnifiedProfile(@Param('id') id: string) {
+    return this.usersService.getUnifiedStudentProfile(id);
+  }
+
   @Get(':id')
   @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
   findOne(@Param('id') id: string) {

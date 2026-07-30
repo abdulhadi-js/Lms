@@ -150,4 +150,49 @@ export class EnrollmentsService {
     
     await this.enrollmentRepo.delete(id);
   }
+
+  async rollover(data: { fromCourseId: string; toCourseId: string; studentIds?: string[] }, currentUser: any) {
+    const { fromCourseId, toCourseId, studentIds } = data;
+    
+    const qb = this.enrollmentRepo.createQueryBuilder('enrollment');
+    qb.where('enrollment.sectionId = :fromCourseId', { fromCourseId });
+    qb.andWhere('enrollment.status = :status', { status: 'ACTIVE' });
+    if (!currentUser.isSuperAdmin) {
+      qb.andWhere('enrollment.campusId = :campusId', { campusId: currentUser.campusId });
+    }
+    if (studentIds && studentIds.length > 0) {
+      qb.andWhere('enrollment.studentId IN (:...studentIds)', { studentIds });
+    }
+
+    const enrollments = await qb.getMany();
+
+    if (enrollments.length === 0) {
+      return { message: 'No active enrollments found to rollover', count: 0 };
+    }
+
+    const newEnrollments: Enrollment[] = [];
+
+    for (const enrollment of enrollments) {
+      // Mark current as completed
+      enrollment.status = 'COMPLETED';
+      await this.enrollmentRepo.save(enrollment);
+
+      // Create new enrollment
+      const newEnrollment = this.enrollmentRepo.create({
+        studentId: enrollment.studentId,
+        sectionId: toCourseId,
+        status: 'ACTIVE',
+        academicYear: new Date().getFullYear().toString() + '-' + (new Date().getFullYear() + 1).toString(),
+        campusId: enrollment.campusId,
+      });
+      newEnrollments.push(newEnrollment);
+    }
+
+    await this.enrollmentRepo.save(newEnrollments);
+
+    return {
+      message: 'Rollover successful',
+      count: newEnrollments.length,
+    };
+  }
 }

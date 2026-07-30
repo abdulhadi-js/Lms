@@ -66,6 +66,13 @@ export class EnrollmentsController {
     if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.remove(id, req.user);
   }
+
+  @Post('rollover')
+  @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
+  async rollover(@Body() body: { fromCourseId: string; toCourseId: string; studentIds?: string[] }, @Request() req: any) {
+    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
+    return this.enrollmentsService.rollover(body, req.user);
+  }
 }
 
 @Controller('applications')

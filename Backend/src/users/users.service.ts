@@ -9,6 +9,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from '../roles/entities/role.entity';
+import { FamiliesService } from '../families/families.service';
 
 // Safe user shape without sensitive fields
 export type SafeUser = Omit<User, 'passwordHash'>;
@@ -19,6 +20,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly familiesService: FamiliesService,
   ) {}
 
   private sanitize(user: User): SafeUser {
@@ -78,17 +80,45 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<SafeUser> {
-    const { password, ...rest } = createUserDto;
+    const { password, familyCode, fatherName, fatherPhone, motherName, guardianName, address, ...rest } = createUserDto;
     
     const existingUser = await this.userRepo.findOne({ where: { email: rest.email } });
     if (existingUser) {
       throw new BadRequestException('A user with this email already exists.');
     }
 
+    let familyId: string | undefined = undefined;
+
+    if (familyCode) {
+      const family = await this.familiesService.findByCode(familyCode);
+      if (family) {
+        familyId = family.id;
+      } else {
+        const newFamily = await this.familiesService.create({
+          familyCode,
+          fatherName: fatherName || 'Unknown',
+          fatherPhone: fatherPhone || 'Unknown',
+          motherName,
+          guardianName,
+          address,
+        });
+        familyId = newFamily.id;
+      }
+    } else if (fatherName && fatherPhone) {
+      const newFamily = await this.familiesService.create({
+        fatherName,
+        fatherPhone,
+        motherName,
+        guardianName,
+        address,
+      });
+      familyId = newFamily.id;
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Use raw save() — TypeORM accepts plain objects that match the schema
-    const saved = await this.userRepo.save({ ...rest, passwordHash } as any);
+    const saved = await this.userRepo.save({ ...rest, familyId, passwordHash } as any);
     
     // Send welcome email asynchronously without blocking the request
     this.sendWelcomeEmail(saved as User, password);
@@ -111,6 +141,21 @@ export class UsersService {
       relations: { role: { matrix: true }, campus: true }
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
+    return this.sanitize(user);
+  }
+
+  async getUnifiedStudentProfile(id: string): Promise<SafeUser> {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: {
+        campus: true,
+        family: { users: true },
+        enrollments: { section: true },
+        fees: true,
+        marks: true
+      }
+    });
+    if (!user) throw new NotFoundException(`Student #${id} not found`);
     return this.sanitize(user);
   }
 
