@@ -66,6 +66,7 @@ export class AuthService {
         email: user.email,
         isSuperAdmin: user.isSuperAdmin,
         campusId: user.campusId,
+        role: user.role?.name,
         permissions: user.role?.permissions || [],
         firstName: user.firstName,
         lastName: user.lastName,

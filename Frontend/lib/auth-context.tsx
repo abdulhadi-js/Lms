@@ -131,13 +131,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       scheduleRefresh();
 
-      // Route based on role — backend uses INSTRUCTOR (not TEACHER)
-      const redirectPaths: Record<string, string> = {
-        ADMIN: "/admin",
-        INSTRUCTOR: "/teacher",
-        STUDENT: "/student",
-      };
-      router.push(redirectPaths[data.user.role ?? ''] ?? "/");
+      // Route based on role — handle super admin edge cases
+      let nextPath = "/";
+      if (data.user.isSuperAdmin || data.user.role?.toUpperCase() === "PRINCIPAL" || data.user.role?.toUpperCase() === "ADMIN") {
+        nextPath = "/admin";
+      } else if (data.user.role?.toUpperCase() === "TEACHER" || data.user.role?.toUpperCase() === "INSTRUCTOR") {
+        nextPath = "/teacher";
+      } else if (data.user.role?.toUpperCase() === "STUDENT") {
+        nextPath = "/student";
+      }
+
+      router.push(nextPath);
     } catch (err: any) {
       setError(err.message ?? "Login failed. Please check your credentials.");
       throw err;
