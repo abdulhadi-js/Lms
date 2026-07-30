@@ -39,7 +39,7 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
-  const handleReview = async (id: string, status: 'APPROVED' | 'REJECTED') => {
+  const handleReview = async (id: string, status: 'APPROVED_WAITING_FEE' | 'REJECTED') => {
     setReviewingId(id);
     try {
       await enrollmentsApi.reviewApplication(id, status);
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
       if (overview) {
         setOverview({ ...overview, pendingApplications: Math.max(0, (overview.pendingApplications || 0) - 1) });
       }
-      toast.success(status === 'APPROVED' ? 'Application approved!' : 'Application rejected.');
+      toast.success(status === 'APPROVED_WAITING_FEE' ? 'Application approved!' : 'Application rejected.');
     } catch (error: any) {
       toast.error(error?.message || 'Failed to review application.');
     } finally {
@@ -56,11 +56,11 @@ export default function AdminDashboard() {
   };
 
   const stats = [
-    { title: 'Total Students',       val: loading ? '...' : overview?.totalStudents ?? 0,                            sub: 'Active enrollments',  icon: Users,    color: 'text-primary-container', bg: 'bg-surface-container-low' },
+    { title: 'Total Students',       val: loading ? '...' : overview?.totalStudents ?? 0,                            sub: 'Active enrollments',  icon: Users,    color: 'text-primary', bg: 'bg-primary/10' },
     // B3 FIX: was overview?.totalCourses — now matches what the API actually returns (activeCourses)
-    { title: 'Active Courses',        val: loading ? '...' : overview?.activeCourses ?? overview?.totalCourses ?? 0,  sub: 'Current semester',    icon: BookOpen, color: 'text-primary-container', bg: 'bg-surface-container-low' },
-    { title: 'Pending Applications',  val: loading ? '...' : overview?.pendingApplications ?? 0,                      sub: 'Needs review',        icon: Clock,    color: 'text-warning',           bg: 'bg-warning-bg' },
-    { title: 'Fees Collected',        val: loading ? '...' : `$${(overview?.totalFeesCollected || 0).toLocaleString()}`, sub: 'Total received',   icon: Banknote, color: 'text-success',           bg: 'bg-success-bg' },
+    { title: 'Active Courses',        val: loading ? '...' : overview?.activeCourses ?? overview?.totalCourses ?? 0,  sub: 'Current semester',    icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
+    { title: 'Pending Applications',  val: loading ? '...' : overview?.pendingApplications ?? 0,                      sub: 'Needs review',        icon: Clock,    color: 'text-warning',           bg: 'bg-warning/10' },
+    { title: 'Fees Collected',        val: loading ? '...' : `$${(overview?.totalFeesCollected || 0).toLocaleString()}`, sub: 'Total received',   icon: Banknote, color: 'text-success',           bg: 'bg-success/10' },
   ];
 
   return (
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-primary-container text-white text-xs uppercase tracking-wider">
+                  <tr className="bg-primary-container text-on-primary-container text-xs uppercase tracking-wider">
                     <th className="py-3 px-4 font-medium">Name</th>
                     <th className="py-3 px-4 font-medium">Program</th>
                     <th className="py-3 px-4 font-medium">Date</th>
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                         {/* B4 FIX: toast feedback on approve/reject */}
                         <td className="py-3 px-4 text-right space-x-1">
                           <button
-                            onClick={() => handleReview(row.id, 'APPROVED')}
+                            onClick={() => handleReview(row.id, 'APPROVED_WAITING_FEE')}
                             disabled={reviewingId === row.id}
                             title="Approve"
                             className="text-success hover:bg-success-bg p-1.5 rounded transition-colors disabled:opacity-40"
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
                 </Link>
               </RequireAccess>
               <RequireAccess module="ACADEMICS" action="canView">
-                <Link href="/admin/academics" className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-white rounded-lg hover:opacity-90 transition-all">
+                <Link href="/admin/academics" className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-on-primary-container rounded-lg hover:opacity-90 transition-all">
                   <BookOpen className="h-6 w-6 mb-2" />
                   <span className="text-xs font-semibold">Academics</span>
                 </Link>
