@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import ImageKit from 'imagekit';
@@ -52,12 +56,21 @@ export class UsersService {
         });
       }
 
-      const roleName = user.role?.name ? user.role.name.charAt(0).toUpperCase() + user.role.name.slice(1).toLowerCase() : 'User';
-      
-      const pwdHtml = rawPassword ? '<p>Your temporary password is: <strong>' + rawPassword + '</strong></p><p>Please log in and change it immediately.</p>' : '';
-      
+      const roleName = user.role?.name
+        ? user.role.name.charAt(0).toUpperCase() +
+          user.role.name.slice(1).toLowerCase()
+        : 'User';
+
+      const pwdHtml = rawPassword
+        ? '<p>Your temporary password is: <strong>' +
+          rawPassword +
+          '</strong></p><p>Please log in and change it immediately.</p>'
+        : '';
+
       const info = await transporter.sendMail({
-        from: this.configService.get('MAIL_FROM') || '"EduCore Admissions" <admissions@educore.school>',
+        from:
+          this.configService.get('MAIL_FROM') ||
+          '"EduCore Admissions" <admissions@educore.school>',
         to: user.email,
         subject: `Welcome to EduCore! Your ${roleName} Account is Ready`,
         html: `
@@ -72,7 +85,9 @@ export class UsersService {
 
       console.log(`\n📧 Email sent successfully to ${user.email}!`);
       if (!this.configService.get('MAIL_HOST')) {
-        console.log(`🔗 Preview your email here: ${nodemailer.getTestMessageUrl(info)}\n`);
+        console.log(
+          `🔗 Preview your email here: ${nodemailer.getTestMessageUrl(info)}\n`,
+        );
       }
     } catch (error) {
       console.error('Failed to send welcome email:', error);
@@ -80,9 +95,20 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<SafeUser> {
-    const { password, familyCode, fatherName, fatherPhone, motherName, guardianName, address, ...rest } = createUserDto;
-    
-    const existingUser = await this.userRepo.findOne({ where: { email: rest.email } });
+    const {
+      password,
+      familyCode,
+      fatherName,
+      fatherPhone,
+      motherName,
+      guardianName,
+      address,
+      ...rest
+    } = createUserDto;
+
+    const existingUser = await this.userRepo.findOne({
+      where: { email: rest.email },
+    });
     if (existingUser) {
       throw new BadRequestException('A user with this email already exists.');
     }
@@ -118,16 +144,25 @@ export class UsersService {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Use raw save() — TypeORM accepts plain objects that match the schema
-    const saved = await this.userRepo.save({ ...rest, familyId, passwordHash } as any);
-    
+    const saved = await this.userRepo.save({
+      ...rest,
+      familyId,
+      passwordHash,
+    } as any);
+
     // Send welcome email asynchronously without blocking the request
     this.sendWelcomeEmail(saved as User, password);
-    
+
     return this.sanitize(saved as User);
   }
 
-  async findAll(roleId?: string, limit: number = 50, offset: number = 0): Promise<SafeUser[]> {
-    const qb = this.userRepo.createQueryBuilder('user')
+  async findAll(
+    roleId?: string,
+    limit: number = 50,
+    offset: number = 0,
+  ): Promise<SafeUser[]> {
+    const qb = this.userRepo
+      .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('user.campus', 'campus');
     if (roleId) qb.where('user.roleId = :roleId', { roleId });
@@ -136,9 +171,9 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<SafeUser> {
-    const user = await this.userRepo.findOne({ 
+    const user = await this.userRepo.findOne({
       where: { id },
-      relations: { role: { matrix: true }, campus: true }
+      relations: { role: { matrix: true }, campus: true },
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return this.sanitize(user);
@@ -152,8 +187,8 @@ export class UsersService {
         family: { users: true },
         enrollments: { section: true },
         fees: true,
-        marks: true
-      }
+        marks: true,
+      },
     });
     if (!user) throw new NotFoundException(`Student #${id} not found`);
     return this.sanitize(user);
@@ -161,9 +196,9 @@ export class UsersService {
 
   /** Returns the full entity including passwordHash — for AuthService use only */
   async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepo.findOne({ 
+    return await this.userRepo.findOne({
       where: { email },
-      relations: { role: { matrix: true }, campus: true }
+      relations: { role: { matrix: true }, campus: true },
     });
   }
 
@@ -182,7 +217,11 @@ export class UsersService {
     return this.sanitize(saved);
   }
 
-  async updateProfile(id: string, body: any, file?: Express.Multer.File): Promise<SafeUser> {
+  async updateProfile(
+    id: string,
+    body: any,
+    file?: Express.Multer.File,
+  ): Promise<SafeUser> {
     try {
       const user = await this.userRepo.findOne({ where: { id } });
       if (!user) throw new NotFoundException('User not found');
@@ -190,9 +229,12 @@ export class UsersService {
       if (body.firstName) user.firstName = body.firstName;
       if (body.lastName) user.lastName = body.lastName;
       if (body.phone) user.phone = body.phone;
-      
+
       if (body.currentPassword && body.newPassword) {
-        const isMatch = await bcrypt.compare(body.currentPassword, user.passwordHash);
+        const isMatch = await bcrypt.compare(
+          body.currentPassword,
+          user.passwordHash,
+        );
         if (!isMatch) throw new BadRequestException('Invalid current password');
         user.passwordHash = await bcrypt.hash(body.newPassword, 10);
       }
@@ -204,19 +246,26 @@ export class UsersService {
         if (hasImageKit) {
           const imagekit = new ImageKit({
             publicKey: pubKey,
-            privateKey: this.configService.get('IMAGEKIT_PRIVATE_KEY') || 'dummy_private_key',
-            urlEndpoint: this.configService.get('IMAGEKIT_URL_ENDPOINT') || 'https://ik.imagekit.io/dummy_endpoint'
+            privateKey:
+              this.configService.get('IMAGEKIT_PRIVATE_KEY') ||
+              'dummy_private_key',
+            urlEndpoint:
+              this.configService.get('IMAGEKIT_URL_ENDPOINT') ||
+              'https://ik.imagekit.io/dummy_endpoint',
           });
 
           const uploadResponse = await new Promise((resolve, reject) => {
-            imagekit.upload({
-              file: file.buffer,
-              fileName: file.originalname,
-              folder: '/educore/profiles'
-            }, (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            });
+            imagekit.upload(
+              {
+                file: file.buffer,
+                fileName: file.originalname,
+                folder: '/educore/profiles',
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              },
+            );
           });
 
           user.profilePicture = (uploadResponse as any).url;
@@ -241,7 +290,9 @@ export class UsersService {
       // Re-throw NestJS HTTP exceptions as-is (e.g. NotFoundException, BadRequestException)
       if (error?.status) throw error;
       // For all other unexpected errors, throw a safe generic message — never expose stack traces
-      throw new BadRequestException('Failed to update profile. Please try again.');
+      throw new BadRequestException(
+        'Failed to update profile. Please try again.',
+      );
     }
   }
 

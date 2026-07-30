@@ -1,5 +1,13 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { Section } from './section.entity';
 import { Subject } from './subject.entity';
 
@@ -14,10 +22,10 @@ export class AcademicClass {
   @Column({ default: 0 })
   level: number; // for sorting (e.g., 6)
 
-  @OneToMany(() => Section, section => section.academicClass)
+  @OneToMany(() => Section, (section) => section.academicClass)
   sections: Section[];
 
-  @OneToMany(() => Subject, subject => subject.academicClass)
+  @OneToMany(() => Subject, (subject) => subject.academicClass)
   subjects: Subject[];
 
   @CreateDateColumn()

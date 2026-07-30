@@ -26,7 +26,12 @@ export class MarksController {
   constructor(private readonly marksService: MarksService) {}
 
   @Get()
-  getMarks(@Query('studentId') studentId: string, @Query('sectionId') sectionId: string, @Query('subjectId') subjectId: string, @Req() req: any) {
+  getMarks(
+    @Query('studentId') studentId: string,
+    @Query('sectionId') sectionId: string,
+    @Query('subjectId') subjectId: string,
+    @Req() req: any,
+  ) {
     if (studentId) {
       return this.marksService.getTranscript(studentId, req.user);
     }
@@ -34,7 +39,11 @@ export class MarksController {
   }
 
   @Get('gradebook')
-  getGradebook(@Query('sectionId') sectionId: string, @Query('subjectId') subjectId: string, @Req() req: any) {
+  getGradebook(
+    @Query('sectionId') sectionId: string,
+    @Query('subjectId') subjectId: string,
+    @Req() req: any,
+  ) {
     return this.marksService.getGradebook(sectionId, subjectId, req.user);
   }
 

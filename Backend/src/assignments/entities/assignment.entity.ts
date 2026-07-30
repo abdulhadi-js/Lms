@@ -1,5 +1,11 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Index, Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Index,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity('assignments')
 export class Assignment {

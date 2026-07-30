@@ -12,7 +12,10 @@ export const mailConfig = (configService: ConfigService) => ({
     },
   },
   defaults: {
-    from: configService.get<string>('MAIL_FROM', '"EduCore LMS" <noreply@educore.com>'),
+    from: configService.get<string>(
+      'MAIL_FROM',
+      '"EduCore LMS" <noreply@educore.com>',
+    ),
   },
   template: {
     dir: join(__dirname, '..', 'mail', 'templates'),

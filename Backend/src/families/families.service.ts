@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Family } from './entities/family.entity';
@@ -19,7 +23,9 @@ export class FamiliesService {
   }
 
   async findAll(familyCode?: string): Promise<Family[]> {
-    const qb = this.familyRepo.createQueryBuilder('family').leftJoinAndSelect('family.users', 'users');
+    const qb = this.familyRepo
+      .createQueryBuilder('family')
+      .leftJoinAndSelect('family.users', 'users');
     if (familyCode) {
       qb.where('family.familyCode = :familyCode', { familyCode });
     }

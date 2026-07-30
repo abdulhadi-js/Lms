@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Calendar as CalendarIcon, Check, X, AlertCircle } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, Check, X, AlertCircle, Zap, Loader2 } from 'lucide-react';
 import { coursesApi, enrollmentsApi, attendanceApi } from '@/lib/api';
+import { toast } from 'react-hot-toast';
 
 export default function TeacherAttendance() {
   const router = useRouter();
@@ -18,6 +19,12 @@ export default function TeacherAttendance() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+
+  // Bulk Mode State
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkData, setBulkData] = useState('');
+  const [bulkStatus, setBulkStatus] = useState('PRESENT');
+  const [isBulkSaving, setIsBulkSaving] = useState(false);
 
   useEffect(() => {
     async function loadCourses() {
@@ -104,12 +111,37 @@ export default function TeacherAttendance() {
       };
       
       await attendanceApi.mark(payload);
-      alert('Attendance saved successfully!');
+      toast.success('Attendance saved successfully!');
     } catch (err) {
       console.error('Failed to save attendance', err);
-      alert('Failed to save attendance');
+      toast.error('Failed to save attendance');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleBulkMark = async () => {
+    if (!bulkData.trim()) return toast.error('Please enter GR Numbers');
+    setIsBulkSaving(true);
+    
+    // Split by comma, newline, or space
+    const grNumbers = bulkData.split(/[\n\s,]+/).filter(gr => gr.trim().length > 0);
+    
+    try {
+      await attendanceApi.bulkMark({
+        courseId: selectedCourse,
+        date: new Date(date).toISOString(),
+        grNumbers,
+        status: bulkStatus
+      });
+      toast.success(`Successfully marked ${grNumbers.length} students as ${bulkStatus}`);
+      setIsBulkModalOpen(false);
+      setBulkData('');
+      loadAttendanceData(selectedCourse, date); // reload the table
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to bulk mark attendance');
+    } finally {
+      setIsBulkSaving(false);
     }
   };
 
@@ -148,6 +180,14 @@ export default function TeacherAttendance() {
         <div className="flex gap-3 w-full sm:w-auto">
           <button onClick={() => router.push('/teacher/analytics?print=true')} className="flex-1 sm:flex-none px-4 py-2 border border-border-light bg-white rounded-lg text-sm font-medium hover:bg-surface-container transition-colors print:hidden">
             Generate Report
+          </button>
+          <button 
+            onClick={() => setIsBulkModalOpen(true)}
+            disabled={loading || courses.length === 0 || !isToday}
+            className="flex-1 sm:flex-none px-4 py-2 border border-primary text-primary bg-primary/5 rounded-lg text-sm font-semibold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <Zap className="w-4 h-4" />
+            Smart Bulk Mode
           </button>
           <button 
             onClick={handleSave}
@@ -364,6 +404,69 @@ export default function TeacherAttendance() {
           )}
         </div>
       </div>
+
+      {/* Smart Bulk Modal */}
+      {isBulkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-divider flex justify-between items-center">
+              <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
+                <Zap className="w-5 h-5 text-primary" /> Smart Bulk Attendance
+              </h3>
+              <button onClick={() => setIsBulkModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-primary/10 text-primary-fixed border border-primary/20 rounded-lg p-3 text-sm flex gap-2">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <p>Paste a list of GR Numbers or User IDs to rapidly mark an entire batch. Separate them by commas, spaces, or new lines.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Status to Apply</label>
+                <select 
+                  value={bulkStatus}
+                  onChange={e => setBulkStatus(e.target.value)}
+                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="PRESENT">PRESENT</option>
+                  <option value="ABSENT">ABSENT</option>
+                  <option value="LATE">LATE</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">GR Numbers (IDs)</label>
+                <textarea 
+                  value={bulkData}
+                  onChange={e => setBulkData(e.target.value)}
+                  placeholder="e.g. GR-001, GR-002&#10;GR-003"
+                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[150px] font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-divider bg-surface flex justify-end gap-3">
+              <button 
+                onClick={() => setIsBulkModalOpen(false)}
+                className="px-4 py-2 text-sm font-semibold text-body-secondary hover:bg-surface-container rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleBulkMark}
+                disabled={isBulkSaving || !bulkData.trim()}
+                className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {isBulkSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                Run Bulk Mark
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

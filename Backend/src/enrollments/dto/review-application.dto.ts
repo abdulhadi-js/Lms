@@ -1,7 +1,20 @@
-import { IsString, IsOptional, IsIn, IsNumber, IsDateString, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsIn,
+  IsNumber,
+  IsDateString,
+  IsUUID,
+} from 'class-validator';
 
 export class ReviewApplicationDto {
-  @IsIn(['PENDING', 'TEST_SCHEDULED', 'APPROVED_WAITING_FEE', 'ENROLLED', 'REJECTED'])
+  @IsIn([
+    'PENDING',
+    'TEST_SCHEDULED',
+    'APPROVED_WAITING_FEE',
+    'ENROLLED',
+    'REJECTED',
+  ])
   @IsOptional()
   status?: string;
 

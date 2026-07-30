@@ -29,7 +29,6 @@ export class EnrollmentsController {
   @Post()
   @RequirePermission(ModuleId.ADMISSIONS, 'ADD')
   directEnroll(@Body() dto: CreateEnrollmentDto, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.directEnroll(dto, req.user);
   }
 
@@ -39,12 +38,19 @@ export class EnrollmentsController {
   }
 
   @Post('drop')
-  requestDrop(
-    @Body() dto: RequestDropDto,
-    @Request() req: any,
-  ) {
-    if (req.user?.permissions?.includes('MANAGE_ENROLLMENTS') || req.user?.isSuperAdmin) {
-      return this.enrollmentsService.adminDrop(dto.enrollmentId, dto.reason, req.user);
+  requestDrop(@Body() dto: RequestDropDto, @Request() req: any) {
+    if (
+      (req.user?.matrix &&
+        req.user.matrix.some(
+          (m: any) => m.moduleId === 'ADMISSIONS' && m.canEdit,
+        )) ||
+      req.user?.isSuperAdmin
+    ) {
+      return this.enrollmentsService.adminDrop(
+        dto.enrollmentId,
+        dto.reason,
+        req.user,
+      );
     }
     return this.enrollmentsService.requestDrop(req.user, dto);
   }
@@ -56,21 +62,22 @@ export class EnrollmentsController {
     @Body('approved') approved: boolean,
     @Request() req: any,
   ) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.reviewDropRequest(id, approved, req.user);
   }
 
   @Delete(':id')
   @RequirePermission(ModuleId.ADMISSIONS, 'DELETE')
   remove(@Param('id') id: string, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.remove(id, req.user);
   }
 
   @Post('rollover')
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
-  async rollover(@Body() body: { fromCourseId: string; toCourseId: string; studentIds?: string[] }, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
+  async rollover(
+    @Body()
+    body: { fromCourseId: string; toCourseId: string; studentIds?: string[] },
+    @Request() req: any,
+  ) {
     return this.enrollmentsService.rollover(body, req.user);
   }
 }
@@ -88,7 +95,6 @@ export class ApplicationsController {
   @UseGuards(JwtAuthGuard, MatrixGuard)
   @RequirePermission(ModuleId.ADMISSIONS, 'VIEW')
   getApplications(@Query('status') status: string, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.getApplications(status, req.user);
   }
 
@@ -100,7 +106,6 @@ export class ApplicationsController {
     @Body() dto: ReviewApplicationDto,
     @Request() req: any,
   ) {
-    if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.reviewApplication(id, dto, req.user);
   }
 }

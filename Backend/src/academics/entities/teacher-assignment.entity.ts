@@ -1,5 +1,13 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Section } from './section.entity';
 import { Subject } from './subject.entity';
 import { User } from '../../users/entities/user.entity';

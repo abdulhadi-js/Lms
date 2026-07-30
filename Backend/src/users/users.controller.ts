@@ -41,7 +41,11 @@ export class UsersController {
   @Get()
   @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
   @ApiQuery({ name: 'roleId', required: false })
-  findAll(@Query('roleId') roleId?: string, @Query('limit') limit?: number, @Query('offset') offset?: number) {
+  findAll(
+    @Query('roleId') roleId?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ) {
     return this.usersService.findAll(roleId, limit, offset);
   }
 
@@ -62,7 +66,7 @@ export class UsersController {
     try {
       return this.usersService.updateProfile(user.id, body, file);
     } catch (e: any) {
-      throw new BadRequestException("Controller error: " + e.message);
+      throw new BadRequestException('Controller error: ' + e.message);
     }
   }
 

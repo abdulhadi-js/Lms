@@ -35,7 +35,9 @@ export class ChatService {
 
     for (const msg of messages) {
       const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      const key = msg.sectionId ? `section_${msg.sectionId}` : `user_${partnerId}`;
+      const key = msg.sectionId
+        ? `section_${msg.sectionId}`
+        : `user_${partnerId}`;
       if (!convos.has(key)) {
         convos.set(key, msg);
       }

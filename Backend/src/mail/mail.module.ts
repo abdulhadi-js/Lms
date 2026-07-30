@@ -1,3 +1,4 @@
+import { RolesModule } from '../roles/roles.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -7,7 +8,7 @@ import { MailService } from './mail.service';
 
 @Global()
 @Module({
-  imports: [
+  imports: [RolesModule, 
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -22,7 +23,10 @@ import { MailService } from './mail.service';
           },
         },
         defaults: {
-          from: configService.get<string>('MAIL_FROM', '"EduCore LMS" <noreply@educore.com>'),
+          from: configService.get<string>(
+            'MAIL_FROM',
+            '"EduCore LMS" <noreply@educore.com>',
+          ),
         },
         template: {
           dir: join(__dirname, 'templates'),

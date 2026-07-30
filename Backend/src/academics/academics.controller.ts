@@ -1,14 +1,26 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AcademicsService } from './academics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MatrixGuard } from '../auth/guards/matrix.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { ModuleId } from '../roles/entities/module-permission.entity';
 import {
-  CreateAcademicClassDto, UpdateAcademicClassDto,
-  CreateSectionDto, UpdateSectionDto,
-  CreateSubjectDto, UpdateSubjectDto,
-  AssignTeacherDto
+  CreateAcademicClassDto,
+  UpdateAcademicClassDto,
+  CreateSectionDto,
+  UpdateSectionDto,
+  CreateSubjectDto,
+  UpdateSubjectDto,
+  AssignTeacherDto,
 } from './dto/academics.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -35,7 +47,11 @@ export class AcademicsController {
 
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
   @Put('classes/:id')
-  updateClass(@Param('id') id: string, @Body() dto: UpdateAcademicClassDto, @CurrentUser() user: any) {
+  updateClass(
+    @Param('id') id: string,
+    @Body() dto: UpdateAcademicClassDto,
+    @CurrentUser() user: any,
+  ) {
     return this.academicsService.updateClass(id, dto, user);
   }
 
@@ -53,7 +69,11 @@ export class AcademicsController {
 
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
   @Put('sections/:id')
-  updateSection(@Param('id') id: string, @Body() dto: UpdateSectionDto, @CurrentUser() user: any) {
+  updateSection(
+    @Param('id') id: string,
+    @Body() dto: UpdateSectionDto,
+    @CurrentUser() user: any,
+  ) {
     return this.academicsService.updateSection(id, dto, user);
   }
 
@@ -71,7 +91,11 @@ export class AcademicsController {
 
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
   @Put('subjects/:id')
-  updateSubject(@Param('id') id: string, @Body() dto: UpdateSubjectDto, @CurrentUser() user: any) {
+  updateSubject(
+    @Param('id') id: string,
+    @Body() dto: UpdateSubjectDto,
+    @CurrentUser() user: any,
+  ) {
     return this.academicsService.updateSubject(id, dto, user);
   }
 

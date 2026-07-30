@@ -14,7 +14,9 @@ import { Server, Socket } from 'socket.io';
     origin: '*',
   },
 })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -42,7 +44,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   emitNewNotification(notification: any) {
     if (notification.audienceRole) {
-      this.server.to(`role_${notification.audienceRole}`).emit('new-notification', notification);
+      this.server
+        .to(`role_${notification.audienceRole}`)
+        .emit('new-notification', notification);
     } else {
       this.server.emit('new-notification', notification);
     }

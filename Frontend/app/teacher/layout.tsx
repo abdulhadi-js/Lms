@@ -34,6 +34,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     { href: '/teacher/assignments', label: 'Assignments', icon: FileText },
     { href: '/teacher/gradebook', label: 'Marks & Grading', icon: Edit },
     { href: '/teacher/attendance', label: 'Attendance', icon: ClipboardCheck },
+    { href: '/teacher/exams', label: 'CBT Exams', icon: Edit },
     { href: '/teacher/chat', label: 'Chat', icon: MessageSquare },
     { href: '/teacher/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/teacher/profile', label: 'Profile Settings', icon: Settings },
@@ -148,6 +149,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         <Link href="/teacher/attendance" className="flex flex-col items-center justify-center w-full h-full text-icon-inactive hover:text-primary transition-colors">
           <ClipboardCheck className="w-5 h-5" />
           <span className="font-medium text-[10px] mt-1">Attend.</span>
+        </Link>
+        <Link href="/teacher/exams" className="hidden sm:flex flex-col items-center justify-center w-full h-full text-icon-inactive hover:text-primary transition-colors">
+          <Edit className="w-5 h-5" />
+          <span className="font-medium text-[10px] mt-1">Exams</span>
         </Link>
         <Link href="/teacher/chat" className="flex flex-col items-center justify-center w-full h-full text-icon-inactive hover:text-primary transition-colors">
           <MessageSquare className="w-5 h-5" />

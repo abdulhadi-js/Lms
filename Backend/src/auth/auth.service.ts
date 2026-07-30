@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -15,14 +19,24 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  private generateTokens(payload: { sub: string; email: string; isSuperAdmin: boolean; campusId: string | null; roleId: string | null }) {
+  private generateTokens(payload: {
+    sub: string;
+    email: string;
+    isSuperAdmin: boolean;
+    campusId: string | null;
+    roleId: string | null;
+  }) {
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing',
+      secret:
+        this.configService.get<string>('JWT_SECRET') ||
+        'default_jwt_secret_for_testing',
       expiresIn: 900, // 15 minutes in seconds (JWT_EXPIRES_IN=15m)
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET') || 'default_jwt_refresh_secret_for_testing',
+      secret:
+        this.configService.get<string>('JWT_REFRESH_SECRET') ||
+        'default_jwt_refresh_secret_for_testing',
       expiresIn: 604800, // 7 days in seconds (JWT_REFRESH_EXPIRES_IN=7d)
     });
 
@@ -49,12 +63,12 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    const payload = { 
-      sub: user.id, 
-      email: user.email, 
+    const payload = {
+      sub: user.id,
+      email: user.email,
       isSuperAdmin: user.isSuperAdmin,
       campusId: user.campusId,
-      roleId: user.roleId || null
+      roleId: user.roleId || null,
     };
     const { accessToken, refreshToken } = this.generateTokens(payload);
 
@@ -82,12 +96,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid user status');
     }
 
-    const payload = { 
-      sub: user.id, 
-      email: user.email, 
+    const payload = {
+      sub: user.id,
+      email: user.email,
       isSuperAdmin: user.isSuperAdmin,
       campusId: user.campusId,
-      roleId: (user as any).roleId || null
+      roleId: (user as any).roleId || null,
     };
     return this.generateTokens(payload);
   }
@@ -101,16 +115,26 @@ export class AuthService {
     return { success: true, message: 'Logged out successfully' };
   }
 
-  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
     // Always return success to prevent email enumeration attacks
     try {
       const user = await this.usersService.findByEmail(email);
       if (user && user.status === 'ACTIVE') {
-        const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
+        const frontendUrl = this.configService.get<string>(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        );
         // Generate a simple reset token (in production use a signed JWT with short expiry)
         const resetToken = this.jwtService.sign(
           { sub: user.id, email: user.email, type: 'password-reset' },
-          { secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing', expiresIn: '15m' },
+          {
+            secret:
+              this.configService.get<string>('JWT_SECRET') ||
+              'default_jwt_secret_for_testing',
+            expiresIn: '15m',
+          },
         );
         await this.mailService.sendPasswordReset(
           user.email,
@@ -122,13 +146,22 @@ export class AuthService {
     } catch {
       // Silently ignore errors — never reveal if email exists
     }
-    return { success: true, message: 'If an account with that email exists, a reset link has been sent.' };
+    return {
+      success: true,
+      message:
+        'If an account with that email exists, a reset link has been sent.',
+    };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
       const payload = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing',
+        secret:
+          this.configService.get<string>('JWT_SECRET') ||
+          'default_jwt_secret_for_testing',
       });
 
       if (payload.type !== 'password-reset') {

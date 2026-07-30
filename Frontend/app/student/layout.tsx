@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { NotificationBell } from '@/components/NotificationBell';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, FileText, Award, Calendar, CreditCard, MessageSquare, LogOut, HelpCircle, Bell, Menu, GraduationCap, Loader2, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, Award, Calendar, CreditCard, MessageSquare, LogOut, HelpCircle, Bell, Menu, GraduationCap, Loader2, ChevronLeft, ChevronRight, Settings, Edit } from 'lucide-react';
 import Image from 'next/image';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -181,7 +181,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         </Link>
         <Link href="/student/assignments" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${pathname.startsWith('/student/assignments') ? 'text-primary font-bold' : 'text-icon-inactive hover:text-primary'}`}>
           <FileText className="w-5 h-5" />
-          <span className="font-medium text-[10px] mt-1">Assignments</span>
+          <span className="font-medium text-[10px] mt-1">Assign.</span>
+        </Link>
+        <Link href="/student/exams" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${pathname.startsWith('/student/exams') ? 'text-primary font-bold' : 'text-icon-inactive hover:text-primary'}`}>
+          <Edit className="w-5 h-5" />
+          <span className="font-medium text-[10px] mt-1">Exams</span>
         </Link>
         <Link href="/student/attendance" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${pathname.startsWith('/student/attendance') ? 'text-primary font-bold' : 'text-icon-inactive hover:text-primary'}`}>
           <Calendar className="w-5 h-5" />

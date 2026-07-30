@@ -48,8 +48,11 @@ export class ReportsService {
       sectionId: r.sectionId,
       totalClasses: Number(r.totalClasses) || 0,
       totalPresent: Number(r.presentCount) || 0,
-      totalAbsent: (Number(r.totalClasses) || 0) - (Number(r.presentCount) || 0),
-      attendancePercentage: Number(r.totalClasses) ? (Number(r.presentCount) / Number(r.totalClasses)) * 100 : 0,
+      totalAbsent:
+        (Number(r.totalClasses) || 0) - (Number(r.presentCount) || 0),
+      attendancePercentage: Number(r.totalClasses)
+        ? (Number(r.presentCount) / Number(r.totalClasses)) * 100
+        : 0,
     }));
   }
 
@@ -124,8 +127,12 @@ export class ReportsService {
     const totalTeachers = await this.dataSource
       .getRepository('User')
       .count({ where: { role: 'TEACHER' } });
-    const totalClasses = await this.dataSource.getRepository('AcademicClass').count();
-    const totalSections = await this.dataSource.getRepository('Section').count();
+    const totalClasses = await this.dataSource
+      .getRepository('AcademicClass')
+      .count();
+    const totalSections = await this.dataSource
+      .getRepository('Section')
+      .count();
     const totalEnrollments = await this.dataSource
       .getRepository('Enrollment')
       .count();

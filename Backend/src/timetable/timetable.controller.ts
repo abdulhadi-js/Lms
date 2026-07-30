@@ -34,7 +34,11 @@ export class TimetableController {
 
   @Patch(':id')
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateTimetableDto>, @Req() req: any) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateTimetableDto>,
+    @Req() req: any,
+  ) {
     return this.timetableService.update(id, dto, req.user);
   }
 

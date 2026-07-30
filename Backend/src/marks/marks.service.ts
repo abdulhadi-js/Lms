@@ -60,13 +60,25 @@ export class MarksService {
     const mark = await this.markRepo.findOne({ where: whereClause });
     if (!mark) throw new NotFoundException('Mark not found');
 
-    if (!currentUser.permissions?.includes('MANAGE_MARKS') && !currentUser.isSuperAdmin && mark.graderId !== currentUser.id) {
+    if (
+      !currentUser.matrix?.some(
+        (m: any) => m.moduleId === 'EXAMS' && m.canEdit,
+      ) &&
+      !currentUser.isSuperAdmin &&
+      mark.graderId !== currentUser.id
+    ) {
       throw new ForbiddenException(
         'Cannot edit marks you did not enter unless you have permission',
       );
     }
 
-    if ((currentUser.permissions?.includes('MANAGE_MARKS') || currentUser.isSuperAdmin) && dto.overrideReason) {
+    if (
+      (currentUser.matrix?.some(
+        (m: any) => m.moduleId === 'EXAMS' && m.canEdit,
+      ) ||
+        currentUser.isSuperAdmin) &&
+      dto.overrideReason
+    ) {
       mark.overrideReason = dto.overrideReason;
     }
 
@@ -88,7 +100,10 @@ export class MarksService {
     const whereClause: any = { sectionId, subjectId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
 
-    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin) {
+    if (
+      !currentUser.permissions?.includes('VIEW_MARKS') &&
+      !currentUser.isSuperAdmin
+    ) {
       whereClause.studentId = currentUser.id;
       return this.markRepo.find({ where: whereClause });
     }
@@ -96,18 +111,45 @@ export class MarksService {
   }
 
   async getTranscript(studentId: string, currentUser: any) {
-    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin && currentUser.id !== studentId) {
+    if (
+      !currentUser.permissions?.includes('VIEW_MARKS') &&
+      !currentUser.isSuperAdmin &&
+      currentUser.id !== studentId
+    ) {
       throw new ForbiddenException('Cannot view other student transcripts');
     }
     const whereClause: any = { studentId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     const marks = await this.markRepo.find({ where: whereClause });
     const gpa = await this.calculateCumulativeGPA(studentId, currentUser);
-    return { marks, cumulativeGPA: gpa };
+
+    let totalScore = 0;
+    let totalMaxScore = 0;
+    marks.forEach(m => {
+      totalScore += m.score;
+      totalMaxScore += m.maxScore;
+    });
+    const overallPercentage = totalMaxScore > 0 ? (totalScore / totalMaxScore) * 100 : 0;
+    
+    let remarks = "Needs Improvement";
+    if (overallPercentage >= 90) remarks = "Excellent";
+    else if (overallPercentage >= 80) remarks = "Very Good";
+    else if (overallPercentage >= 70) remarks = "Good";
+    else if (overallPercentage >= 60) remarks = "Fair";
+
+    return { marks, cumulativeGPA: gpa, overallPercentage, remarks };
   }
 
-  async generateTranscriptPdf(studentId: string, currentUser: any, res: Response) {
-    if (!currentUser.permissions?.includes('VIEW_MARKS') && !currentUser.isSuperAdmin && currentUser.id !== studentId) {
+  async generateTranscriptPdf(
+    studentId: string,
+    currentUser: any,
+    res: Response,
+  ) {
+    if (
+      !currentUser.permissions?.includes('VIEW_MARKS') &&
+      !currentUser.isSuperAdmin &&
+      currentUser.id !== studentId
+    ) {
       throw new ForbiddenException('Cannot view other student transcripts');
     }
 
@@ -120,19 +162,30 @@ export class MarksService {
     const gpa = await this.calculateCumulativeGPA(studentId, currentUser);
 
     const doc = new PDFDocument({ margin: 50 });
-    
+
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=transcript-${student.firstName}-${student.lastName}.pdf`);
-    
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=transcript-${student.firstName}-${student.lastName}.pdf`,
+    );
+
     doc.pipe(res);
 
-    doc.fontSize(24).font('Helvetica-Bold').text('EduCore LMS', { align: 'center' });
+    doc
+      .fontSize(24)
+      .font('Helvetica-Bold')
+      .text('EduCore LMS', { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(18).font('Helvetica').text('Official Academic Transcript', { align: 'center' });
+    doc
+      .fontSize(18)
+      .font('Helvetica')
+      .text('Official Academic Transcript', { align: 'center' });
     doc.moveDown(2);
 
     doc.fontSize(12).font('Helvetica-Bold').text('Student Information:');
-    doc.font('Helvetica').text(`Name: ${student.firstName} ${student.lastName}`);
+    doc
+      .font('Helvetica')
+      .text(`Name: ${student.firstName} ${student.lastName}`);
     doc.text(`Email: ${student.email}`);
     doc.text(`Student ID: ${student.id}`);
     doc.moveDown();
@@ -140,18 +193,36 @@ export class MarksService {
     doc.font('Helvetica-Bold').text(`Cumulative GPA: ${gpa.toFixed(2)} / 4.00`);
     doc.moveDown(2);
 
-    doc.fontSize(16).font('Helvetica-Bold').text('Academic Record', { underline: true });
+    doc
+      .fontSize(16)
+      .font('Helvetica-Bold')
+      .text('Academic Record', { underline: true });
     doc.moveDown();
 
     if (marks.length === 0) {
       doc.font('Helvetica').fontSize(12).text('No grades recorded yet.');
     } else {
       for (const mark of marks) {
-        doc.font('Helvetica-Bold').fontSize(12).text(`Subject/Section: ${mark.subjectId}/${mark.sectionId} (${mark.component})`);
-        doc.font('Helvetica').fontSize(11).text(`Score: ${mark.score} / ${mark.maxScore} (Weight: ${mark.weightPercent}%)`);
-        doc.text(`Grade: ${mark.gradeLetter || 'N/A'} (Points: ${mark.gpaPoints || 0})`);
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(12)
+          .text(
+            `Subject/Section: ${mark.subjectId}/${mark.sectionId} (${mark.component})`,
+          );
+        doc
+          .font('Helvetica')
+          .fontSize(11)
+          .text(
+            `Score: ${mark.score} / ${mark.maxScore} (Weight: ${mark.weightPercent}%)`,
+          );
+        doc.text(
+          `Grade: ${mark.gradeLetter || 'N/A'} (Points: ${mark.gpaPoints || 0})`,
+        );
         if (mark.overrideReason) {
-          doc.fillColor('red').text(`* Grade Overridden: ${mark.overrideReason}`).fillColor('black');
+          doc
+            .fillColor('red')
+            .text(`* Grade Overridden: ${mark.overrideReason}`)
+            .fillColor('black');
         }
         doc.moveDown(1);
       }
@@ -169,7 +240,10 @@ export class MarksService {
     return this.criteriaRepo.find();
   }
 
-  async calculateCumulativeGPA(studentId: string, currentUser: any): Promise<number> {
+  async calculateCumulativeGPA(
+    studentId: string,
+    currentUser: any,
+  ): Promise<number> {
     const whereClause: any = { studentId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     const marks = await this.markRepo.find({ where: whereClause });

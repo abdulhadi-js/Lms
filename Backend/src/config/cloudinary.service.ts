@@ -1,5 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import {
+  v2 as cloudinary,
+  UploadApiResponse,
+  UploadApiErrorResponse,
+} from 'cloudinary';
 import * as streamifier from 'streamifier';
 
 export interface CloudinaryUploadResult {
@@ -41,7 +45,9 @@ export class CloudinaryService {
     });
   }
 
-  async uploadProfilePicture(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
+  async uploadProfilePicture(
+    file: Express.Multer.File,
+  ): Promise<CloudinaryUploadResult> {
     return this.uploadFile(file, 'profiles');
   }
 

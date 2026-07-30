@@ -8,5 +8,7 @@ export interface PermissionRequirement {
   action: 'VIEW' | 'ADD' | 'EDIT' | 'DELETE';
 }
 
-export const RequirePermission = (moduleId: ModuleId, action: 'VIEW' | 'ADD' | 'EDIT' | 'DELETE') =>
-  SetMetadata(PERMISSION_KEY, { moduleId, action });
+export const RequirePermission = (
+  moduleId: ModuleId,
+  action: 'VIEW' | 'ADD' | 'EDIT' | 'DELETE',
+) => SetMetadata(PERMISSION_KEY, { moduleId, action });

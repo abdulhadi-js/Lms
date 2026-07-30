@@ -1,5 +1,14 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Index,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 
@@ -39,6 +48,18 @@ export class Fee {
 
   @Column({ type: 'date' })
   dueDate: Date;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discount: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  lateFee: number;
+
+  @Column({ type: 'date', nullable: true })
+  holdUntil: Date;
+
+  @Column({ type: 'jsonb', nullable: true })
+  installments: any;
 
   @Column({ type: 'float', default: 0 })
   paidAmount: number;

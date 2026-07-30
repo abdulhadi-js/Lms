@@ -16,12 +16,19 @@ export class MailService {
     try {
       await this.mailerService.sendMail(options);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${options.to}: ${error.message}`);
+      this.logger.error(
+        `Failed to send email to ${options.to}: ${error.message}`,
+      );
       // Don't throw — email failures should not break core app flows
     }
   }
 
-  async sendPasswordReset(email: string, name: string, resetToken: string, frontendUrl: string) {
+  async sendPasswordReset(
+    email: string,
+    name: string,
+    resetToken: string,
+    frontendUrl: string,
+  ) {
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
     await this.sendMail({
       to: email,
@@ -40,7 +47,11 @@ export class MailService {
     });
   }
 
-  async sendApplicationApproved(email: string, name: string, courseName: string) {
+  async sendApplicationApproved(
+    email: string,
+    name: string,
+    courseName: string,
+  ) {
     await this.sendMail({
       to: email,
       subject: 'Application Approved — EduCore LMS',
@@ -49,7 +60,12 @@ export class MailService {
     });
   }
 
-  async sendApplicationRejected(email: string, name: string, courseName: string, reason: string) {
+  async sendApplicationRejected(
+    email: string,
+    name: string,
+    courseName: string,
+    reason: string,
+  ) {
     await this.sendMail({
       to: email,
       subject: 'Application Update — EduCore LMS',
@@ -58,7 +74,12 @@ export class MailService {
     });
   }
 
-  async sendFeeReminder(email: string, name: string, amount: number, dueDate: string) {
+  async sendFeeReminder(
+    email: string,
+    name: string,
+    amount: number,
+    dueDate: string,
+  ) {
     await this.sendMail({
       to: email,
       subject: `Fee Payment Reminder — PKR ${amount.toLocaleString()} Due`,

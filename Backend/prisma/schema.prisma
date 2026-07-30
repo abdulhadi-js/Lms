@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../database.sqlite"
+}
+
+model applications {
+  id            String   @id
+  firstName     String
+  lastName      String
+  email         String
+  phone         String
+  desiredCourse String
+  notes         String?
+  status        String   @default("PENDING_REVIEW")
+  reviewNotes   String?
+  createdAt     DateTime @default(now())
+}
+
+model assignments {
+  id            String                @id
+  courseId      String
+  title         String
+  description   String?
+  rubric        Unsupported("jsonb")?
+  maxMarks      Int
+  dueDate       DateTime
+  weightPercent Int?
+
+  @@index([courseId], map: "IDX_9e5684667ea189ade0fc79fa4f")
+}
+
+model attendance {
+  id        String   @id
+  studentId String
+  courseId  String
+  classDate DateTime
+  status    String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model audit_logs {
+  id         String   @id
+  actor_id   String?
+  action     String
+  entityType String
+  entityId   String
+  oldValue   String?
+  newValue   String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  users      users?   @relation(fields: [actor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model courses {
+  id          String        @id
+  code        String        @unique(map: "sqlite_autoindex_courses_2")
+  title       String
+  description String?
+  teacherId   String?
+  credits     Int           @default(3)
+  status      String        @default("ACTIVE")
+  users       users?        @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  enrollments enrollments[]
+  fees        fees[]
+  messages    messages[]
+  modules     modules[]
+  timetable   timetable[]
+}
+
+model enrollments {
+  id         String    @id
+  studentId  String
+  courseId   String
+  status     String    @default("ENROLLED")
+  dropReason String?
+  droppedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  courses    courses   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users     @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([courseId], map: "IDX_60dd0ae4e21002e63a5fdefeec")
+  @@index([studentId], map: "IDX_bf3ba3dfa95e2df7388eb4589f")
+}
+
+model fees {
+  id           String    @id
+  studentId    String
+  courseId     String?
+  amount       Float
+  description  String?
+  dueDate      DateTime
+  paidAmount   Float     @default(0)
+  status       String    @default("PENDING")
+  paidAt       DateTime?
+  refundReason String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  courses      courses?  @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users        users     @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model grading_criteria {
+  id          String  @id
+  minScore    Float
+  maxScore    Float
+  gradeLetter String
+  gpaPoints   Float
+  description String?
+}
+
+model lessons {
+  id          String  @id
+  title       String
+  description String?
+  contentType String
+  contentUrl  String?
+  order       Int     @default(0)
+  duration    Int?
+  moduleId    String
+  modules     modules @relation(fields: [moduleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model marks {
+  id             String   @id
+  studentId      String
+  courseId       String
+  component      String
+  score          Float
+  maxScore       Float
+  weightPercent  Float
+  notes          String?
+  overrideReason String?
+  gradeLetter    String?
+  gpaPoints      Float?
+  graderId       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+}
+
+model messages {
+  id                               String   @id
+  senderId                         String
+  receiverId                       String?
+  courseId                         String?
+  body                             String
+  isRead                           Boolean  @default(false)
+  createdAt                        DateTime @default(now())
+  courses                          courses? @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_messages_receiverIdTousers users?   @relation("messages_receiverIdTousers", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_messages_senderIdTousers   users    @relation("messages_senderIdTousers", fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model modules {
+  id          String    @id
+  title       String
+  description String?
+  order       Int       @default(0)
+  courseId    String
+  lessons     lessons[]
+  courses     courses   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([courseId], map: "IDX_83489b37212a5a547bde8f8901")
+}
+
+model notifications {
+  id           String   @id
+  title        String
+  body         String
+  audienceRole String?
+  courseId     String?
+  senderId     String
+  createdAt    DateTime @default(now())
+}
+
+model submissions {
+  id           String   @id
+  assignmentId String
+  studentId    String
+  textContent  String?
+  fileUrl      String?
+  grade        Int?
+  feedback     String?
+  graderId     String?
+  submittedAt  DateTime @default(now())
+
+  @@index([studentId], map: "IDX_4fc99318a291abd7e2a50f5085")
+}
+
+model timetable {
+  id        String   @id
+  courseId  String
+  dayOfWeek String
+  startTime String
+  endTime   String
+  room      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  courses   courses  @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                                  String        @id
+  email                               String        @unique(map: "sqlite_autoindex_users_2")
+  passwordHash                        String
+  role                                String
+  status                              String        @default("ACTIVE")
+  firstName                           String
+  lastName                            String
+  phone                               String?
+  profilePicture                      String?
+  metadata                            String?
+  createdAt                           DateTime      @default(now())
+  updatedAt                           DateTime      @default(now())
+  audit_logs                          audit_logs[]
+  courses                             courses[]
+  enrollments                         enrollments[]
+  fees                                fees[]
+  messages_messages_receiverIdTousers messages[]    @relation("messages_receiverIdTousers")
+  messages_messages_senderIdTousers   messages[]    @relation("messages_senderIdTousers")
+
+  @@index([role], map: "IDX_ace513fa30d485cfd25c11a9e4")
+  @@index([email], map: "IDX_97672ac88f789774dd47f7c8be")
+}
+
+model Question {
+  id            String         @id @default(uuid())
+  text          String
+  type          String         // MCQ, TRUE_FALSE, ESSAY
+  options       String         // JSON array as string
+  correctAnswer String
+  courseId      String
+  chapter       String?
+  topic         String?
+  difficulty    String         // EASY, MEDIUM, HARD
+  marks         Int
+  ExamQuestion  ExamQuestion[]
+}
+
+model Exam {
+  id              String           @id @default(uuid())
+  title           String
+  courseId        String
+  durationMinutes Int
+  totalMarks      Int
+  startTime       DateTime
+  endTime         DateTime
+  status          String           // DRAFT, PUBLISHED
+  ExamQuestion    ExamQuestion[]
+  ExamSubmission  ExamSubmission[]
+}
+
+model ExamQuestion {
+  id         String   @id @default(uuid())
+  examId     String
+  questionId String
+  exam       Exam     @relation(fields: [examId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model ExamSubmission {
+  id         String   @id @default(uuid())
+  examId     String
+  studentId  String
+  answers    String   // JSON string
+  score      Int
+  submittedAt DateTime @default(now())
+  exam       Exam     @relation(fields: [examId], references: [id])
+}

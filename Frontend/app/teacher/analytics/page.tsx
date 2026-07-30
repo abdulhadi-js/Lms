@@ -43,7 +43,7 @@ export default function TeacherAnalytics() {
         const [perfData, attData, riskData, enrollData] = await Promise.all([
           reportsApi.performance(selectedCourseId),
           reportsApi.attendance(selectedCourseId),
-          reportsApi.atRisk(65),
+          reportsApi.atRisk(undefined, 65),
           enrollmentsApi.list()
         ]);
 

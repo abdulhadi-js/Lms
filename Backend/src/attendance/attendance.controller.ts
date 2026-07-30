@@ -25,6 +25,28 @@ export class AttendanceController {
     return this.attendanceService.markAttendance(dto, req.user);
   }
 
+  @Post('bulk-mark')
+  bulkMarkAttendance(
+    @Body()
+    dto: {
+      courseId: string;
+      grNumbers: string[];
+      status: AttendanceStatus;
+      date: string;
+    },
+    @Req() req: any,
+  ) {
+    return this.attendanceService.bulkMarkAttendance(dto, req.user);
+  }
+
+  @Post('biometric')
+  markBiometric(
+    @Body() dto: { userId: string; timestamp: string },
+    @Req() req: any,
+  ) {
+    return this.attendanceService.markBiometric(dto, req.user);
+  }
+
   @Get()
   getAttendance(
     @Query('sectionId') sectionId: string,
@@ -51,7 +73,12 @@ export class AttendanceController {
     @Query('studentId') studentId: string,
     @Req() req: any,
   ) {
-    return this.attendanceService.getAttendanceSummary(sectionId, subjectId, studentId, req.user);
+    return this.attendanceService.getAttendanceSummary(
+      sectionId,
+      subjectId,
+      studentId,
+      req.user,
+    );
   }
 
   @Patch(':id')

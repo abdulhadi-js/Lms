@@ -33,8 +33,6 @@ export const getDatabaseConfig = (
     synchronize: true,
     logging: configService.get<string>('NODE_ENV') === 'development',
     ssl: isCloud,
-    extra: isCloud
-      ? { ssl: { rejectUnauthorized: false } }
-      : undefined,
+    extra: isCloud ? { ssl: { rejectUnauthorized: false } } : undefined,
   };
 };

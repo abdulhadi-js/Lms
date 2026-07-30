@@ -1,5 +1,12 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Index,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity('submissions')
 export class Submission {

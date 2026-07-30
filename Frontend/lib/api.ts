@@ -109,6 +109,8 @@ export const authApi = {
 
 export const usersApi = {
   list: (role?: string) => fetchAuthApi(role ? `/users?role=${role}` : '/users'),
+  get: (id: string) => fetchAuthApi(`/users/${id}`),
+  getUnifiedProfile: (id: string) => fetchAuthApi(`/users/students/${id}/unified`),
   create: (data: any) => fetchAuthApi('/users', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/users/${id}`, { method: 'DELETE' }),
@@ -118,7 +120,19 @@ export const reportsApi = {
   overview: () => fetchAuthApi('/reports/overview'),
   performance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/performance?courseId=${courseId}` : '/reports/performance'),
   attendance: (courseId?: string) => fetchAuthApi(courseId ? `/reports/attendance?courseId=${courseId}` : '/reports/attendance'),
-  atRisk: (threshold?: number) => fetchAuthApi(threshold ? `/reports/at-risk?threshold=${threshold}` : '/reports/at-risk'),
+  atRisk: (courseId?: string, threshold = 75) => fetchAuthApi(`/reports/at-risk?threshold=${threshold}${courseId ? `&courseId=${courseId}` : ''}`),
+};
+
+export const financeApi = {
+  getTransactions: () => fetchAuthApi('/finance/transactions'),
+  createTransaction: (data: any) => fetchAuthApi('/finance/transactions', { method: 'POST', body: JSON.stringify(data) }),
+  generatePayroll: () => fetchAuthApi('/finance/payroll/generate', { method: 'POST' }),
+  getPnL: (startDate: string, endDate: string) => fetchAuthApi(`/finance/reports/pnl?startDate=${startDate}&endDate=${endDate}`)
+};
+
+export const hrApi = {
+  getProfile: (userId: string) => fetchAuthApi(`/hr/profile/${userId}`),
+  updateProfile: (userId: string, data: any) => fetchAuthApi(`/hr/profile/${userId}`, { method: 'PUT', body: JSON.stringify(data) })
 };
 
 export const enrollmentsApi = {
@@ -146,6 +160,7 @@ export const enrollmentsApi = {
   }),
   update: (id: string, data: any) => fetchAuthApi(`/enrollments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/enrollments/${id}`, { method: 'DELETE' }),
+  rollover: (data: { fromCourseId: string; toCourseId: string; studentIds?: string[] }) => fetchAuthApi('/enrollments/rollover', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export const coursesApi = {
@@ -190,12 +205,14 @@ export const rolesApi = {
 export const feesApi = {
   list: () => fetchAuthApi('/fees'),
   create: (data: any) => fetchAuthApi('/fees', { method: 'POST', body: JSON.stringify(data) }),
+  bulkGenerate: (data: { courseId: string; amount: number; dueDate: string; title: string }) => fetchAuthApi('/fees/bulk-generate', { method: 'POST', body: JSON.stringify(data) }),
+  getFamilyConsolidated: (familyCode: string) => fetchAuthApi(`/fees/family/${familyCode}/consolidated`),
   pay: (id: string, amount: number) => fetchAuthApi(`/fees/${id}/pay`, {
     method: 'POST',
     body: JSON.stringify({ paidAmount: amount })
   }),
   update: (id: string, data: any) => fetchAuthApi(`/fees/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  remove: (id: string) => fetchAuthApi(`/fees/${id}`, { method: 'DELETE' }),
+  remove: (id: string, reason?: string) => fetchAuthApi(`/fees/${id}`, { method: 'DELETE', body: JSON.stringify({ reason }) }),
 };
 
 export const assignmentsApi = {
@@ -272,6 +289,25 @@ export const attendanceApi = {
     return fetchAuthApi(`/attendance/summary?${params.toString()}`);
   },
   mark: (data: any) => fetchAuthApi('/attendance', { method: 'POST', body: JSON.stringify(data) }),
+  bulkMark: (data: { courseId: string, date: string, grNumbers: string[], status: string }) => fetchAuthApi('/attendance/bulk-mark', { method: 'POST', body: JSON.stringify(data) })
+};
+
+export const messagingApi = {
+  getTemplates: () => fetchAuthApi('/messaging/templates'),
+  createTemplate: (data: any) => fetchAuthApi('/messaging/templates', { method: 'POST', body: JSON.stringify(data) }),
+  getOutbox: () => fetchAuthApi('/messaging/outbox'),
+  send: (data: any) => fetchAuthApi('/messaging/send', { method: 'POST', body: JSON.stringify(data) })
+};
+
+export const examsApi = {
+  getQuestions: (courseId?: string) => fetchAuthApi(courseId ? `/exams/questions?courseId=${courseId}` : '/exams/questions'),
+  createQuestion: (data: any) => fetchAuthApi('/exams/questions', { method: 'POST', body: JSON.stringify(data) }),
+  getExams: (courseId?: string) => fetchAuthApi(courseId ? `/exams?courseId=${courseId}` : '/exams'),
+  getExam: (id: string) => fetchAuthApi(`/exams/${id}`),
+  createExam: (data: any) => fetchAuthApi('/exams', { method: 'POST', body: JSON.stringify(data) }),
+  assignQuestions: (examId: string, questionIds: string[]) => fetchAuthApi(`/exams/${examId}/questions`, { method: 'POST', body: JSON.stringify({ questionIds }) }),
+  submitExam: (examId: string, answers: any) => fetchAuthApi(`/exams/${examId}/submit`, { method: 'POST', body: JSON.stringify({ answers }) }),
+  publishExam: (examId: string) => fetchAuthApi(`/exams/${examId}`, { method: 'PATCH', body: JSON.stringify({ status: 'PUBLISHED' }) })
 };
 
 export const chatApi = {

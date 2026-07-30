@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Search, Plus, UserMinus, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { enrollmentsApi, usersApi, coursesApi } from '@/lib/api';
+import Link from 'next/link';
 
 export default function EnrollmentsManagement() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
@@ -27,6 +28,11 @@ export default function EnrollmentsManagement() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editStatus, setEditStatus] = useState('');
+
+  const [rolloverModalOpen, setRolloverModalOpen] = useState(false);
+  const [rolloverFromCourse, setRolloverFromCourse] = useState('');
+  const [rolloverToCourse, setRolloverToCourse] = useState('');
+  const [isRollingOver, setIsRollingOver] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -115,6 +121,33 @@ export default function EnrollmentsManagement() {
     }
   };
 
+  const handleRolloverSubmit = async () => {
+    if (!rolloverFromCourse || !rolloverToCourse) {
+      toast.error('Please select both origin and destination courses');
+      return;
+    }
+    if (rolloverFromCourse === rolloverToCourse) {
+      toast.error('Origin and destination courses must be different');
+      return;
+    }
+    setIsRollingOver(true);
+    try {
+      const res = await enrollmentsApi.rollover({
+        fromCourseId: rolloverFromCourse,
+        toCourseId: rolloverToCourse
+      });
+      toast.success(res.message || `Successfully rolled over ${res.count} students`);
+      setRolloverModalOpen(false);
+      setRolloverFromCourse('');
+      setRolloverToCourse('');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to perform session rollover');
+    } finally {
+      setIsRollingOver(false);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to permanently delete this enrollment record?')) return;
     try {
@@ -146,13 +179,21 @@ export default function EnrollmentsManagement() {
           <h2 className="text-3xl font-bold text-heading-on-light">Enrollment Management</h2>
           <p className="text-sm text-body-secondary mt-1">Manage student course enrollments and drops.</p>
         </div>
-        <button 
-          onClick={() => setEnrollModalOpen(true)}
-          className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
-        >
-          <Plus className="h-4 w-4" />
-          Direct Enroll
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setRolloverModalOpen(true)}
+            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+          >
+            Session Rollover
+          </button>
+          <button 
+            onClick={() => setEnrollModalOpen(true)}
+            className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+          >
+            <Plus className="h-4 w-4" />
+            Direct Enroll
+          </button>
+        </div>
       </div>
 
       <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
@@ -269,7 +310,9 @@ export default function EnrollmentsManagement() {
                 {filteredEnrollments.map((enr, i) => (
                   <tr key={enr.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors relative">
                     <td className="py-4 px-6">
-                      <div className="font-medium text-on-surface">{enr.student?.firstName} {enr.student?.lastName}</div>
+                      <Link href={`/admin/students/${enr.student?.id}`} className="font-medium text-on-surface hover:text-primary hover:underline block">
+                        {enr.student?.firstName} {enr.student?.lastName}
+                      </Link>
                       <div className="text-xs text-body-secondary">{enr.student?.email}</div>
                     </td>
                     <td className="py-4 px-6 text-on-surface">{enr.course?.title} <span className="text-xs text-body-secondary ml-1">({enr.course?.code})</span></td>
@@ -405,6 +448,63 @@ export default function EnrollmentsManagement() {
                 className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90"
               >
                 Enroll Student
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Session Rollover Modal */}
+      {rolloverModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-heading-on-light mb-2">Session Rollover</h3>
+            <p className="text-sm text-body-secondary mb-6">Promote active students from a previous academic session to a new course. Existing enrollments will be marked as Completed.</p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">From Course (Origin)</label>
+                <select 
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={rolloverFromCourse}
+                  onChange={(e) => setRolloverFromCourse(e.target.value)}
+                >
+                  <option value="">-- Choose Origin Course --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">To Course (Destination)</label>
+                <select 
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={rolloverToCourse}
+                  onChange={(e) => setRolloverToCourse(e.target.value)}
+                >
+                  <option value="">-- Choose Destination Course --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setRolloverModalOpen(false)}
+                disabled={isRollingOver}
+                className="px-4 py-2 border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleRolloverSubmit}
+                disabled={isRollingOver}
+                className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-70 flex items-center gap-2"
+              >
+                {isRollingOver ? 'Processing...' : 'Execute Rollover'}
               </button>
             </div>
           </div>

@@ -1,5 +1,13 @@
 import { Campus } from '../../campuses/entities/campus.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { AcademicClass } from './academic-class.entity';
 
 @Entity('subjects')
@@ -16,7 +24,9 @@ export class Subject {
   @Column('uuid')
   classId: string;
 
-  @ManyToOne(() => AcademicClass, academicClass => academicClass.subjects, { onDelete: 'CASCADE' })
+  @ManyToOne(() => AcademicClass, (academicClass) => academicClass.subjects, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'classId' })
   academicClass: AcademicClass;
 

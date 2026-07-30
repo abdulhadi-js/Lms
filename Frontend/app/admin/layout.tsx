@@ -45,6 +45,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Enrollments', path: '/admin/enrollments', icon: Users, moduleId: 'USERS_STUDENTS' },
     { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
     { name: 'Fees', path: '/admin/fees', icon: BarChart3, moduleId: 'FEES' },
+    { name: 'Accounts (Ledger)', path: '/admin/accounts', icon: BarChart3, moduleId: 'ACCOUNTS' },
+    { name: 'Messaging', path: '/admin/messaging', icon: Bell, moduleId: 'MESSAGING' },
     { name: 'Reports', path: '/admin/reports', icon: BarChart3, moduleId: 'REPORTS' },
     { name: 'Profile Settings', path: '/admin/profile', icon: Settings, moduleId: null },
   ];

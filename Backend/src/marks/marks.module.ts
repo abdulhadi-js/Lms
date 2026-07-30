@@ -1,3 +1,4 @@
+import { RolesModule } from '../roles/roles.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MarksService } from './marks.service';
@@ -8,7 +9,7 @@ import { UsersModule } from '../users/users.module';
 import { AcademicsModule } from '../academics/academics.module';
 
 @Module({
-  imports: [
+  imports: [RolesModule, 
     TypeOrmModule.forFeature([Mark, GradingCriteria]),
     UsersModule,
     AcademicsModule,

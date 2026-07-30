@@ -20,39 +20,56 @@ export class TimetableService {
         room: dto.room,
         dayOfWeek: dto.dayOfWeek,
         startTime: dto.startTime,
-        campusId: currentUser.isSuperAdmin ? undefined : currentUser.campusId
+        campusId: currentUser.isSuperAdmin ? undefined : currentUser.campusId,
       },
     });
     if (conflict) {
       throw new ConflictException('Room is already booked at this time');
     }
-    const entry = this.timetableRepo.create({ ...dto, campusId: currentUser.campusId });
+    const entry = this.timetableRepo.create({
+      ...dto,
+      campusId: currentUser.campusId,
+    });
     return this.timetableRepo.save(entry);
   }
 
   async findAll(currentUser: any) {
-    if (!currentUser.permissions?.includes('VIEW_TIMETABLE') && !currentUser.isSuperAdmin) {
+    if (
+      !currentUser.permissions?.includes('VIEW_TIMETABLE') &&
+      !currentUser.isSuperAdmin
+    ) {
       // Assume student
       const query = this.timetableRepo
         .createQueryBuilder('t')
         .innerJoinAndSelect('t.section', 'sec')
         .innerJoinAndSelect('t.subject', 'sub')
-        .innerJoin('enrollments', 'e', 'e.sectionId = t.sectionId AND e.studentId = :sid AND e.status = :status', {
-          sid: currentUser.id,
-          status: 'ACTIVE'
-        })
+        .innerJoin(
+          'enrollments',
+          'e',
+          'e.sectionId = t.sectionId AND e.studentId = :sid AND e.status = :status',
+          {
+            sid: currentUser.id,
+            status: 'ACTIVE',
+          },
+        )
         .leftJoinAndSelect('t.teacher', 'teacher');
-        
-      if (!currentUser.isSuperAdmin) query.andWhere('t.campusId = :campusId', { campusId: currentUser.campusId });
+
+      if (!currentUser.isSuperAdmin)
+        query.andWhere('t.campusId = :campusId', {
+          campusId: currentUser.campusId,
+        });
       return query.getMany();
     }
-    
+
     const whereClause: any = {};
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    
-    // If not super admin, teacher might only see their own sections in a perfect world, 
+
+    // If not super admin, teacher might only see their own sections in a perfect world,
     // but for now, everyone with VIEW_TIMETABLE can see the campus timetable
-    return this.timetableRepo.find({ where: whereClause, relations: { section: true, subject: true, teacher: true } });
+    return this.timetableRepo.find({
+      where: whereClause,
+      relations: { section: true, subject: true, teacher: true },
+    });
   }
 
   async update(id: string, dto: Partial<CreateTimetableDto>, currentUser: any) {

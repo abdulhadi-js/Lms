@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Search, Filter, Plus, MoreVertical, Shield, UserX, UserCheck, Edit, Trash2, Loader2, Users } from 'lucide-react';
-import { usersApi, rolesApi, campusesApi } from '@/lib/api';
+import { Search, Filter, Plus, MoreVertical, Shield, UserX, UserCheck, Edit, Trash2, Loader2, Users, Briefcase } from 'lucide-react';
+import { usersApi, rolesApi, campusesApi, hrApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
+import Link from 'next/link';
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
@@ -22,6 +23,18 @@ export default function UserManagement() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const [isHrModalOpen, setIsHrModalOpen] = useState(false);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [hrFormData, setHrFormData] = useState({
+    qualifications: '',
+    experience: '',
+    appointmentDate: '',
+    basicSalary: '',
+    allowances: '',
+    deductions: '',
+    bankAccountDetails: ''
+  });
+  
   const [formData, setFormData] = useState({
     id: '',
     email: '',
@@ -32,7 +45,13 @@ export default function UserManagement() {
     firstName: '',
     lastName: '',
     phone: '',
-    isSuperAdmin: false
+    isSuperAdmin: false,
+    familyCode: '',
+    fatherName: '',
+    fatherPhone: '',
+    motherName: '',
+    guardianName: '',
+    address: ''
   });
 
   const fetchData = async () => {
@@ -79,7 +98,13 @@ export default function UserManagement() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         phone: user.phone || '',
-        isSuperAdmin: user.isSuperAdmin || false
+        isSuperAdmin: user.isSuperAdmin || false,
+        familyCode: user.family?.familyCode || '',
+        fatherName: user.family?.fatherName || '',
+        fatherPhone: user.family?.fatherPhone || '',
+        motherName: user.family?.motherName || '',
+        guardianName: user.family?.guardianName || '',
+        address: user.family?.address || ''
       });
     } else {
       setIsEditMode(false);
@@ -93,7 +118,13 @@ export default function UserManagement() {
         firstName: '',
         lastName: '',
         phone: '',
-        isSuperAdmin: false
+        isSuperAdmin: false,
+        familyCode: '',
+        fatherName: '',
+        fatherPhone: '',
+        motherName: '',
+        guardianName: '',
+        address: ''
       });
     }
     setIsModalOpen(true);
@@ -112,7 +143,13 @@ export default function UserManagement() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone || undefined,
-        isSuperAdmin: formData.isSuperAdmin
+        isSuperAdmin: formData.isSuperAdmin,
+        familyCode: formData.familyCode || undefined,
+        fatherName: formData.fatherName || undefined,
+        fatherPhone: formData.fatherPhone || undefined,
+        motherName: formData.motherName || undefined,
+        guardianName: formData.guardianName || undefined,
+        address: formData.address || undefined
       };
       
       if (formData.password) {
@@ -146,6 +183,54 @@ export default function UserManagement() {
       toast.error(error.message || 'Failed to deactivate user');
     }
     setOpenDropdown(null);
+  };
+
+  const handleOpenHrModal = async (userId: string) => {
+    setSelectedStaffId(userId);
+    setOpenDropdown(null);
+    setIsLoading(true);
+    try {
+      const profile = await hrApi.getProfile(userId);
+      setHrFormData({
+        qualifications: profile?.qualifications || '',
+        experience: profile?.experience || '',
+        appointmentDate: profile?.appointmentDate ? new Date(profile.appointmentDate).toISOString().split('T')[0] : '',
+        basicSalary: profile?.basicSalary || '',
+        allowances: profile?.allowances ? JSON.stringify(profile.allowances) : '',
+        deductions: profile?.deductions ? JSON.stringify(profile.deductions) : '',
+        bankAccountDetails: profile?.bankAccountDetails || ''
+      });
+      setIsHrModalOpen(true);
+    } catch (error: any) {
+      // If profile doesn't exist, it's fine, we will create it
+      setHrFormData({
+        qualifications: '', experience: '', appointmentDate: '', basicSalary: '', allowances: '', deductions: '', bankAccountDetails: ''
+      });
+      setIsHrModalOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleHrSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStaffId) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        ...hrFormData,
+        basicSalary: Number(hrFormData.basicSalary),
+        allowances: hrFormData.allowances ? JSON.parse(hrFormData.allowances) : null,
+        deductions: hrFormData.deductions ? JSON.parse(hrFormData.deductions) : null,
+      };
+      await hrApi.updateProfile(selectedStaffId, payload);
+      toast.success('HR Profile updated successfully');
+      setIsHrModalOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update HR Profile. Check JSON format for allowances/deductions.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -234,7 +319,13 @@ export default function UserManagement() {
                         </div>
                         <div>
                           <div className="font-medium text-on-surface flex items-center gap-2">
-                            {row.firstName} {row.lastName}
+                            {row.role?.name === 'STUDENT' ? (
+                              <Link href={`/admin/students/${row.id}`} className="hover:text-primary hover:underline">
+                                {row.firstName} {row.lastName}
+                              </Link>
+                            ) : (
+                              <span>{row.firstName} {row.lastName}</span>
+                            )}
                             {row.isSuperAdmin && <Shield className="w-3.5 h-3.5 text-primary" aria-label="Super Admin" />}
                           </div>
                           <div className="text-xs text-body-secondary">{row.email}</div>
@@ -271,13 +362,21 @@ export default function UserManagement() {
                       </button>
                       
                       {openDropdown === row.id && (
-                        <div className="absolute right-6 top-10 w-40 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
+                        <div className="absolute right-6 top-10 w-48 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50 animate-in fade-in zoom-in duration-200">
                           <button 
                             onClick={() => handleOpenModal(row)}
                             className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
                           >
                             <Edit className="w-4 h-4 text-icon-inactive" /> Edit User
                           </button>
+                          {row.role?.name !== 'STUDENT' && (
+                            <button 
+                              onClick={() => handleOpenHrModal(row.id)}
+                              className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-primary-container/20 flex items-center gap-2"
+                            >
+                              <Briefcase className="w-4 h-4" /> Manage HR Profile
+                            </button>
+                          )}
                           <hr className="my-1 border-divider" />
                           <button 
                             onClick={() => handleDelete(row.id)}
@@ -425,6 +524,64 @@ export default function UserManagement() {
                 </div>
               )}
 
+              {roles.find(r => r.id === formData.roleId)?.name === 'STUDENT' && (
+                <div className="pt-4 border-t border-divider space-y-4">
+                  <h4 className="text-sm font-bold text-primary flex items-center gap-2">
+                    <Users className="w-4 h-4" /> Family / Guardian Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-on-surface mb-1">Family Code (Link to existing sibling)</label>
+                      <input 
+                        type="text" placeholder="e.g. FAM-1234"
+                        value={formData.familyCode} onChange={e => setFormData({...formData, familyCode: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-surface-container-low" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-on-surface mb-1">Father's Name</label>
+                      <input 
+                        type="text" 
+                        value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-on-surface mb-1">Father's Phone</label>
+                      <input 
+                        type="text" 
+                        value={formData.fatherPhone} onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-on-surface mb-1">Mother's Name</label>
+                      <input 
+                        type="text" 
+                        value={formData.motherName} onChange={e => setFormData({...formData, motherName: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-on-surface mb-1">Guardian's Name</label>
+                      <input 
+                        type="text" 
+                        value={formData.guardianName} onChange={e => setFormData({...formData, guardianName: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-on-surface mb-1">Address</label>
+                      <input 
+                        type="text" 
+                        value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider">
                 <button 
                   type="button" onClick={() => setIsModalOpen(false)}
@@ -438,6 +595,87 @@ export default function UserManagement() {
                 >
                   {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {isEditMode ? 'Save Changes' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* HR Modal */}
+      {isHrModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-divider flex justify-between items-center">
+              <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-primary" /> Staff HR Profile
+              </h3>
+              <button onClick={() => setIsHrModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
+            </div>
+            <form onSubmit={handleHrSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Qualifications</label>
+                <input 
+                  type="text" value={hrFormData.qualifications} onChange={e => setHrFormData({...hrFormData, qualifications: e.target.value})}
+                  placeholder="e.g. MS Computer Science"
+                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Experience</label>
+                <input 
+                  type="text" value={hrFormData.experience} onChange={e => setHrFormData({...hrFormData, experience: e.target.value})}
+                  placeholder="e.g. 5 Years Teaching"
+                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Appointment Date</label>
+                  <input 
+                    type="date" value={hrFormData.appointmentDate} onChange={e => setHrFormData({...hrFormData, appointmentDate: e.target.value})}
+                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Basic Salary ($)</label>
+                  <input 
+                    type="number" step="0.01" required value={hrFormData.basicSalary} onChange={e => setHrFormData({...hrFormData, basicSalary: e.target.value})}
+                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Allowances (JSON)</label>
+                  <textarea 
+                    value={hrFormData.allowances} onChange={e => setHrFormData({...hrFormData, allowances: e.target.value})}
+                    placeholder='{"housing": 500, "medical": 200}'
+                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Deductions (JSON)</label>
+                  <textarea 
+                    value={hrFormData.deductions} onChange={e => setHrFormData({...hrFormData, deductions: e.target.value})}
+                    placeholder='{"tax": 100, "eobi": 50}'
+                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Bank Account Details</label>
+                <input 
+                  type="text" value={hrFormData.bankAccountDetails} onChange={e => setHrFormData({...hrFormData, bankAccountDetails: e.target.value})}
+                  placeholder="Bank Name, IBAN..."
+                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                />
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-divider">
+                <button type="button" onClick={() => setIsHrModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-body-secondary hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-shadow disabled:opacity-70 flex items-center">
+                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Save HR Profile
                 </button>
               </div>
             </form>

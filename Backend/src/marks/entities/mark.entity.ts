@@ -1,6 +1,15 @@
 import { Campus } from '../../campuses/entities/campus.entity';
 import { User } from '../../users/entities/user.entity';
-import { Index, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Index,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('marks')
 export class Mark {
@@ -10,7 +19,7 @@ export class Mark {
   @Column({ type: 'uuid' })
   studentId: string;
 
-  @ManyToOne(() => User, user => user.marks)
+  @ManyToOne(() => User, (user) => user.marks)
   @JoinColumn({ name: 'studentId' })
   student: User;
 

@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
-
 import { getDatabaseConfig } from './config/database.config';
 import { CloudinaryModule } from './config/cloudinary.module';
 import { MailModule } from './mail/mail.module';
@@ -24,6 +23,11 @@ import { ReportsModule } from './reports/reports.module';
 import { RolesModule } from './roles/roles.module';
 import { CampusesModule } from './campuses/campuses.module';
 import { FamiliesModule } from './families/families.module';
+import { AuditModule } from './audit/audit.module';
+import { HrModule } from './hr/hr.module';
+import { FinanceModule } from './finance/finance.module';
+import { MessagingModule } from './messaging/messaging.module';
+import { ExamsModule } from './exams/exams.module';
 
 @Module({
   imports: [
@@ -44,8 +48,8 @@ import { FamiliesModule } from './families/families.module';
 
     // ── Global infrastructure modules ─────────────────────────────────────
 
-    CloudinaryModule,  // BUG-03 fix: global file upload service
-    MailModule,        // BUG-03 fix: global email service
+    CloudinaryModule, // BUG-03 fix: global file upload service
+    MailModule, // BUG-03 fix: global email service
 
     // ── Feature modules ───────────────────────────────────────────────────
     AuthModule,
@@ -63,6 +67,11 @@ import { FamiliesModule } from './families/families.module';
     RolesModule,
     CampusesModule,
     FamiliesModule,
+    AuditModule,
+    HrModule,
+    FinanceModule,
+    MessagingModule,
+    ExamsModule,
   ],
   providers: [
     // Apply rate limiting globally

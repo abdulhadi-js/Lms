@@ -24,46 +24,74 @@ export class AssignmentsService {
   ) {}
 
   async create(dto: CreateAssignmentDto, currentUser: any) {
-    const assignment = this.assignmentRepo.create({ ...dto, campusId: currentUser.campusId });
+    const assignment = this.assignmentRepo.create({
+      ...dto,
+      campusId: currentUser.campusId,
+    });
     return this.assignmentRepo.save(assignment);
   }
 
   async findAll(sectionId: string, subjectId: string, currentUser: any) {
-    let whereClause: any = {};
+    const whereClause: any = {};
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     if (sectionId) whereClause.sectionId = sectionId;
     if (subjectId) whereClause.subjectId = subjectId;
-    return this.assignmentRepo.find({ where: whereClause, order: { dueDate: 'ASC' } });
+    return this.assignmentRepo.find({
+      where: whereClause,
+      order: { dueDate: 'ASC' },
+    });
   }
 
   async findAllGlobal(currentUser: any) {
-    if (!currentUser || currentUser.isSuperAdmin || currentUser.permissions?.includes('VIEW_ASSIGNMENTS')) {
+    if (
+      !currentUser ||
+      currentUser.isSuperAdmin ||
+      currentUser.permissions?.includes('VIEW_ASSIGNMENTS')
+    ) {
       const whereClause: any = {};
-      if (currentUser && !currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-      return this.assignmentRepo.find({ where: whereClause, order: { dueDate: 'ASC' } });
+      if (currentUser && !currentUser.isSuperAdmin)
+        whereClause.campusId = currentUser.campusId;
+      return this.assignmentRepo.find({
+        where: whereClause,
+        order: { dueDate: 'ASC' },
+      });
     }
-    if (currentUser.permissions?.includes('MANAGE_ASSIGNMENTS')) {
+    if (
+      currentUser.matrix?.some((m: any) => m.moduleId === 'EXAMS' && m.canEdit)
+    ) {
       return this.assignmentRepo
         .createQueryBuilder('a')
-        .innerJoin('teacher_assignments', 'ta', 'ta.sectionId = a.sectionId AND ta.subjectId = a.subjectId AND ta.teacherId = :tid', { tid: currentUser.id })
+        .innerJoin(
+          'teacher_assignments',
+          'ta',
+          'ta.sectionId = a.sectionId AND ta.subjectId = a.subjectId AND ta.teacherId = :tid',
+          { tid: currentUser.id },
+        )
         .orderBy('a.dueDate', 'ASC')
         .getMany();
     }
     // Assume student
     return this.assignmentRepo
       .createQueryBuilder('a')
-      .innerJoin('enrollments', 'e', 'e.sectionId = a.sectionId AND e.studentId = :sid AND e.status = :status', {
-        sid: currentUser.id,
-        status: 'ACTIVE',
-      })
-        .orderBy('a.dueDate', 'ASC')
-        .getMany();
+      .innerJoin(
+        'enrollments',
+        'e',
+        'e.sectionId = a.sectionId AND e.studentId = :sid AND e.status = :status',
+        {
+          sid: currentUser.id,
+          status: 'ACTIVE',
+        },
+      )
+      .orderBy('a.dueDate', 'ASC')
+      .getMany();
   }
 
   async findOne(id: string, currentUser: any) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const assignment = await this.assignmentRepo.findOne({ where: whereClause });
+    const assignment = await this.assignmentRepo.findOne({
+      where: whereClause,
+    });
     if (!assignment) throw new NotFoundException();
     const submissionsCount = await this.submissionRepo.count({
       where: { assignmentId: id },
@@ -74,7 +102,9 @@ export class AssignmentsService {
   async update(id: string, dto: any, currentUser: any) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const assignment = await this.assignmentRepo.findOne({ where: whereClause });
+    const assignment = await this.assignmentRepo.findOne({
+      where: whereClause,
+    });
     if (!assignment) throw new NotFoundException();
     Object.assign(assignment, dto);
     return this.assignmentRepo.save(assignment);
@@ -83,7 +113,9 @@ export class AssignmentsService {
   async remove(id: string, currentUser: any) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const assignment = await this.assignmentRepo.findOne({ where: whereClause });
+    const assignment = await this.assignmentRepo.findOne({
+      where: whereClause,
+    });
     if (!assignment) throw new NotFoundException();
     return this.assignmentRepo.remove(assignment);
   }
@@ -96,7 +128,9 @@ export class AssignmentsService {
   ) {
     const whereClause: any = { id: assignmentId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const assignment = await this.assignmentRepo.findOne({ where: whereClause });
+    const assignment = await this.assignmentRepo.findOne({
+      where: whereClause,
+    });
     if (!assignment) throw new NotFoundException();
     if (new Date() > assignment.dueDate)
       throw new BadRequestException('Past due date');
@@ -105,12 +139,19 @@ export class AssignmentsService {
       where: { assignmentId, studentId: currentUser.id },
     });
     if (!submission) {
-      submission = this.submissionRepo.create({ assignmentId, studentId: currentUser.id, campusId: currentUser.campusId });
+      submission = this.submissionRepo.create({
+        assignmentId,
+        studentId: currentUser.id,
+        campusId: currentUser.campusId,
+      });
     }
     submission.textContent = dto.textContent ?? (null as any);
-    
+
     if (file) {
-      const uploadResult = await this.cloudinaryService.uploadFile(file, 'assignments');
+      const uploadResult = await this.cloudinaryService.uploadFile(
+        file,
+        'assignments',
+      );
       submission.fileUrl = uploadResult.secureUrl;
     }
 
@@ -118,7 +159,12 @@ export class AssignmentsService {
   }
 
   async getSubmissions(assignmentId: string, currentUser: any) {
-    if (!currentUser.permissions?.includes('MANAGE_ASSIGNMENTS') && !currentUser.isSuperAdmin) {
+    if (
+      !currentUser.matrix?.some(
+        (m: any) => m.moduleId === 'EXAMS' && m.canEdit,
+      ) &&
+      !currentUser.isSuperAdmin
+    ) {
       return this.submissionRepo.find({
         where: { assignmentId, studentId: currentUser.id },
       });
@@ -135,7 +181,9 @@ export class AssignmentsService {
   ) {
     const whereClause: any = { id: submissionId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const submission = await this.submissionRepo.findOne({ where: whereClause });
+    const submission = await this.submissionRepo.findOne({
+      where: whereClause,
+    });
     if (!submission) throw new NotFoundException();
     submission.grade = dto.grade;
     submission.feedback = dto.feedback;

@@ -32,7 +32,7 @@ export class AssignmentsController {
   findAll(
     @Query('sectionId') sectionId: string,
     @Query('subjectId') subjectId: string,
-    @Request() req: any
+    @Request() req: any,
   ) {
     return this.assignmentsService.findAll(sectionId, subjectId, req.user);
   }
@@ -44,12 +44,7 @@ export class AssignmentsController {
 
   @Post('assignments')
   @RequirePermission(ModuleId.EXAMS, 'ADD')
-  create(
-    @Body() dto: CreateAssignmentDto,
-    @Request() req: any,
-  ) {
-    if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
-      throw new ForbiddenException();
+  create(@Body() dto: CreateAssignmentDto, @Request() req: any) {
     return this.assignmentsService.create(dto, req.user);
   }
 
@@ -61,16 +56,12 @@ export class AssignmentsController {
   @Patch('assignments/:id')
   @RequirePermission(ModuleId.EXAMS, 'EDIT')
   update(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
-      throw new ForbiddenException();
     return this.assignmentsService.update(id, dto, req.user);
   }
 
   @Delete('assignments/:id')
   @RequirePermission(ModuleId.EXAMS, 'DELETE')
   remove(@Param('id') id: string, @Request() req: any) {
-    if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
-      throw new ForbiddenException();
     return this.assignmentsService.remove(id, req.user);
   }
 
@@ -82,12 +73,7 @@ export class AssignmentsController {
     @UploadedFile() file: any,
     @Request() req: any,
   ) {
-    return this.assignmentsService.submitAssignment(
-      id,
-      req.user,
-      dto,
-      file,
-    );
+    return this.assignmentsService.submitAssignment(id, req.user, dto, file);
   }
 
   @Get('assignments/:id/submissions')
@@ -102,8 +88,6 @@ export class AssignmentsController {
     @Body() dto: GradeSubmissionDto,
     @Request() req: any,
   ) {
-    if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
-      throw new ForbiddenException();
     return this.assignmentsService.gradeSubmission(id, dto, req.user);
   }
 }

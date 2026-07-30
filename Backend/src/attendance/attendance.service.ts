@@ -8,11 +8,15 @@ import { Repository } from 'typeorm';
 import { Attendance, AttendanceStatus } from './entities/attendance.entity';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 
+import { User } from '../users/entities/user.entity';
+
 @Injectable()
 export class AttendanceService {
   constructor(
     @InjectRepository(Attendance)
     private attendanceRepo: Repository<Attendance>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
   ) {}
 
   async markAttendance(dto: MarkAttendanceDto, currentUser: any) {
@@ -24,7 +28,7 @@ export class AttendanceService {
           subjectId: dto.subjectId,
           studentId: student.studentId,
           classDate: dto.classDate,
-          campusId: currentUser.isSuperAdmin ? undefined : currentUser.campusId
+          campusId: currentUser.isSuperAdmin ? undefined : currentUser.campusId,
         },
       });
       if (!record) {
@@ -56,7 +60,10 @@ export class AttendanceService {
     }
 
     const query = this.attendanceRepo.createQueryBuilder('att');
-    if (!currentUser.isSuperAdmin) query.andWhere('att.campusId = :campusId', { campusId: currentUser.campusId });
+    if (!currentUser.isSuperAdmin)
+      query.andWhere('att.campusId = :campusId', {
+        campusId: currentUser.campusId,
+      });
     if (sectionId) query.andWhere('att.sectionId = :sectionId', { sectionId });
     if (subjectId) query.andWhere('att.subjectId = :subjectId', { subjectId });
     if (studentId) query.andWhere('att.studentId = :studentId', { studentId });
@@ -66,7 +73,12 @@ export class AttendanceService {
     return query.getMany();
   }
 
-  async getAttendanceSummary(sectionId: string, subjectId: string, studentId: string | undefined, currentUser: any) {
+  async getAttendanceSummary(
+    sectionId: string,
+    subjectId: string,
+    studentId: string | undefined,
+    currentUser: any,
+  ) {
     const query = this.attendanceRepo
       .createQueryBuilder('att')
       .select('att.studentId', 'studentId')
@@ -86,7 +98,9 @@ export class AttendanceService {
       .where('att.sectionId = :sectionId', { sectionId });
 
     if (!currentUser.isSuperAdmin) {
-      query.andWhere('att.campusId = :campusId', { campusId: currentUser.campusId });
+      query.andWhere('att.campusId = :campusId', {
+        campusId: currentUser.campusId,
+      });
     }
 
     if (subjectId) {
@@ -107,12 +121,83 @@ export class AttendanceService {
     }));
   }
 
-  async updateAttendance(id: string, updateData: Partial<Attendance>, currentUser: any) {
+  async updateAttendance(
+    id: string,
+    updateData: Partial<Attendance>,
+    currentUser: any,
+  ) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     const record = await this.attendanceRepo.findOne({ where: whereClause });
     if (!record) throw new NotFoundException('Attendance record not found');
     Object.assign(record, updateData);
+    return this.attendanceRepo.save(record);
+  }
+
+  async bulkMarkAttendance(
+    dto: {
+      courseId: string;
+      grNumbers: string[];
+      status: AttendanceStatus;
+      date: string;
+    },
+    currentUser: any,
+  ) {
+    // Determine the user field used for "grNumbers". The requirement mentions user.id or user.familyCode.
+    // Assuming they are user ids for now since it's the safest unique identifier.
+    const records = [];
+    for (const grNumber of dto.grNumbers) {
+      const user = await this.userRepo.findOne({ where: { id: grNumber } });
+      if (user) {
+        let record = await this.attendanceRepo.findOne({
+          where: {
+            courseId: dto.courseId,
+            studentId: user.id,
+            classDate: dto.date,
+          },
+        });
+        if (!record) {
+          record = this.attendanceRepo.create({
+            courseId: dto.courseId,
+            studentId: user.id,
+            userId: user.id,
+            classDate: dto.date,
+            campusId: currentUser.campusId,
+          });
+        }
+        record.status = dto.status;
+        records.push(record);
+      }
+    }
+    return this.attendanceRepo.save(records);
+  }
+
+  async markBiometric(
+    dto: { userId: string; timestamp: string },
+    currentUser: any,
+  ) {
+    const dateStr = new Date(dto.timestamp).toISOString().split('T')[0];
+    const user = await this.userRepo.findOne({ where: { id: dto.userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    let record = await this.attendanceRepo.findOne({
+      where: {
+        userId: dto.userId,
+        classDate: dateStr,
+      },
+    });
+
+    if (!record) {
+      record = this.attendanceRepo.create({
+        userId: dto.userId,
+        classDate: dateStr,
+        status: AttendanceStatus.PRESENT,
+        campusId: currentUser.campusId,
+      });
+    } else {
+      record.status = AttendanceStatus.PRESENT;
+    }
+
     return this.attendanceRepo.save(record);
   }
 }

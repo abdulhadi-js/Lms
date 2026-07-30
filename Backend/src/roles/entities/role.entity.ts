@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { ModulePermission } from './module-permission.entity';
 
@@ -10,7 +18,7 @@ export class Role {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany(() => ModulePermission, mp => mp.role, { cascade: true })
+  @OneToMany(() => ModulePermission, (mp) => mp.role, { cascade: true })
   matrix: ModulePermission[];
 
   @Column({ type: 'uuid', nullable: true })
@@ -19,7 +27,7 @@ export class Role {
   @Column({ default: false })
   isSystem: boolean;
 
-  @OneToMany(() => User, user => user.role)
+  @OneToMany(() => User, (user) => user.role)
   users: User[];
 
   @CreateDateColumn()

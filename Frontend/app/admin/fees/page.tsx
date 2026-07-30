@@ -20,6 +20,10 @@ export default function FeesManagement() {
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [auditReasonModalOpen, setAuditReasonModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{type: 'delete' | 'update', id?: string, payload?: any} | null>(null);
+  const [auditReason, setAuditReason] = useState('');
   
   // Create / Edit Fee Form State
   const [formData, setFormData] = useState({
@@ -29,7 +33,15 @@ export default function FeesManagement() {
     amount: '',
     description: '',
     dueDate: '',
-    status: 'PENDING'
+    status: 'PENDING',
+    discount: '0'
+  });
+
+  const [bulkFormData, setBulkFormData] = useState({
+    courseId: '',
+    amount: '',
+    dueDate: '',
+    title: ''
   });
 
   // Pay Modal State
@@ -79,7 +91,8 @@ export default function FeesManagement() {
         amount: fee.amount || '',
         description: fee.description || '',
         dueDate: fee.dueDate ? new Date(fee.dueDate).toISOString().split('T')[0] : '',
-        status: fee.status || 'PENDING'
+        status: fee.status || 'PENDING',
+        discount: fee.discount || '0'
       });
     } else {
       setIsEditMode(false);
@@ -90,7 +103,8 @@ export default function FeesManagement() {
         amount: '',
         description: '',
         dueDate: '',
-        status: 'PENDING'
+        status: 'PENDING',
+        discount: '0'
       });
     }
     setIsModalOpen(true);
@@ -99,27 +113,76 @@ export default function FeesManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const payload: any = {
-        studentId: formData.studentId,
-        amount: Number(formData.amount),
-        description: formData.description,
-        status: formData.status
-      };
-      if (formData.courseId) payload.courseId = formData.courseId;
-      if (formData.dueDate) payload.dueDate = new Date(formData.dueDate).toISOString();
+    const payload: any = {
+      studentId: formData.studentId,
+      amount: Number(formData.amount),
+      description: formData.description,
+      status: formData.status,
+      discount: Number(formData.discount)
+    };
+    if (formData.courseId) payload.courseId = formData.courseId;
+    if (formData.dueDate) payload.dueDate = new Date(formData.dueDate).toISOString();
 
-      if (isEditMode) {
+    if (isEditMode) {
+      if (payload.discount > 0) {
+        setPendingAction({ type: 'update', id: formData.id, payload });
+        setIsModalOpen(false);
+        setAuditReasonModalOpen(true);
+        return;
+      }
+      try {
         await feesApi.update(formData.id, payload);
         toast.success('Fee record updated');
-      } else {
+        setIsModalOpen(false);
+        fetchData();
+      } catch (err: any) {
+        toast.error(err.message || 'Failed to save fee record');
+      }
+    } else {
+      try {
         await feesApi.create(payload);
         toast.success('New fee created');
+        setIsModalOpen(false);
+        fetchData();
+      } catch (err: any) {
+        toast.error(err.message || 'Failed to create fee');
       }
-      setIsModalOpen(false);
+    }
+  };
+
+  const handleAuditSubmit = async () => {
+    if (!auditReason) return toast.error('Audit Reason is required');
+    try {
+      if (pendingAction?.type === 'update' && pendingAction.id) {
+        await feesApi.update(pendingAction.id, { ...pendingAction.payload, reason: auditReason });
+        toast.success('Fee record updated successfully');
+      } else if (pendingAction?.type === 'delete' && pendingAction.id) {
+        await feesApi.remove(pendingAction.id, auditReason);
+        toast.success('Fee record deleted completely');
+      }
+      setAuditReasonModalOpen(false);
+      setPendingAction(null);
+      setAuditReason('');
       fetchData();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to save fee record');
+      toast.error(err.message || 'Operation failed');
+    }
+  };
+
+  const handleBulkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await feesApi.bulkGenerate({
+        courseId: bulkFormData.courseId,
+        amount: Number(bulkFormData.amount),
+        dueDate: new Date(bulkFormData.dueDate).toISOString(),
+        title: bulkFormData.title
+      });
+      toast.success('Bulk fees generated successfully!');
+      setBulkModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to generate bulk fees');
     }
   };
 
@@ -144,15 +207,10 @@ export default function FeesManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to permanently delete this fee record?')) return;
-    try {
-      await feesApi.remove(id);
-      toast.success('Fee record deleted completely');
-      fetchData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete fee record');
-    }
+  const handleDelete = (id: string) => {
+    if (!confirm('Are you sure you want to permanently delete this fee record? This will be logged.')) return;
+    setPendingAction({ type: 'delete', id });
+    setAuditReasonModalOpen(true);
     setOpenDropdown(null);
   };
 
@@ -173,13 +231,21 @@ export default function FeesManagement() {
           <h2 className="text-3xl font-bold text-heading-on-light">Fee Management</h2>
           <p className="text-sm text-body-secondary mt-1">Track and manage student payments and outstanding balances.</p>
         </div>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
-        >
-          <Plus className="h-4 w-4" />
-          Create Invoice
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setBulkModalOpen(true)}
+            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+          >
+            Bulk Generate
+          </button>
+          <button 
+            onClick={() => handleOpenModal()}
+            className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+          >
+            <Plus className="h-4 w-4" />
+            Create Invoice
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -465,15 +531,26 @@ export default function FeesManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Due Date</label>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Discount ($)</label>
                   <input 
-                    type="date"
-                    required
+                    type="number"
+                    step="0.01"
                     className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                    value={formData.discount}
+                    onChange={(e) => setFormData({...formData, discount: e.target.value})}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Due Date</label>
+                <input 
+                  type="date"
+                  required
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={formData.dueDate}
+                  onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                />
               </div>
 
               <div>
@@ -557,6 +634,99 @@ export default function FeesManagement() {
               >
                 <CreditCard className="w-4 h-4" /> Process Payment
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Generate Modal */}
+      {bulkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-divider flex justify-between items-center">
+              <h3 className="text-xl font-bold text-heading-on-light">Bulk Generate Fees</h3>
+              <button onClick={() => setBulkModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleBulkSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Target Course</label>
+                <select 
+                  required
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={bulkFormData.courseId}
+                  onChange={(e) => setBulkFormData({...bulkFormData, courseId: e.target.value})}
+                >
+                  <option value="">-- Choose Course --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Base Amount ($)</label>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    required
+                    className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                    value={bulkFormData.amount}
+                    onChange={(e) => setBulkFormData({...bulkFormData, amount: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Due Date</label>
+                  <input 
+                    type="date"
+                    required
+                    className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                    value={bulkFormData.dueDate}
+                    onChange={(e) => setBulkFormData({...bulkFormData, dueDate: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Invoice Title</label>
+                <input 
+                  type="text"
+                  placeholder="e.g. October Tuition Fee"
+                  required
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={bulkFormData.title}
+                  onChange={(e) => setBulkFormData({...bulkFormData, title: e.target.value})}
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-divider">
+                <button type="button" onClick={() => setBulkModalOpen(false)} className="px-4 py-2 border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">Generate Bulk Fees</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Audit Log Modal */}
+      {auditReasonModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="bg-surface rounded-xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200 border-2 border-error/50">
+            <h3 className="text-xl font-bold text-heading-on-light mb-2 text-error flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" /> Requires Audit Log
+            </h3>
+            <p className="text-sm text-body-secondary mb-4">
+              You are performing an action (Discount or Deletion) that requires an official explanation for accounting purposes.
+            </p>
+            <textarea
+              className="w-full border border-border-light rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-error focus:border-error resize-none h-24 mb-4 bg-error-bg/10 text-on-surface"
+              placeholder="State your reason clearly..."
+              value={auditReason}
+              onChange={(e) => setAuditReason(e.target.value)}
+              required
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setAuditReasonModalOpen(false); setPendingAction(null); }} className="px-4 py-2 text-sm text-body-secondary font-semibold hover:bg-surface-container rounded-lg">Cancel</button>
+              <button onClick={handleAuditSubmit} className="px-4 py-2 text-sm bg-error text-white font-semibold rounded-lg hover:bg-error/90">Confirm Action</button>
             </div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { RolesModule } from '../roles/roles.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AcademicsService } from './academics.service';
@@ -9,17 +10,17 @@ import { TeacherAssignment } from './entities/teacher-assignment.entity';
 import { User } from '../users/entities/user.entity';
 
 @Module({
-  imports: [
+  imports: [RolesModule, 
     TypeOrmModule.forFeature([
       AcademicClass,
       Section,
       Subject,
       TeacherAssignment,
-      User
-    ])
+      User,
+    ]),
   ],
   controllers: [AcademicsController],
   providers: [AcademicsService],
-  exports: [AcademicsService]
+  exports: [AcademicsService],
 })
 export class AcademicsModule {}

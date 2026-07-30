@@ -44,9 +44,12 @@ export class NotificationsService {
       .createQueryBuilder()
       .update(Notification)
       .set({ isRead: true })
-      .where('(audienceRole = :role OR audienceRole IS NULL) AND isRead = false', {
-        role: currentUser.role,
-      })
+      .where(
+        '(audienceRole = :role OR audienceRole IS NULL) AND isRead = false',
+        {
+          role: currentUser.role,
+        },
+      )
       .execute();
 
     return { updated: result.affected ?? 0 };

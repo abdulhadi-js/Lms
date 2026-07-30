@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock } from 'lucide-react';
+import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock, DollarSign } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { reportsApi } from '@/lib/api';
+import Link from 'next/link';
 
 export default function ReportsAnalytics() {
   const searchParams = useSearchParams();
@@ -19,7 +20,7 @@ export default function ReportsAnalytics() {
       try {
         const [ovData, riskData, perfData, attData] = await Promise.all([
           reportsApi.overview(),
-          reportsApi.atRisk(60),
+          reportsApi.atRisk(undefined, 60),
           reportsApi.performance(),
           reportsApi.attendance()
         ]);
@@ -62,10 +63,16 @@ export default function ReportsAnalytics() {
           <h2 className="text-3xl font-bold text-heading-on-light">Reports & Analytics</h2>
           <p className="text-sm text-body-secondary mt-1">Comprehensive insights into system performance and student progress.</p>
         </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow print:hidden">
-          <Download className="w-4 h-4" />
-          Export Full Report
-        </button>
+        <div className="flex gap-2 print:hidden">
+          <Link href="/admin/reports/pnl" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
+            <DollarSign className="w-4 h-4" />
+            P&L Closing
+          </Link>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow">
+            <Download className="w-4 h-4" />
+            Export Full Report
+          </button>
+        </div>
       </div>
 
       {loading ? (

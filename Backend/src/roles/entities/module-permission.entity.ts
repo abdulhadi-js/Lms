@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Role } from './role.entity';
 
 export enum ModuleId {
@@ -25,7 +33,7 @@ export class ModulePermission {
   @Column({ type: 'uuid' })
   roleId: string;
 
-  @ManyToOne(() => Role, role => role.matrix, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Role, (role) => role.matrix, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'roleId' })
   role: Role;
 

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Enrollment } from './entities/enrollment.entity';
@@ -19,11 +23,19 @@ export class EnrollmentsService {
   ) {}
 
   async apply(dto: CreateApplicationDto, currentUser: any) {
-    const app = this.appRepo.create({ ...dto, status: 'PENDING', campusId: currentUser.campusId });
+    const app = this.appRepo.create({
+      ...dto,
+      status: 'PENDING',
+      campusId: currentUser.campusId,
+    });
     return this.appRepo.save(app);
   }
 
-  async reviewApplication(id: string, dto: ReviewApplicationDto, currentUser: any) {
+  async reviewApplication(
+    id: string,
+    dto: ReviewApplicationDto,
+    currentUser: any,
+  ) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     const app = await this.appRepo.findOne({ where: whereClause });
@@ -36,21 +48,29 @@ export class EnrollmentsService {
 
     if (dto.status === 'ENROLLED') {
       if (!dto.sectionId) {
-        throw new BadRequestException('sectionId is required to enroll a student');
+        throw new BadRequestException(
+          'sectionId is required to enroll a student',
+        );
       }
 
-      console.log(`Audit: Admin ${currentUser.id} enrolling application ${id}. Creating user and enrollment.`);
+      console.log(
+        `Audit: Admin ${currentUser.id} enrolling application ${id}. Creating user and enrollment.`,
+      );
       try {
-        let student = app.email ? await this.usersService.findByEmail(app.email) : null;
+        let student = app.email
+          ? await this.usersService.findByEmail(app.email)
+          : null;
         if (!student) {
           const payload: any = {
             firstName: app.studentFirstName,
             lastName: app.studentLastName,
-            email: app.email || `${app.studentFirstName.toLowerCase()}.${app.phone}@example.com`,
+            email:
+              app.email ||
+              `${app.studentFirstName.toLowerCase()}.${app.phone}@example.com`,
             phone: app.phone,
             password: 'Password123!',
           };
-          student = await this.usersService.create(payload) as any;
+          student = (await this.usersService.create(payload)) as any;
         }
 
         const enrollment = this.enrollmentRepo.create({
@@ -61,7 +81,7 @@ export class EnrollmentsService {
         });
         await this.enrollmentRepo.save(enrollment);
       } catch (e) {
-        console.error("Failed to auto-enroll:", e);
+        console.error('Failed to auto-enroll:', e);
         throw new BadRequestException('Failed to create user/enrollment');
       }
     }
@@ -86,29 +106,44 @@ export class EnrollmentsService {
   }
 
   async requestDrop(currentUser: any, dto: RequestDropDto) {
-    const whereClause: any = { id: dto.enrollmentId, studentId: currentUser.id };
+    const whereClause: any = {
+      id: dto.enrollmentId,
+      studentId: currentUser.id,
+    };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const enrollment = await this.enrollmentRepo.findOne({ where: whereClause });
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: whereClause,
+    });
     if (!enrollment) throw new NotFoundException();
     enrollment.status = 'DROP_REQUESTED';
     enrollment.dropReason = dto.reason;
     return this.enrollmentRepo.save(enrollment);
   }
 
-  async reviewDropRequest(enrollmentId: string, approved: boolean, currentUser: any) {
+  async reviewDropRequest(
+    enrollmentId: string,
+    approved: boolean,
+    currentUser: any,
+  ) {
     const whereClause: any = { id: enrollmentId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const enrollment = await this.enrollmentRepo.findOne({ where: whereClause });
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: whereClause,
+    });
     if (!enrollment) throw new NotFoundException();
 
     if (approved) {
       enrollment.status = 'DROPPED';
       enrollment.droppedAt = new Date();
-      console.log(`Audit: Admin ${currentUser.id} approved drop for ${enrollmentId}`);
+      console.log(
+        `Audit: Admin ${currentUser.id} approved drop for ${enrollmentId}`,
+      );
     } else {
       enrollment.status = 'ACTIVE';
       enrollment.dropReason = null as any;
-      console.log(`Audit: Admin ${currentUser.id} rejected drop for ${enrollmentId}`);
+      console.log(
+        `Audit: Admin ${currentUser.id} rejected drop for ${enrollmentId}`,
+      );
     }
     return this.enrollmentRepo.save(enrollment);
   }
@@ -116,14 +151,18 @@ export class EnrollmentsService {
   async adminDrop(enrollmentId: string, reason: string, currentUser: any) {
     const whereClause: any = { id: enrollmentId };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    const enrollment = await this.enrollmentRepo.findOne({ where: whereClause });
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: whereClause,
+    });
     if (!enrollment) throw new NotFoundException();
-    
+
     enrollment.status = 'DROPPED';
     enrollment.dropReason = reason;
     enrollment.droppedAt = new Date();
     await this.enrollmentRepo.save(enrollment);
-    console.log(`Audit: Admin ${currentUser.id} directly dropped ${enrollmentId}`);
+    console.log(
+      `Audit: Admin ${currentUser.id} directly dropped ${enrollmentId}`,
+    );
     return enrollment;
   }
 
@@ -132,13 +171,16 @@ export class EnrollmentsService {
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
 
     if (currentUser.permissions?.includes('VIEW_ENROLLMENTS')) {
-      return this.enrollmentRepo.find({ where: whereClause, relations: { student: true, section: { academicClass: true } } });
+      return this.enrollmentRepo.find({
+        where: whereClause,
+        relations: { student: true, section: { academicClass: true } },
+      });
     }
     // Assume student
     whereClause.studentId = currentUser.id;
-    return this.enrollmentRepo.find({ 
-      where: whereClause, 
-      relations: { section: { academicClass: true } } 
+    return this.enrollmentRepo.find({
+      where: whereClause,
+      relations: { section: { academicClass: true } },
     });
   }
 
@@ -147,18 +189,23 @@ export class EnrollmentsService {
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
     const existing = await this.enrollmentRepo.findOne({ where: whereClause });
     if (!existing) throw new NotFoundException();
-    
+
     await this.enrollmentRepo.delete(id);
   }
 
-  async rollover(data: { fromCourseId: string; toCourseId: string; studentIds?: string[] }, currentUser: any) {
+  async rollover(
+    data: { fromCourseId: string; toCourseId: string; studentIds?: string[] },
+    currentUser: any,
+  ) {
     const { fromCourseId, toCourseId, studentIds } = data;
-    
+
     const qb = this.enrollmentRepo.createQueryBuilder('enrollment');
     qb.where('enrollment.sectionId = :fromCourseId', { fromCourseId });
     qb.andWhere('enrollment.status = :status', { status: 'ACTIVE' });
     if (!currentUser.isSuperAdmin) {
-      qb.andWhere('enrollment.campusId = :campusId', { campusId: currentUser.campusId });
+      qb.andWhere('enrollment.campusId = :campusId', {
+        campusId: currentUser.campusId,
+      });
     }
     if (studentIds && studentIds.length > 0) {
       qb.andWhere('enrollment.studentId IN (:...studentIds)', { studentIds });
@@ -182,7 +229,10 @@ export class EnrollmentsService {
         studentId: enrollment.studentId,
         sectionId: toCourseId,
         status: 'ACTIVE',
-        academicYear: new Date().getFullYear().toString() + '-' + (new Date().getFullYear() + 1).toString(),
+        academicYear:
+          new Date().getFullYear().toString() +
+          '-' +
+          (new Date().getFullYear() + 1).toString(),
         campusId: enrollment.campusId,
       });
       newEnrollments.push(newEnrollment);
