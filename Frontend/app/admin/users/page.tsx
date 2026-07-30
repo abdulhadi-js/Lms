@@ -30,8 +30,10 @@ export default function UserManagement() {
     experience: '',
     appointmentDate: '',
     basicSalary: '',
-    allowances: '',
-    deductions: '',
+    basicSalary: '',
+    allowances: [] as { name: string, amount: string }[],
+    deductions: [] as { name: string, amount: string }[],
+    bankAccountDetails: ''
     bankAccountDetails: ''
   });
   
@@ -196,15 +198,15 @@ export default function UserManagement() {
         experience: profile?.experience || '',
         appointmentDate: profile?.appointmentDate ? new Date(profile.appointmentDate).toISOString().split('T')[0] : '',
         basicSalary: profile?.basicSalary || '',
-        allowances: profile?.allowances ? JSON.stringify(profile.allowances) : '',
-        deductions: profile?.deductions ? JSON.stringify(profile.deductions) : '',
+        allowances: profile?.allowances ? Object.entries(profile.allowances).map(([k, v]) => ({ name: k, amount: String(v) })) : [],
+        deductions: profile?.deductions ? Object.entries(profile.deductions).map(([k, v]) => ({ name: k, amount: String(v) })) : [],
         bankAccountDetails: profile?.bankAccountDetails || ''
       });
       setIsHrModalOpen(true);
     } catch (error: any) {
       // If profile doesn't exist, it's fine, we will create it
       setHrFormData({
-        qualifications: '', experience: '', appointmentDate: '', basicSalary: '', allowances: '', deductions: '', bankAccountDetails: ''
+        qualifications: '', experience: '', appointmentDate: '', basicSalary: '', allowances: [], deductions: [], bankAccountDetails: ''
       });
       setIsHrModalOpen(true);
     } finally {
@@ -217,17 +219,27 @@ export default function UserManagement() {
     if (!selectedStaffId) return;
     setIsSubmitting(true);
     try {
+      const allowancesObj = hrFormData.allowances.reduce((acc: any, curr) => {
+        if (curr.name && curr.amount) acc[curr.name] = Number(curr.amount);
+        return acc;
+      }, {});
+      
+      const deductionsObj = hrFormData.deductions.reduce((acc: any, curr) => {
+        if (curr.name && curr.amount) acc[curr.name] = Number(curr.amount);
+        return acc;
+      }, {});
+
       const payload = {
         ...hrFormData,
         basicSalary: Number(hrFormData.basicSalary),
-        allowances: hrFormData.allowances ? JSON.parse(hrFormData.allowances) : null,
-        deductions: hrFormData.deductions ? JSON.parse(hrFormData.deductions) : null,
+        allowances: Object.keys(allowancesObj).length > 0 ? allowancesObj : null,
+        deductions: Object.keys(deductionsObj).length > 0 ? deductionsObj : null,
       };
       await hrApi.updateProfile(selectedStaffId, payload);
       toast.success('HR Profile updated successfully');
       setIsHrModalOpen(false);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update HR Profile. Check JSON format for allowances/deductions.');
+      toast.error(error.message || 'Failed to update HR Profile.');
     } finally {
       setIsSubmitting(false);
     }
@@ -645,21 +657,33 @@ export default function UserManagement() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Allowances (JSON)</label>
-                  <textarea 
-                    value={hrFormData.allowances} onChange={e => setHrFormData({...hrFormData, allowances: e.target.value})}
-                    placeholder='{"housing": 500, "medical": 200}'
-                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
-                  />
+                <div className="space-y-2 border border-divider rounded-lg p-3 bg-surface-container-low">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-on-surface">Allowances</label>
+                    <button type="button" onClick={() => setHrFormData(prev => ({...prev, allowances: [...prev.allowances, {name: '', amount: ''}]}))} className="text-xs text-primary hover:underline font-medium">+ Add</button>
+                  </div>
+                  {hrFormData.allowances.map((item, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <input type="text" placeholder="Name (e.g. Housing)" value={item.name} onChange={e => { const newArr = [...hrFormData.allowances]; newArr[idx].name = e.target.value; setHrFormData({...hrFormData, allowances: newArr}) }} className="w-full px-2 py-1.5 bg-surface text-on-surface border border-divider rounded focus:outline-none focus:ring-1 focus:ring-primary/50 text-xs" />
+                      <input type="number" placeholder="Amount" value={item.amount} onChange={e => { const newArr = [...hrFormData.allowances]; newArr[idx].amount = e.target.value; setHrFormData({...hrFormData, allowances: newArr}) }} className="w-20 px-2 py-1.5 bg-surface text-on-surface border border-divider rounded focus:outline-none focus:ring-1 focus:ring-primary/50 text-xs" />
+                      <button type="button" onClick={() => { const newArr = [...hrFormData.allowances]; newArr.splice(idx, 1); setHrFormData({...hrFormData, allowances: newArr}) }} className="text-error hover:text-error/80 px-1 font-bold">&times;</button>
+                    </div>
+                  ))}
+                  {hrFormData.allowances.length === 0 && <div className="text-xs text-body-secondary italic">No allowances added</div>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Deductions (JSON)</label>
-                  <textarea 
-                    value={hrFormData.deductions} onChange={e => setHrFormData({...hrFormData, deductions: e.target.value})}
-                    placeholder='{"tax": 100, "eobi": 50}'
-                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
-                  />
+                <div className="space-y-2 border border-divider rounded-lg p-3 bg-surface-container-low">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-on-surface">Deductions</label>
+                    <button type="button" onClick={() => setHrFormData(prev => ({...prev, deductions: [...prev.deductions, {name: '', amount: ''}]}))} className="text-xs text-primary hover:underline font-medium">+ Add</button>
+                  </div>
+                  {hrFormData.deductions.map((item, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <input type="text" placeholder="Name (e.g. Tax)" value={item.name} onChange={e => { const newArr = [...hrFormData.deductions]; newArr[idx].name = e.target.value; setHrFormData({...hrFormData, deductions: newArr}) }} className="w-full px-2 py-1.5 bg-surface text-on-surface border border-divider rounded focus:outline-none focus:ring-1 focus:ring-primary/50 text-xs" />
+                      <input type="number" placeholder="Amount" value={item.amount} onChange={e => { const newArr = [...hrFormData.deductions]; newArr[idx].amount = e.target.value; setHrFormData({...hrFormData, deductions: newArr}) }} className="w-20 px-2 py-1.5 bg-surface text-on-surface border border-divider rounded focus:outline-none focus:ring-1 focus:ring-primary/50 text-xs" />
+                      <button type="button" onClick={() => { const newArr = [...hrFormData.deductions]; newArr.splice(idx, 1); setHrFormData({...hrFormData, deductions: newArr}) }} className="text-error hover:text-error/80 px-1 font-bold">&times;</button>
+                    </div>
+                  ))}
+                  {hrFormData.deductions.length === 0 && <div className="text-xs text-body-secondary italic">No deductions added</div>}
                 </div>
               </div>
               <div>
