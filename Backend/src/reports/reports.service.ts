@@ -123,10 +123,10 @@ export class ReportsService {
 
     const totalStudents = await this.dataSource
       .getRepository('User')
-      .count({ where: { role: 'STUDENT' } });
+      .count({ where: { role: { name: 'STUDENT' } } });
     const totalTeachers = await this.dataSource
       .getRepository('User')
-      .count({ where: { role: 'TEACHER' } });
+      .count({ where: { role: { name: 'TEACHER' } } });
     const totalClasses = await this.dataSource
       .getRepository('AcademicClass')
       .count();
@@ -138,12 +138,13 @@ export class ReportsService {
       .count();
     const pendingApplications = await this.dataSource
       .getRepository('Application')
-      .count({ where: { status: 'PENDING' } });
+      .count({ where: { status: 'PENDING_REVIEW' } });
 
     return {
       totalStudents,
       totalTeachers,
       totalClasses,
+      activeCourses: totalClasses, // Maps to what the frontend expects
       totalSections,
       totalEnrollments,
       pendingApplications,

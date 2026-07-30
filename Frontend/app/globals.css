@@ -77,6 +77,15 @@
   --color-primary-container: #1a2f17;
   --color-on-primary-container: #c2f198;
   --color-on-primary: #0a140a;
+
+  --color-success: #78a355;
+  --color-success-bg: #1e2d17;
+  --color-warning: #c29542;
+  --color-warning-bg: #36260e;
+  --color-error: #db6c65;
+  --color-error-bg: #4a1916;
+  --color-info: #5a9bd6;
+  --color-info-bg: #172a38;
 }
 
 body {
