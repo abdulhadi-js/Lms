@@ -51,6 +51,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 }
 
 import { DataSource } from 'typeorm';
+import { RolesService } from './roles/roles.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -60,6 +61,49 @@ async function bootstrap() {
   await dataSource.query(
     `UPDATE roles SET "isSystem" = true, "campusId" = null WHERE name IN ('Principal', 'Teacher', 'Student')`
   ).catch(e => console.log('Notice: Could not enforce system roles:', e.message));
+
+  // Enforce PRD matrices on live roles
+  try {
+    const rolesService = app.get(RolesService);
+    const repo = dataSource.getRepository('Role');
+    
+    const student = await repo.findOne({ where: { name: 'Student' } });
+    if (student) {
+      await rolesService.update(student.id, {
+        matrix: [
+          { moduleId: 'ACADEMICS', canView: true, canAdd: false, canEdit: false, canDelete: false },
+          { moduleId: 'EXAMS', canView: true, canAdd: false, canEdit: false, canDelete: false },
+          { moduleId: 'FEES', canView: true, canAdd: false, canEdit: false, canDelete: false },
+        ]
+      });
+    }
+
+    const teacher = await repo.findOne({ where: { name: 'Teacher' } });
+    if (teacher) {
+      await rolesService.update(teacher.id, {
+        matrix: [
+          { moduleId: 'ACADEMICS', canView: true, canAdd: false, canEdit: false, canDelete: false },
+          { moduleId: 'EXAMS', canView: true, canAdd: true, canEdit: true, canDelete: false },
+          { moduleId: 'ATTENDANCE', canView: true, canAdd: true, canEdit: true, canDelete: false },
+        ]
+      });
+    }
+
+    const principal = await repo.findOne({ where: { name: 'Principal' } });
+    if (principal) {
+      await rolesService.update(principal.id, {
+        matrix: [
+          { moduleId: 'USERS_STAFF', canView: true, canAdd: true, canEdit: true, canDelete: true },
+          { moduleId: 'ROLES', canView: true, canAdd: true, canEdit: true, canDelete: true },
+          { moduleId: 'ACADEMICS', canView: true, canAdd: true, canEdit: true, canDelete: true },
+          { moduleId: 'FEES', canView: true, canAdd: false, canEdit: false, canDelete: false },
+          { moduleId: 'REPORTS', canView: true, canAdd: false, canEdit: false, canDelete: false },
+        ]
+      });
+    }
+  } catch (e) {
+    console.log('Notice: Could not enforce system role matrices:', e.message);
+  }
 
   const configService = app.get(ConfigService);
 
