@@ -1,24 +1,40 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { ShieldCheck, Plus, Settings2, Shield, Search, X } from 'lucide-react';
+import { ShieldCheck, Plus, Settings2, Shield, Search, X, Check, CheckSquare, Square } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { rolesApi, campusesApi } from '@/lib/api';
 
-const AVAILABLE_PERMISSIONS = [
-  'MANAGE_USERS', 'VIEW_USERS',
-  'MANAGE_ACADEMICS', 'VIEW_ACADEMICS',
-  'MANAGE_ADMISSIONS', 'VIEW_ADMISSIONS',
-  'MANAGE_FEES', 'VIEW_FEES',
-  'MANAGE_ATTENDANCE', 'VIEW_ATTENDANCE',
-  'MANAGE_MARKS', 'VIEW_MARKS'
+const MODULES = [
+  'DASHBOARD', 'CAMPUSES', 'ROLES', 'ACADEMICS', 
+  'USERS_STAFF', 'USERS_STUDENTS', 'FEES', 'ACCOUNTS', 
+  'ATTENDANCE', 'EXAMS', 'REPORTS', 'MESSAGING'
 ];
+
+type MatrixRow = {
+  moduleId: string;
+  canView: boolean;
+  canAdd: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  specialFlags?: any;
+};
+
+const getEmptyMatrix = (): MatrixRow[] => {
+  return MODULES.map(m => ({
+    moduleId: m,
+    canView: false,
+    canAdd: false,
+    canEdit: false,
+    canDelete: false
+  }));
+};
 
 export default function RolesManagement() {
   const [roles, setRoles] = useState<any[]>([]);
   const [campuses, setCampuses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', campusId: '', permissions: [] as string[] });
+  const [formData, setFormData] = useState({ name: '', campusId: '', matrix: getEmptyMatrix() });
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchData = async () => {
@@ -41,28 +57,61 @@ export default function RolesManagement() {
     fetchData();
   }, []);
 
-  const togglePermission = (perm: string) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: prev.permissions.includes(perm)
-        ? prev.permissions.filter(p => p !== perm)
-        : [...prev.permissions, perm]
-    }));
+  const handleMatrixChange = (moduleId: string, action: 'canView' | 'canAdd' | 'canEdit' | 'canDelete') => {
+    setFormData(prev => {
+      const newMatrix = [...prev.matrix];
+      const rowIndex = newMatrix.findIndex(r => r.moduleId === moduleId);
+      if (rowIndex !== -1) {
+        newMatrix[rowIndex] = {
+          ...newMatrix[rowIndex],
+          [action]: !newMatrix[rowIndex][action]
+        };
+        // Auto-enable canView if another action is selected
+        if (action !== 'canView' && newMatrix[rowIndex][action]) {
+            newMatrix[rowIndex].canView = true;
+        }
+      }
+      return { ...prev, matrix: newMatrix };
+    });
+  };
+
+  const handleRowToggle = (moduleId: string, enableAll: boolean) => {
+    setFormData(prev => {
+      const newMatrix = [...prev.matrix];
+      const rowIndex = newMatrix.findIndex(r => r.moduleId === moduleId);
+      if (rowIndex !== -1) {
+        newMatrix[rowIndex] = {
+          ...newMatrix[rowIndex],
+          canView: enableAll,
+          canAdd: enableAll,
+          canEdit: enableAll,
+          canDelete: enableAll
+        };
+      }
+      return { ...prev, matrix: newMatrix };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.permissions.length === 0) {
-      return toast.error('Please select at least one permission');
+    if (!formData.name.trim()) return toast.error('Role name is required');
+    
+    // Filter out rows that have absolutely no permissions
+    const activeMatrix = formData.matrix.filter(m => m.canView || m.canAdd || m.canEdit || m.canDelete);
+    
+    if (activeMatrix.length === 0) {
+      return toast.error('Please assign at least one permission in the matrix');
     }
+
     try {
       await rolesApi.create({
-        ...formData,
-        campusId: formData.campusId || null
+        name: formData.name,
+        campusId: formData.campusId || null,
+        matrix: activeMatrix
       });
       toast.success('Role created successfully');
       setIsModalOpen(false);
-      setFormData({ name: '', campusId: '', permissions: [] });
+      setFormData({ name: '', campusId: '', matrix: getEmptyMatrix() });
       fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to create role');
@@ -73,14 +122,14 @@ export default function RolesManagement() {
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-heading-on-light">Roles & Permissions</h2>
-          <p className="text-sm text-body-secondary mt-1">Design custom RBAC roles and assign them to specific campuses.</p>
+          <h2 className="text-3xl font-bold text-heading-on-light">Roles & Matrix</h2>
+          <p className="text-sm text-body-secondary mt-1">Design highly granular RBAC matrices and assign them to specific campuses.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => { setFormData({ name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
           className="bg-primary text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" /> Create Custom Role
+          <Plus className="w-4 h-4" /> Build Custom Matrix
         </button>
       </div>
 
@@ -88,7 +137,7 @@ export default function RolesManagement() {
         <div className="p-5 border-b border-divider flex flex-col sm:flex-row gap-4 justify-between items-center bg-surface-container-lowest">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            <h3 className="font-bold text-heading-on-light">Defined Roles</h3>
+            <h3 className="font-bold text-heading-on-light">Active Matrices</h3>
           </div>
           <div className="w-full sm:w-64 relative">
             <Search className="w-4 h-4 text-body-secondary absolute left-3 top-1/2 -translate-y-1/2" />
@@ -104,7 +153,7 @@ export default function RolesManagement() {
 
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="p-8 text-center text-body-secondary">Loading roles...</div>
+            <div className="p-8 text-center text-body-secondary">Loading matrices...</div>
           ) : roles.length === 0 ? (
             <div className="p-8 text-center text-body-secondary">No custom roles defined.</div>
           ) : (
@@ -113,14 +162,20 @@ export default function RolesManagement() {
                 <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                   <th className="py-4 px-6 font-semibold">Role Name</th>
                   <th className="py-4 px-6 font-semibold">Campus Assignment</th>
-                  <th className="py-4 px-6 font-semibold">Permissions</th>
+                  <th className="py-4 px-6 font-semibold">Configured Modules</th>
                   <th className="py-4 px-6 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
                 {roles
                   .filter(r => !searchQuery || r.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map(role => (
+                  .map(role => {
+                  
+                  // Compute summary of what modules are active
+                  const matrix = role.matrix || [];
+                  const activeModules = matrix.map((m: any) => m.moduleId);
+                  
+                  return (
                   <tr key={role.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
                     <td className="py-4 px-6 font-medium text-on-surface">
                       <div className="flex items-center gap-2">
@@ -140,25 +195,29 @@ export default function RolesManagement() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex flex-wrap gap-1">
-                        {(role.permissions || []).slice(0, 3).map((p: string) => (
-                          <span key={p} className="text-[10px] border border-border-light text-body-secondary px-1.5 py-0.5 rounded bg-surface">
-                            {p.replace('MANAGE_', 'M_').replace('VIEW_', 'V_')}
-                          </span>
-                        ))}
-                        {(role.permissions || []).length > 3 && (
-                          <span className="text-[10px] text-primary font-medium px-1.5 py-0.5">+{role.permissions.length - 3} more</span>
+                        {activeModules.length === 0 ? (
+                          <span className="text-[10px] text-body-secondary italic">No permissions set</span>
+                        ) : (
+                          activeModules.slice(0, 4).map((modId: string) => (
+                            <span key={modId} className="text-[10px] border border-border-light text-body-secondary px-1.5 py-0.5 rounded bg-surface">
+                              {modId.replace('USERS_', '')}
+                            </span>
+                          ))
+                        )}
+                        {activeModules.length > 4 && (
+                          <span className="text-[10px] text-primary font-medium px-1.5 py-0.5">+{activeModules.length - 4} more</span>
                         )}
                       </div>
                     </td>
                     <td className="py-4 px-6 text-right">
                       {!role.isSystem && (
-                        <button className="text-body-secondary hover:text-primary transition-colors p-1" title="Edit Role">
+                        <button className="text-body-secondary hover:text-primary transition-colors p-1" title="Edit Matrix">
                           <Settings2 className="w-4 h-4" />
                         </button>
                       )}
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           )}
@@ -167,59 +226,97 @@ export default function RolesManagement() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-2xl my-auto animate-fade-in-up">
-            <div className="px-6 py-4 border-b border-divider flex justify-between items-center sticky top-0 bg-surface z-10 rounded-t-2xl">
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-4xl my-auto animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-divider flex justify-between items-center sticky top-0 bg-surface z-10 rounded-t-2xl shrink-0">
               <h3 className="text-lg font-bold text-heading-on-light flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary" /> Create Custom Role
+                <ShieldCheck className="w-5 h-5 text-primary" /> Matrix Builder
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Role Name *</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Primary Section Coordinator"
-                    className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
+            <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
+              <div className="p-6 overflow-y-auto flex-grow space-y-6">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 bg-surface-container-lowest border border-divider rounded-xl">
+                  <div>
+                    <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Role Name *</label>
+                    <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Primary Section Coordinator"
+                      className="w-full px-4 py-2 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Target Campus</label>
+                    <select value={formData.campusId} onChange={e => setFormData({ ...formData, campusId: e.target.value })}
+                      className="w-full px-4 py-2 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+                      <option value="">Global (Available to all)</option>
+                      {campuses.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Target Campus</label>
-                  <select value={formData.campusId} onChange={e => setFormData({ ...formData, campusId: e.target.value })}
-                    className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
-                    <option value="">Global (Available to all)</option>
-                    {campuses.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-3 border-b border-divider pb-2">Assign Permissions</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {AVAILABLE_PERMISSIONS.map(perm => {
-                    const isSelected = formData.permissions.includes(perm);
-                    return (
-                      <label 
-                        key={perm} 
-                        className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'border-primary bg-primary/5 text-primary' : 'border-border-light bg-surface-container-lowest text-body-secondary hover:border-body-secondary'}`}
-                      >
-                        <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-primary border-primary' : 'border-body-secondary'}`}>
-                          {isSelected && <svg className="w-3 h-3 text-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                        </div>
-                        <span className={`text-xs font-medium ${isSelected ? 'text-primary' : 'text-on-surface'}`}>
-                          {perm.replace('_', ' ')}
-                        </span>
-                      </label>
-                    );
-                  })}
+                <div>
+                  <h4 className="text-sm font-semibold text-on-surface mb-3 flex items-center gap-2">
+                    Access Grid (View / Add / Edit / Delete)
+                  </h4>
+                  <div className="border border-divider rounded-xl overflow-hidden bg-surface shadow-sm">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
+                          <th className="py-3 px-4 font-semibold w-1/3 border-r border-divider">Module</th>
+                          <th className="py-3 px-4 font-semibold text-center border-r border-divider">View</th>
+                          <th className="py-3 px-4 font-semibold text-center border-r border-divider">Add</th>
+                          <th className="py-3 px-4 font-semibold text-center border-r border-divider">Edit</th>
+                          <th className="py-3 px-4 font-semibold text-center border-r border-divider">Delete</th>
+                          <th className="py-3 px-4 font-semibold text-center">Toggle All</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm divide-y divide-divider">
+                        {formData.matrix.map((row) => (
+                          <tr key={row.moduleId} className="hover:bg-surface-container-lowest transition-colors">
+                            <td className="py-3 px-4 font-medium text-on-surface border-r border-divider flex items-center gap-2">
+                              {row.moduleId.replace('_', ' ')}
+                            </td>
+                            
+                            {(['canView', 'canAdd', 'canEdit', 'canDelete'] as const).map(action => (
+                              <td key={action} className="py-3 px-4 text-center border-r border-divider">
+                                <label className="inline-flex items-center cursor-pointer">
+                                  <input 
+                                    type="checkbox" 
+                                    className="hidden" 
+                                    checked={row[action]}
+                                    onChange={() => handleMatrixChange(row.moduleId, action)}
+                                  />
+                                  <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${row[action] ? 'bg-primary border-primary text-white' : 'border-border-light bg-surface hover:border-primary/50'}`}>
+                                    {row[action] && <Check className="w-3.5 h-3.5" />}
+                                  </div>
+                                </label>
+                              </td>
+                            ))}
+
+                            <td className="py-3 px-4 text-center">
+                              <button 
+                                type="button"
+                                onClick={() => handleRowToggle(row.moduleId, !(row.canView && row.canAdd && row.canEdit && row.canDelete))}
+                                className="text-xs font-medium text-primary hover:underline"
+                              >
+                                {row.canView && row.canAdd && row.canEdit && row.canDelete ? 'Clear All' : 'Select All'}
+                              </button>
+                            </td>
+
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+
               </div>
               
-              <div className="pt-4 flex justify-end gap-3 border-t border-divider sticky bottom-0 bg-surface pb-2 -mb-2">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">Create Role</button>
+              <div className="p-4 flex justify-end gap-3 border-t border-divider sticky bottom-0 bg-surface shrink-0">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-medium border border-border-light rounded-lg hover:bg-surface-container-lowest">Cancel</button>
+                <button type="submit" className="px-5 py-2.5 text-sm font-medium bg-primary text-on-primary rounded-lg shadow-sm hover:bg-primary/90">Save Matrix</button>
               </div>
             </form>
           </div>
