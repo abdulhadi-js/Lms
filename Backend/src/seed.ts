@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { UsersService } from './users/users.service';
 import { CampusesService } from './campuses/campuses.service';
 import { RolesService } from './roles/roles.service';
+import { ModuleId } from './roles/entities/module-permission.entity';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -49,7 +50,13 @@ async function seed() {
     const principalRole = await rolesService.create({
       name: 'Principal',
       campusId: campus.id,
-      permissions: ['MANAGE_USERS', 'MANAGE_ROLES', 'MANAGE_COURSES', 'VIEW_FEES', 'VIEW_REPORTS']
+      matrix: [
+        { moduleId: ModuleId.USERS_STAFF, canView: true, canAdd: true, canEdit: true, canDelete: true },
+        { moduleId: ModuleId.ROLES, canView: true, canAdd: true, canEdit: true, canDelete: true },
+        { moduleId: ModuleId.ACADEMICS, canView: true, canAdd: true, canEdit: true, canDelete: true },
+        { moduleId: ModuleId.FEES, canView: true, canAdd: false, canEdit: false, canDelete: false },
+        { moduleId: ModuleId.REPORTS, canView: true, canAdd: false, canEdit: false, canDelete: false },
+      ]
     });
     await usersService.create({
       email: 'principal@educore.com',
@@ -64,7 +71,11 @@ async function seed() {
     const teacherRole = await rolesService.create({
       name: 'Teacher',
       campusId: campus.id,
-      permissions: ['VIEW_COURSES', 'MANAGE_MARKS', 'MANAGE_ATTENDANCE']
+      matrix: [
+        { moduleId: ModuleId.ACADEMICS, canView: true, canAdd: false, canEdit: false, canDelete: false },
+        { moduleId: ModuleId.EXAMS, canView: true, canAdd: true, canEdit: true, canDelete: false },
+        { moduleId: ModuleId.ATTENDANCE, canView: true, canAdd: true, canEdit: true, canDelete: false },
+      ]
     });
     await usersService.create({
       email: 'teacher@educore.com',
@@ -79,7 +90,11 @@ async function seed() {
     const studentRole = await rolesService.create({
       name: 'Student',
       campusId: campus.id,
-      permissions: ['VIEW_COURSES', 'VIEW_MARKS', 'VIEW_FEES']
+      matrix: [
+        { moduleId: ModuleId.ACADEMICS, canView: true, canAdd: false, canEdit: false, canDelete: false },
+        { moduleId: ModuleId.EXAMS, canView: true, canAdd: false, canEdit: false, canDelete: false },
+        { moduleId: ModuleId.FEES, canView: true, canAdd: false, canEdit: false, canDelete: false },
+      ]
     });
     await usersService.create({
       email: 'student@educore.com',
