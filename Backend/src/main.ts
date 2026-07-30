@@ -66,10 +66,9 @@ async function bootstrap() {
   // Apply Global Exception Filter to see what is crashing
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // CORS — WARN-01 fix: read from env so deployment works
-  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
+  // CORS — Allow dynamic origin reflection so Vercel can talk to Render effortlessly
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+    origin: true,
     credentials: true,
   });
 
