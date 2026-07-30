@@ -15,7 +15,7 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  private generateTokens(payload: { sub: string; email: string; isSuperAdmin: boolean; campusId: string | null; permissions: string[] }) {
+  private generateTokens(payload: { sub: string; email: string; isSuperAdmin: boolean; campusId: string | null; roleId: string | null }) {
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing',
       expiresIn: 900, // 15 minutes in seconds (JWT_EXPIRES_IN=15m)
@@ -54,7 +54,7 @@ export class AuthService {
       email: user.email, 
       isSuperAdmin: user.isSuperAdmin,
       campusId: user.campusId,
-      permissions: user.role?.permissions || []
+      roleId: user.roleId || null
     };
     const { accessToken, refreshToken } = this.generateTokens(payload);
 
@@ -67,7 +67,7 @@ export class AuthService {
         isSuperAdmin: user.isSuperAdmin,
         campusId: user.campusId,
         role: user.role?.name,
-        permissions: user.role?.permissions || [],
+        roleId: user.roleId,
         firstName: user.firstName,
         lastName: user.lastName,
         profilePicture: user.profilePicture,
@@ -86,7 +86,7 @@ export class AuthService {
       email: user.email, 
       isSuperAdmin: user.isSuperAdmin,
       campusId: user.campusId,
-      permissions: (user as any).role?.permissions || []
+      roleId: (user as any).roleId || null
     };
     return this.generateTokens(payload);
   }
