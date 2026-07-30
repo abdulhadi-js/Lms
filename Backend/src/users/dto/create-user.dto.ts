@@ -5,6 +5,7 @@ import {
   IsString,
   IsUUID,
   MinLength,
+  IsBoolean,
 } from 'class-validator';
 import { UserStatus } from '../enums/user.enum';
 
@@ -23,6 +24,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID()
   campusId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isSuperAdmin?: boolean;
 
   @IsString()
   firstName: string;
