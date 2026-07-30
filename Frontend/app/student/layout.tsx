@@ -19,13 +19,13 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'STUDENT') {
+      } else if (user.role?.toUpperCase() !== 'STUDENT') {
         router.push('/');
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || user.role !== 'STUDENT') {
+  if (isLoading || !user || user.role?.toUpperCase() !== 'STUDENT') {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-page-bg text-evergreen gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />

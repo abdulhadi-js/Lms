@@ -19,13 +19,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'ADMIN' && !user.isSuperAdmin) {
+      } else if (user.role?.toUpperCase() !== 'ADMIN' && user.role?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin) {
         router.push('/');
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || (user.role !== 'ADMIN' && !user.isSuperAdmin)) {
+  if (isLoading || !user || (user.role?.toUpperCase() !== 'ADMIN' && user.role?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin)) {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
   

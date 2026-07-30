@@ -17,13 +17,13 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role !== 'INSTRUCTOR') {
+      } else if (user.role?.toUpperCase() !== 'INSTRUCTOR' && user.role?.toUpperCase() !== 'TEACHER') {
         router.push('/');
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || user.role !== 'INSTRUCTOR') {
+  if (isLoading || !user || (user.role?.toUpperCase() !== 'INSTRUCTOR' && user.role?.toUpperCase() !== 'TEACHER')) {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
   const isActive = (path: string) => pathname === path;
