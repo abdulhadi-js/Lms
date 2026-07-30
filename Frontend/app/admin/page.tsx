@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { reportsApi, enrollmentsApi } from '@/lib/api';
 import { AdminBentoStats } from '@/components/AdminBentoStats';
+import { RequireAccess } from '@/components/RequireAccess';
 
 export default function AdminDashboard() {
   const [overview, setOverview] = useState<any>(null);
@@ -122,7 +123,8 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         {/* Pending Applications Table */}
-        <div className="lg:col-span-7 space-y-6">
+        <RequireAccess module="USERS_STUDENTS" action="canView" fallback={<div className="lg:col-span-7 bg-surface rounded-xl border border-divider p-8 text-center text-body-secondary flex items-center justify-center">You do not have permission to view pending enrollments.</div>}>
+          <div className="lg:col-span-7 space-y-6">
           <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
             <div className="p-4 border-b border-divider flex justify-between items-center bg-surface">
               <h3 className="text-lg font-semibold text-heading-on-light">Pending Enrollments</h3>
@@ -202,29 +204,37 @@ export default function AdminDashboard() {
               </table>
             </div>
           </div>
-        </div>
+        </RequireAccess>
 
         {/* Quick Actions */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-surface rounded-xl border border-divider brand-shadow p-5">
             <h3 className="text-lg font-semibold text-heading-on-light mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/admin/enrollments" className="flex flex-col items-center justify-center py-4 px-2 primary-gradient text-white rounded-lg hover:shadow-md transition-shadow">
-                <Users className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Enrollments</span>
-              </Link>
-              <Link href="/admin/courses" className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-white rounded-lg hover:opacity-90 transition-all">
-                <BookOpen className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Courses</span>
-              </Link>
-              <Link href="/admin/users" className="flex flex-col items-center justify-center py-4 px-2 bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all text-on-surface">
-                <Users className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Users</span>
-              </Link>
-              <Link href="/admin/reports" className="flex flex-col items-center justify-center py-4 px-2 bg-success-bg rounded-lg hover:opacity-90 transition-all text-success">
-                <Banknote className="h-6 w-6 mb-2" />
-                <span className="text-xs font-semibold">Reports</span>
-              </Link>
+              <RequireAccess module="USERS_STUDENTS" action="canView">
+                <Link href="/admin/enrollments" className="flex flex-col items-center justify-center py-4 px-2 primary-gradient text-white rounded-lg hover:shadow-md transition-shadow">
+                  <Users className="h-6 w-6 mb-2" />
+                  <span className="text-xs font-semibold">Enrollments</span>
+                </Link>
+              </RequireAccess>
+              <RequireAccess module="ACADEMICS" action="canView">
+                <Link href="/admin/academics" className="flex flex-col items-center justify-center py-4 px-2 bg-primary-container text-white rounded-lg hover:opacity-90 transition-all">
+                  <BookOpen className="h-6 w-6 mb-2" />
+                  <span className="text-xs font-semibold">Academics</span>
+                </Link>
+              </RequireAccess>
+              <RequireAccess module="USERS_STAFF" action="canView">
+                <Link href="/admin/users" className="flex flex-col items-center justify-center py-4 px-2 bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all text-on-surface">
+                  <Users className="h-6 w-6 mb-2" />
+                  <span className="text-xs font-semibold">Staff HR</span>
+                </Link>
+              </RequireAccess>
+              <RequireAccess module="REPORTS" action="canView">
+                <Link href="/admin/reports" className="flex flex-col items-center justify-center py-4 px-2 bg-success-bg rounded-lg hover:opacity-90 transition-all text-success">
+                  <Banknote className="h-6 w-6 mb-2" />
+                  <span className="text-xs font-semibold">Reports</span>
+                </Link>
+              </RequireAccess>
             </div>
           </div>
         </div>

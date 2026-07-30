@@ -59,7 +59,7 @@ async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
   });
 }
 
-export type AuthUser = { id: string; email: string; role?: string; isSuperAdmin?: boolean; campusId?: string; firstName: string; lastName: string; phone?: string; profilePicture?: string; };
+export type AuthUser = { id: string; email: string; role?: string; isSuperAdmin?: boolean; campusId?: string; firstName: string; lastName: string; phone?: string; matrix?: any[]; profilePicture?: string; };
 export type LoginResponse = { accessToken: string; refreshToken: string; user: AuthUser };
 
 export const authApi = {
@@ -97,7 +97,14 @@ export const authApi = {
     return res.json();
   },
   logout: () => fetchAuthApi('/auth/logout', { method: 'POST' }),
-  me: () => fetchAuthApi('/auth/me'),
+  me: async (): Promise<AuthUser> => {
+    const data = await fetchAuthApi('/auth/me');
+    return {
+      ...data,
+      role: data.role?.name || data.role,
+      matrix: data.matrix || data.role?.matrix || []
+    };
+  },
 };
 
 export const usersApi = {

@@ -35,19 +35,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return false;
   };
 
-  const navLinks = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { name: 'Campuses', path: '/admin/campuses', icon: Building2 },
-    { name: 'Roles & Permissions', path: '/admin/roles', icon: ShieldCheck },
-    { name: 'Academics', path: '/admin/academics', icon: BookOpen },
-    { name: 'Users', path: '/admin/users', icon: Users },
-    { name: 'Timetable', path: '/admin/timetable', icon: Calendar },
-    { name: 'Enrollments', path: '/admin/enrollments', icon: Users },
-    { name: 'Applications', path: '/admin/applications', icon: BookOpen },
-    { name: 'Fees', path: '/admin/fees', icon: BarChart3 },
-    { name: 'Reports', path: '/admin/reports', icon: BarChart3 },
-    { name: 'Profile Settings', path: '/admin/profile', icon: Settings },
+  const ALL_LINKS = [
+    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, moduleId: 'DASHBOARD' },
+    { name: 'Campuses', path: '/admin/campuses', icon: Building2, moduleId: 'CAMPUSES' },
+    { name: 'Roles & Permissions', path: '/admin/roles', icon: ShieldCheck, moduleId: 'ROLES' },
+    { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
+    { name: 'Staff HR', path: '/admin/users', icon: Users, moduleId: 'USERS_STAFF' },
+    { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
+    { name: 'Enrollments', path: '/admin/enrollments', icon: Users, moduleId: 'USERS_STUDENTS' },
+    { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
+    { name: 'Fees', path: '/admin/fees', icon: BarChart3, moduleId: 'FEES' },
+    { name: 'Reports', path: '/admin/reports', icon: BarChart3, moduleId: 'REPORTS' },
+    { name: 'Profile Settings', path: '/admin/profile', icon: Settings, moduleId: null },
   ];
+
+  const navLinks = user.isSuperAdmin 
+    ? ALL_LINKS 
+    : ALL_LINKS.filter(link => 
+        !link.moduleId || 
+        user.matrix?.some(m => m.moduleId === link.moduleId && m.canView)
+      );
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
