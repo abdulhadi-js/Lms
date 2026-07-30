@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { usersApi, feesApi } from '@/lib/api';
+import { usersApi, feesApi, BASE_URL } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { 
   User, Mail, Phone, MapPin, Users, BookOpen, Banknote, 
@@ -82,7 +82,7 @@ export default function UnifiedStudentProfile() {
           <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
           <div className="w-24 h-24 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold text-3xl border-4 border-surface shrink-0">
             {student.profilePicture ? (
-              <img src={student.profilePicture.startsWith('http') ? student.profilePicture : `http://localhost:3001${student.profilePicture}`} alt="Profile" className="w-full h-full object-cover rounded-full" />
+              <img src={student.profilePicture.startsWith('http') ? student.profilePicture : `${BASE_URL}${student.profilePicture}`} alt="Profile" className="w-full h-full object-cover rounded-full" />
             ) : (
               `${student.firstName?.[0] || ''}${student.lastName?.[0] || ''}`
             )}

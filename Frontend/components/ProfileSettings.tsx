@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { BASE_URL, API_BASE, tokens } from '@/lib/api';
 import { User, Mail, Phone, Lock, Save, Camera, Shield } from 'lucide-react';
-import { tokens } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function ProfileSettings() {
@@ -23,7 +23,7 @@ export default function ProfileSettings() {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(
     user?.profilePicture 
-      ? (user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`)
+      ? (user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`)
       : ''
   );
 
@@ -55,7 +55,7 @@ export default function ProfileSettings() {
       if (formData.phone) fd.append('phone', formData.phone);
       if (profilePicture) fd.append('profilePicture', profilePicture);
 
-      const res = await fetch('http://localhost:3001/api/v1/users/profile', {
+      const res = await fetch(`${API_BASE}/users/profile`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` },
         body: fd
@@ -85,7 +85,7 @@ export default function ProfileSettings() {
     setLoading(true);
     try {
       const token = tokens.getAccessToken();
-      const res = await fetch('http://localhost:3001/api/v1/users/profile', {
+      const res = await fetch(`${API_BASE}/users/profile`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,

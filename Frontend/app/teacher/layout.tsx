@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/auth-context';
+import { BASE_URL } from '@/lib/api';
+import NotificationBell from '@/components/NotificationBell';
 import { useEffect, useState } from 'react';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
@@ -53,7 +55,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           <Bell className="hover:opacity-80 transition-opacity cursor-pointer w-5 h-5" />
           <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20 overflow-hidden">
             {user?.profilePicture ? (
-              <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               user?.firstName ? user.firstName[0].toUpperCase() : 'T'
             )}
@@ -75,7 +77,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           <div className="relative inline-block mb-3">
             <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all overflow-hidden ${isCollapsed ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
               {user?.profilePicture ? (
-                <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 user?.firstName ? user.firstName[0].toUpperCase() : 'T'
               )}

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
-import { notificationsApi } from '@/lib/api';
+import { notificationsApi, BASE_URL } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 
 type Notification = {
@@ -43,7 +43,7 @@ export function NotificationBell() {
     let socket: any;
 
     import('socket.io-client').then(({ io }) => {
-      socket = io('http://localhost:3001');
+      socket = io(BASE_URL);
       
       socket.on('connect', () => {
         socket.emit('identify', { role: user.role, userId: user.id });

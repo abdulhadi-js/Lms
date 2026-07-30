@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+export const BASE_URL = API_BASE.replace('/api/v1', '');
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${endpoint}`, {

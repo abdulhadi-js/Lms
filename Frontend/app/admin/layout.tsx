@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useEffect, useState } from 'react';
 import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { BASE_URL } from '@/lib/api';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useUIStore } from '@/lib/store';
 
@@ -73,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <NotificationBell />
           <div className="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-xs border border-outline/20 overflow-hidden">
             {user?.profilePicture ? (
-              <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               `${user?.firstName?.[0] || 'A'}${user?.lastName?.[0] || 'D'}`
             )}
@@ -112,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="relative inline-block mb-2">
             <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all overflow-hidden ${isSidebarCollapsed && !isMobileMenuOpen ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
               {user?.profilePicture ? (
-                <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:3001${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 `${user?.firstName?.[0] || 'A'}${user?.lastName?.[0] || 'D'}`
               )}
