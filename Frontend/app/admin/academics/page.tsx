@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Plus, BookOpen, Users, Layers, LayoutGrid, X } from 'lucide-react';
+import { Plus, BookOpen, Users, LayoutGrid, X, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { academicsApi } from '@/lib/api';
 
@@ -15,6 +15,11 @@ export default function AcademicsManagement() {
   const [isClassModalOpen, setClassModalOpen] = useState(false);
   const [isSectionModalOpen, setSectionModalOpen] = useState(false);
   const [isSubjectModalOpen, setSubjectModalOpen] = useState(false);
+
+  // Edit Modes
+  const [editingClass, setEditingClass] = useState<any>(null);
+  const [editingSection, setEditingSection] = useState<any>(null);
+  const [editingSubject, setEditingSubject] = useState<any>(null);
 
   // Forms
   const [classForm, setClassForm] = useState({ name: '', level: 1 });
@@ -36,12 +41,9 @@ export default function AcademicsManagement() {
   const loadClassDetails = async (cls: any) => {
     setSelectedClass(cls);
     try {
-      const [secData, subData] = await Promise.all([
-        academicsApi.listSections(cls.id),
-        academicsApi.listSubjects(cls.id)
-      ]);
-      setSections(secData);
-      setSubjects(subData);
+      const classData = await academicsApi.getClass(cls.id);
+      setSections(classData.sections || []);
+      setSubjects(classData.subjects || []);
     } catch (err: any) {
       toast.error(err.message || 'Failed to load details');
     }
@@ -51,26 +53,54 @@ export default function AcademicsManagement() {
     fetchClasses();
   }, []);
 
-  const handleCreateClass = async (e: React.FormEvent) => {
+  const handleCreateOrUpdateClass = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await academicsApi.createClass(classForm);
-      toast.success('Class created');
+      if (editingClass) {
+        await academicsApi.updateClass(editingClass.id, classForm);
+        toast.success('Class updated');
+      } else {
+        await academicsApi.createClass(classForm);
+        toast.success('Class created');
+      }
       setClassModalOpen(false);
+      setEditingClass(null);
       setClassForm({ name: '', level: 1 });
+      fetchClasses();
+      if (selectedClass?.id === editingClass?.id) {
+        setSelectedClass(null); // Force reload
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleDeleteClass = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this class? This will also remove sections and subjects within it.')) return;
+    try {
+      await academicsApi.removeClass(id);
+      toast.success('Class deleted');
+      if (selectedClass?.id === id) setSelectedClass(null);
       fetchClasses();
     } catch (err: any) {
       toast.error(err.message);
     }
   };
 
-  const handleCreateSection = async (e: React.FormEvent) => {
+  const handleCreateOrUpdateSection = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClass) return;
     try {
-      await academicsApi.createSection(selectedClass.id, sectionForm);
-      toast.success('Section added');
+      if (editingSection) {
+        await academicsApi.updateSection(editingSection.id, sectionForm);
+        toast.success('Section updated');
+      } else {
+        await academicsApi.createSection({ ...sectionForm, classId: selectedClass.id });
+        toast.success('Section added');
+      }
       setSectionModalOpen(false);
+      setEditingSection(null);
       setSectionForm({ name: '' });
       loadClassDetails(selectedClass);
     } catch (err: any) {
@@ -78,14 +108,42 @@ export default function AcademicsManagement() {
     }
   };
 
-  const handleCreateSubject = async (e: React.FormEvent) => {
+  const handleDeleteSection = async (id: string) => {
+    if (!confirm('Delete this section?')) return;
+    try {
+      await academicsApi.removeSection(id);
+      toast.success('Section deleted');
+      loadClassDetails(selectedClass);
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleCreateOrUpdateSubject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClass) return;
     try {
-      await academicsApi.createSubject(selectedClass.id, subjectForm);
-      toast.success('Subject added');
+      if (editingSubject) {
+        await academicsApi.updateSubject(editingSubject.id, subjectForm);
+        toast.success('Subject updated');
+      } else {
+        await academicsApi.createSubject({ ...subjectForm, classId: selectedClass.id });
+        toast.success('Subject added');
+      }
       setSubjectModalOpen(false);
+      setEditingSubject(null);
       setSubjectForm({ name: '', code: '' });
+      loadClassDetails(selectedClass);
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleDeleteSubject = async (id: string) => {
+    if (!confirm('Delete this subject?')) return;
+    try {
+      await academicsApi.removeSubject(id);
+      toast.success('Subject deleted');
       loadClassDetails(selectedClass);
     } catch (err: any) {
       toast.error(err.message);
@@ -100,7 +158,11 @@ export default function AcademicsManagement() {
           <p className="text-sm text-body-secondary mt-1">Manage school classes, sections, and subjects structure.</p>
         </div>
         <button 
-          onClick={() => setClassModalOpen(true)}
+          onClick={() => {
+            setEditingClass(null);
+            setClassForm({ name: '', level: 1 });
+            setClassModalOpen(true);
+          }}
           className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add New Class
@@ -122,22 +184,41 @@ export default function AcademicsManagement() {
             ) : (
               <div className="space-y-1">
                 {classes.map(cls => (
-                  <button
+                  <div
                     key={cls.id}
                     onClick={() => loadClassDetails(cls)}
-                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`w-full group cursor-pointer text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex justify-between items-center ${
                       selectedClass?.id === cls.id 
                         ? 'bg-primary/10 text-primary border border-primary/20' 
                         : 'text-on-surface hover:bg-surface-container'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
+                    <div>
                       <span>{cls.name}</span>
-                      <span className="text-xs text-body-secondary bg-surface-container px-2 py-0.5 rounded-full border border-divider">
+                      <span className="text-xs text-body-secondary bg-surface-container px-2 py-0.5 rounded-full border border-divider ml-2">
                         Lvl {cls.level}
                       </span>
                     </div>
-                  </button>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingClass(cls);
+                          setClassForm({ name: cls.name, level: cls.level });
+                          setClassModalOpen(true);
+                        }}
+                        className="text-body-secondary hover:text-primary transition-colors p-1"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => handleDeleteClass(e, cls.id)}
+                        className="text-body-secondary hover:text-error transition-colors p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -161,7 +242,11 @@ export default function AcademicsManagement() {
                     <h3 className="font-bold text-heading-on-light">Sections for {selectedClass.name}</h3>
                   </div>
                   <button 
-                    onClick={() => setSectionModalOpen(true)}
+                    onClick={() => {
+                      setEditingSection(null);
+                      setSectionForm({ name: '' });
+                      setSectionModalOpen(true);
+                    }}
                     className="text-xs font-semibold text-primary hover:bg-primary/10 px-2.5 py-1.5 rounded transition-colors"
                   >
                     + Add Section
@@ -174,6 +259,24 @@ export default function AcademicsManagement() {
                     sections.map(sec => (
                       <div key={sec.id} className="bg-surface-container-low border border-divider rounded-lg p-3 flex justify-between items-center group">
                         <span className="font-medium text-sm text-on-surface">Section {sec.name}</span>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => {
+                              setEditingSection(sec);
+                              setSectionForm({ name: sec.name });
+                              setSectionModalOpen(true);
+                            }}
+                            className="text-body-secondary hover:text-primary transition-colors p-1"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteSection(sec.id)}
+                            className="text-body-secondary hover:text-error transition-colors p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -188,7 +291,11 @@ export default function AcademicsManagement() {
                     <h3 className="font-bold text-heading-on-light">Subjects for {selectedClass.name}</h3>
                   </div>
                   <button 
-                    onClick={() => setSubjectModalOpen(true)}
+                    onClick={() => {
+                      setEditingSubject(null);
+                      setSubjectForm({ name: '', code: '' });
+                      setSubjectModalOpen(true);
+                    }}
                     className="text-xs font-semibold text-primary hover:bg-primary/10 px-2.5 py-1.5 rounded transition-colors"
                   >
                     + Add Subject
@@ -203,13 +310,34 @@ export default function AcademicsManagement() {
                         <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
                           <th className="py-3 px-4 font-semibold">Subject Name</th>
                           <th className="py-3 px-4 font-semibold">Code</th>
+                          <th className="py-3 px-4 font-semibold text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="text-sm">
                         {subjects.map(sub => (
-                          <tr key={sub.id} className="border-b border-border-light last:border-0 hover:bg-surface-container-low transition-colors">
+                          <tr key={sub.id} className="border-b border-border-light last:border-0 hover:bg-surface-container-low transition-colors group">
                             <td className="py-3 px-4 font-medium text-on-surface">{sub.name}</td>
                             <td className="py-3 px-4 text-body-secondary font-mono text-xs">{sub.code || '-'}</td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button 
+                                  onClick={() => {
+                                    setEditingSubject(sub);
+                                    setSubjectForm({ name: sub.name, code: sub.code || '' });
+                                    setSubjectModalOpen(true);
+                                  }}
+                                  className="text-body-secondary hover:text-primary transition-colors p-1"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteSubject(sub.id)}
+                                  className="text-body-secondary hover:text-error transition-colors p-1"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -227,10 +355,10 @@ export default function AcademicsManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-divider flex justify-between items-center">
-              <h3 className="text-lg font-bold text-heading-on-light">Create New Class</h3>
+              <h3 className="text-lg font-bold text-heading-on-light">{editingClass ? 'Edit Class' : 'Create New Class'}</h3>
               <button onClick={() => setClassModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateClass} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateClass} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Class Name (e.g. Class 6)</label>
                 <input required type="text" value={classForm.name} onChange={e => setClassForm({ ...classForm, name: e.target.value })}
@@ -243,7 +371,7 @@ export default function AcademicsManagement() {
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button type="button" onClick={() => setClassModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">Create Class</button>
+                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">{editingClass ? 'Save Changes' : 'Create Class'}</button>
               </div>
             </form>
           </div>
@@ -255,10 +383,10 @@ export default function AcademicsManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-divider flex justify-between items-center">
-              <h3 className="text-lg font-bold text-heading-on-light">Add Section to {selectedClass?.name}</h3>
+              <h3 className="text-lg font-bold text-heading-on-light">{editingSection ? 'Edit Section' : `Add Section to ${selectedClass?.name}`}</h3>
               <button onClick={() => setSectionModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateSection} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateSection} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Section Name (e.g. A, Blue)</label>
                 <input required type="text" value={sectionForm.name} onChange={e => setSectionForm({ name: e.target.value })}
@@ -266,7 +394,7 @@ export default function AcademicsManagement() {
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button type="button" onClick={() => setSectionModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">Add Section</button>
+                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">{editingSection ? 'Save Changes' : 'Add Section'}</button>
               </div>
             </form>
           </div>
@@ -278,10 +406,10 @@ export default function AcademicsManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-divider flex justify-between items-center">
-              <h3 className="text-lg font-bold text-heading-on-light">Add Subject to {selectedClass?.name}</h3>
+              <h3 className="text-lg font-bold text-heading-on-light">{editingSubject ? 'Edit Subject' : `Add Subject to ${selectedClass?.name}`}</h3>
               <button onClick={() => setSubjectModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateSubject} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateSubject} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Subject Name (e.g. Mathematics)</label>
                 <input required type="text" value={subjectForm.name} onChange={e => setSubjectForm({ ...subjectForm, name: e.target.value })}
@@ -294,7 +422,7 @@ export default function AcademicsManagement() {
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button type="button" onClick={() => setSubjectModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">Add Subject</button>
+                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">{editingSubject ? 'Save Changes' : 'Add Subject'}</button>
               </div>
             </form>
           </div>
