@@ -1,10 +1,13 @@
 import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
+@RequirePermission(ModuleId.REPORTS, 'VIEW')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 

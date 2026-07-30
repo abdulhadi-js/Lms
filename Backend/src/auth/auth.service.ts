@@ -68,6 +68,7 @@ export class AuthService {
         campusId: user.campusId,
         role: user.role?.name,
         roleId: user.roleId,
+        matrix: (user as any).role?.matrix || [],
         firstName: user.firstName,
         lastName: user.lastName,
         profilePicture: user.profilePicture,

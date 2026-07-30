@@ -14,6 +14,7 @@ export enum ModuleId {
   EXAMS = 'EXAMS',
   REPORTS = 'REPORTS',
   MESSAGING = 'MESSAGING',
+  ADMISSIONS = 'ADMISSIONS',
 }
 
 @Entity('module_permissions')

@@ -14,7 +14,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -22,7 +24,7 @@ import { SubmitAssignmentDto } from './dto/submit-assignment.dto';
 import { GradeSubmissionDto } from './dto/grade-submission.dto';
 
 @Controller()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
 export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) {}
 
@@ -41,6 +43,7 @@ export class AssignmentsController {
   }
 
   @Post('assignments')
+  @RequirePermission(ModuleId.EXAMS, 'ADD')
   create(
     @Body() dto: CreateAssignmentDto,
     @Request() req: any,
@@ -56,6 +59,7 @@ export class AssignmentsController {
   }
 
   @Patch('assignments/:id')
+  @RequirePermission(ModuleId.EXAMS, 'EDIT')
   update(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
       throw new ForbiddenException();
@@ -63,6 +67,7 @@ export class AssignmentsController {
   }
 
   @Delete('assignments/:id')
+  @RequirePermission(ModuleId.EXAMS, 'DELETE')
   remove(@Param('id') id: string, @Request() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_ASSIGNMENTS') && !req.user?.isSuperAdmin)
       throw new ForbiddenException();
@@ -91,6 +96,7 @@ export class AssignmentsController {
   }
 
   @Patch('submissions/:id/grade')
+  @RequirePermission(ModuleId.EXAMS, 'EDIT')
   gradeSubmission(
     @Param('id') id: string,
     @Body() dto: GradeSubmissionDto,

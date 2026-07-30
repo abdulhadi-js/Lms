@@ -16,11 +16,12 @@ import { CreateMarkDto } from './dto/create-mark.dto';
 import { UpdateMarkDto } from './dto/update-mark.dto';
 import { GradingCriteriaDto } from './dto/grading-criteria.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
-import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 
 @Controller('marks')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
 export class MarksController {
   constructor(private readonly marksService: MarksService) {}
 
@@ -71,7 +72,7 @@ export class MarksController {
   }
 
   @Post('grading-criteria')
-  @RequirePermissions('MANAGE_ALL')
+  @RequirePermission(ModuleId.EXAMS, 'ADD')
   createGradingCriteria(@Body() dto: GradingCriteriaDto) {
     return this.marksService.createGradingCriteria(dto);
   }

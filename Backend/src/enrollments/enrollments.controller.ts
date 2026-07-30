@@ -12,7 +12,9 @@ import {
   Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
@@ -20,11 +22,12 @@ import { ReviewApplicationDto } from './dto/review-application.dto';
 import { RequestDropDto } from './dto/request-drop.dto';
 
 @Controller('enrollments')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
   @Post()
+  @RequirePermission(ModuleId.ADMISSIONS, 'ADD')
   directEnroll(@Body() dto: CreateEnrollmentDto, @Request() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.directEnroll(dto, req.user);
@@ -47,6 +50,7 @@ export class EnrollmentsController {
   }
 
   @Patch(':id/drop/review')
+  @RequirePermission(ModuleId.ADMISSIONS, 'EDIT')
   reviewDropRequest(
     @Param('id') id: string,
     @Body('approved') approved: boolean,
@@ -57,6 +61,7 @@ export class EnrollmentsController {
   }
 
   @Delete(':id')
+  @RequirePermission(ModuleId.ADMISSIONS, 'DELETE')
   remove(@Param('id') id: string, @Request() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.remove(id, req.user);
@@ -73,14 +78,16 @@ export class ApplicationsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @UseGuards(JwtAuthGuard, MatrixGuard)
+  @RequirePermission(ModuleId.ADMISSIONS, 'VIEW')
   getApplications(@Query('status') status: string, @Request() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_ENROLLMENTS') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.enrollmentsService.getApplications(status, req.user);
   }
 
   @Patch(':id/review')
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @UseGuards(JwtAuthGuard, MatrixGuard)
+  @RequirePermission(ModuleId.ADMISSIONS, 'EDIT')
   reviewApplication(
     @Param('id') id: string,
     @Body() dto: ReviewApplicationDto,

@@ -20,25 +20,26 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
-import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 
 @ApiTags('Users')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @RequirePermissions('MANAGE_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'ADD')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @RequirePermissions('VIEW_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
   @ApiQuery({ name: 'roleId', required: false })
   findAll(@Query('roleId') roleId?: string, @Query('limit') limit?: number, @Query('offset') offset?: number) {
     return this.usersService.findAll(roleId, limit, offset);
@@ -66,25 +67,25 @@ export class UsersController {
   }
 
   @Get(':id')
-  @RequirePermissions('VIEW_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @RequirePermissions('MANAGE_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'EDIT')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @RequirePermissions('MANAGE_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'DELETE')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 
   @Post(':id/reset-password')
-  @RequirePermissions('MANAGE_USERS')
+  @RequirePermission(ModuleId.USERS_STAFF, 'EDIT')
   resetPassword(
     @Param('id') id: string,
     @Body('newPassword') newPassword: string,

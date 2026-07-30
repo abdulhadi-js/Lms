@@ -12,12 +12,14 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { MatrixGuard } from '../auth/guards/matrix.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { ModuleId } from '../roles/entities/module-permission.entity';
 import { FeesService } from './fees.service';
 import { CreateFeeDto, PayFeeDto, RefundFeeDto, UpdateFeeDto } from './dto/fee.dto';
 
 @Controller('fees')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, MatrixGuard)
 export class FeesController {
   constructor(private readonly feesService: FeesService) {}
 
@@ -33,6 +35,7 @@ export class FeesController {
   }
 
   @Post()
+  @RequirePermission(ModuleId.FEES, 'ADD')
   create(@Body() dto: CreateFeeDto, @Req() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_FEES') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.feesService.create(dto, req.user);
@@ -49,18 +52,21 @@ export class FeesController {
   }
 
   @Patch(':id/refund')
+  @RequirePermission(ModuleId.FEES, 'EDIT')
   refund(@Param('id') id: string, @Body() dto: RefundFeeDto, @Req() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_FEES') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.feesService.refund(id, dto, req.user);
   }
 
   @Patch(':id')
+  @RequirePermission(ModuleId.FEES, 'EDIT')
   update(@Param('id') id: string, @Body() updateData: UpdateFeeDto, @Req() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_FEES') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.feesService.update(id, updateData, req.user);
   }
 
   @Delete(':id')
+  @RequirePermission(ModuleId.FEES, 'DELETE')
   remove(@Param('id') id: string, @Req() req: any) {
     if (!req.user?.permissions?.includes('MANAGE_FEES') && !req.user?.isSuperAdmin) throw new ForbiddenException();
     return this.feesService.remove(id, req.user);

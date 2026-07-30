@@ -108,7 +108,7 @@ export class UsersService {
   async findOne(id: string): Promise<SafeUser> {
     const user = await this.userRepo.findOne({ 
       where: { id },
-      relations: { role: true, campus: true }
+      relations: { role: { matrix: true }, campus: true }
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return this.sanitize(user);
@@ -118,7 +118,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return await this.userRepo.findOne({ 
       where: { email },
-      relations: { role: true, campus: true }
+      relations: { role: { matrix: true }, campus: true }
     });
   }
 
