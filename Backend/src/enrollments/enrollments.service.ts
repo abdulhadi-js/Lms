@@ -43,14 +43,14 @@ export class EnrollmentsService {
       try {
         let student = app.email ? await this.usersService.findByEmail(app.email) : null;
         if (!student) {
-          student = await this.usersService.create({
+          const payload: any = {
             firstName: app.studentFirstName,
             lastName: app.studentLastName,
             email: app.email || `${app.studentFirstName.toLowerCase()}.${app.phone}@example.com`,
             phone: app.phone,
             password: 'Password123!',
-            role: 'STUDENT' as any,
-          }) as any;
+          };
+          student = await this.usersService.create(payload) as any;
         }
 
         const enrollment = this.enrollmentRepo.create({
