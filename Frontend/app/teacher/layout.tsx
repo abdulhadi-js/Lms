@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/auth-context';
 import { BASE_URL } from '@/lib/api';
-import NotificationBell from '@/components/NotificationBell';
+import { NotificationBell } from '@/components/NotificationBell';
 import { useEffect, useState } from 'react';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
