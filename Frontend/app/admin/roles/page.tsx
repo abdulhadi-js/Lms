@@ -34,7 +34,7 @@ export default function RolesManagement() {
   const [campuses, setCampuses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', campusId: '', matrix: getEmptyMatrix() });
+  const [formData, setFormData] = useState({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() });
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchData = async () => {
@@ -104,17 +104,55 @@ export default function RolesManagement() {
     }
 
     try {
-      await rolesApi.create({
-        name: formData.name,
-        campusId: formData.campusId || null,
-        matrix: activeMatrix
-      });
-      toast.success('Role created successfully');
+      if (formData.id) {
+        await rolesApi.update(formData.id, {
+          name: formData.name,
+          campusId: formData.campusId || null,
+          matrix: activeMatrix
+        });
+        toast.success('Role updated successfully');
+      } else {
+        await rolesApi.create({
+          name: formData.name,
+          campusId: formData.campusId || null,
+          matrix: activeMatrix
+        });
+        toast.success('Role created successfully');
+      }
       setIsModalOpen(false);
-      setFormData({ name: '', campusId: '', matrix: getEmptyMatrix() });
+      setFormData({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() });
       fetchData();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to create role');
+      toast.error(err.message || 'Failed to save role');
+    }
+  };
+
+  const handleEditClick = (role: any) => {
+    const fullMatrix = getEmptyMatrix();
+    (role.matrix || []).forEach((m: any) => {
+      const idx = fullMatrix.findIndex(f => f.moduleId === m.moduleId);
+      if (idx !== -1) {
+        fullMatrix[idx] = { ...fullMatrix[idx], ...m };
+      }
+    });
+
+    setFormData({
+      id: role.id,
+      name: role.name,
+      campusId: role.campusId || '',
+      matrix: fullMatrix
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this role? This cannot be undone.')) return;
+    try {
+      await rolesApi.remove(id);
+      toast.success('Role deleted successfully');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete role');
     }
   };
 
@@ -126,7 +164,7 @@ export default function RolesManagement() {
           <p className="text-sm text-body-secondary mt-1">Design highly granular RBAC matrices and assign them to specific campuses.</p>
         </div>
         <button 
-          onClick={() => { setFormData({ name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
+          onClick={() => { setFormData({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
           className="bg-primary text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Build Custom Matrix
@@ -211,9 +249,14 @@ export default function RolesManagement() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       {!role.isSystem && (
-                        <button className="text-body-secondary hover:text-primary transition-colors p-1" title="Edit Matrix">
-                          <Settings2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => handleEditClick(role)} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="Edit Role">
+                            <Settings2 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(role.id)} className="text-body-secondary hover:text-error transition-colors p-1.5 rounded-lg hover:bg-error-bg" title="Delete Role">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -229,7 +272,7 @@ export default function RolesManagement() {
           <div className="bg-surface rounded-2xl shadow-xl w-full max-w-4xl my-auto animate-fade-in-up flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-divider flex justify-between items-center sticky top-0 bg-surface z-10 rounded-t-2xl shrink-0">
               <h3 className="text-lg font-bold text-heading-on-light flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary" /> Matrix Builder
+                <ShieldCheck className="w-5 h-5 text-primary" /> {formData.id ? 'Edit Custom Matrix' : 'Build Custom Matrix'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
