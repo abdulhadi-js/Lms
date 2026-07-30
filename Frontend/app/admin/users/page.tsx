@@ -409,14 +409,14 @@ export default function UserManagement() {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">First Name</label>
                   <input 
                     type="text" required
                     value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
                   />
                 </div>
                 <div>
@@ -424,7 +424,7 @@ export default function UserManagement() {
                   <input 
                     type="text" required
                     value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
                   />
                 </div>
               </div>
@@ -434,7 +434,7 @@ export default function UserManagement() {
                 <input 
                   type="email" required
                   value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                  className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
                 />
               </div>
 
@@ -446,7 +446,7 @@ export default function UserManagement() {
                   type="password" 
                   required={!isEditMode}
                   value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                  className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
                 />
               </div>
 
@@ -466,13 +466,13 @@ export default function UserManagement() {
               )}
 
               {!formData.isSuperAdmin && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-on-surface mb-1">Role Assignment</label>
                     <select 
                       required
                       value={formData.roleId} onChange={e => setFormData({...formData, roleId: e.target.value})}
-                      className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     >
                       <option value="" disabled>Select a Role</option>
                       {roles.map(r => (
@@ -486,7 +486,7 @@ export default function UserManagement() {
                       <select 
                         required
                         value={formData.campusId} onChange={e => setFormData({...formData, campusId: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       >
                         <option value="" disabled>Select a Campus</option>
                         {campuses.map(c => (
@@ -499,7 +499,7 @@ export default function UserManagement() {
                       <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
                       <select 
                         value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       >
                         <option value="ACTIVE">Active</option>
                         <option value="PENDING">Pending</option>
@@ -515,7 +515,7 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
                   <select 
                     value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
                     <option value="ACTIVE">Active</option>
                     <option value="PENDING">Pending</option>
@@ -529,13 +529,13 @@ export default function UserManagement() {
                   <h4 className="text-sm font-bold text-primary flex items-center gap-2">
                     <Users className="w-4 h-4" /> Family / Guardian Details
                   </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="col-span-1 sm:col-span-2">
                       <label className="block text-xs font-medium text-on-surface mb-1">Family Code (Link to existing sibling)</label>
                       <input 
                         type="text" placeholder="e.g. FAM-1234"
                         value={formData.familyCode} onChange={e => setFormData({...formData, familyCode: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-surface-container-low" 
+                        className="w-full px-3 py-2 bg-surface-container text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
                     <div>
@@ -543,7 +543,7 @@ export default function UserManagement() {
                       <input 
                         type="text" 
                         value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
                     <div>
@@ -551,7 +551,7 @@ export default function UserManagement() {
                       <input 
                         type="text" 
                         value={formData.fatherPhone} onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
                     <div>
@@ -559,7 +559,7 @@ export default function UserManagement() {
                       <input 
                         type="text" 
                         value={formData.motherName} onChange={e => setFormData({...formData, motherName: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
                     <div>
@@ -567,15 +567,15 @@ export default function UserManagement() {
                       <input 
                         type="text" 
                         value={formData.guardianName} onChange={e => setFormData({...formData, guardianName: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-1 sm:col-span-2">
                       <label className="block text-xs font-medium text-on-surface mb-1">Address</label>
                       <input 
                         type="text" 
                         value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
                       />
                     </div>
                   </div>
@@ -617,7 +617,7 @@ export default function UserManagement() {
                 <input 
                   type="text" value={hrFormData.qualifications} onChange={e => setHrFormData({...hrFormData, qualifications: e.target.value})}
                   placeholder="e.g. MS Computer Science"
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                  className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
                 />
               </div>
               <div>
@@ -625,32 +625,32 @@ export default function UserManagement() {
                 <input 
                   type="text" value={hrFormData.experience} onChange={e => setHrFormData({...hrFormData, experience: e.target.value})}
                   placeholder="e.g. 5 Years Teaching"
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                  className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Appointment Date</label>
                   <input 
                     type="date" value={hrFormData.appointmentDate} onChange={e => setHrFormData({...hrFormData, appointmentDate: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Basic Salary ($)</label>
                   <input 
                     type="number" step="0.01" required value={hrFormData.basicSalary} onChange={e => setHrFormData({...hrFormData, basicSalary: e.target.value})}
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Allowances (JSON)</label>
                   <textarea 
                     value={hrFormData.allowances} onChange={e => setHrFormData({...hrFormData, allowances: e.target.value})}
                     placeholder='{"housing": 500, "medical": 200}'
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
                   />
                 </div>
                 <div>
@@ -658,7 +658,7 @@ export default function UserManagement() {
                   <textarea 
                     value={hrFormData.deductions} onChange={e => setHrFormData({...hrFormData, deductions: e.target.value})}
                     placeholder='{"tax": 100, "eobi": 50}'
-                    className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
+                    className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-mono" 
                   />
                 </div>
               </div>
@@ -667,7 +667,7 @@ export default function UserManagement() {
                 <input 
                   type="text" value={hrFormData.bankAccountDetails} onChange={e => setHrFormData({...hrFormData, bankAccountDetails: e.target.value})}
                   placeholder="Bank Name, IBAN..."
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                  className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
                 />
               </div>
 
