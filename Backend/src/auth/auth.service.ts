@@ -17,12 +17,12 @@ export class AuthService {
 
   private generateTokens(payload: { sub: string; email: string; isSuperAdmin: boolean; campusId: string | null; permissions: string[] }) {
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET')!,
+      secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing',
       expiresIn: 900, // 15 minutes in seconds (JWT_EXPIRES_IN=15m)
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET')!,
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET') || 'default_jwt_refresh_secret_for_testing',
       expiresIn: 604800, // 7 days in seconds (JWT_REFRESH_EXPIRES_IN=7d)
     });
 
@@ -108,7 +108,7 @@ export class AuthService {
         // Generate a simple reset token (in production use a signed JWT with short expiry)
         const resetToken = this.jwtService.sign(
           { sub: user.id, email: user.email, type: 'password-reset' },
-          { secret: this.configService.get<string>('JWT_SECRET'), expiresIn: '15m' },
+          { secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing', expiresIn: '15m' },
         );
         await this.mailService.sendPasswordReset(
           user.email,
@@ -126,7 +126,7 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
     try {
       const payload = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.get<string>('JWT_SECRET') || 'default_jwt_secret_for_testing',
       });
 
       if (payload.type !== 'password-reset') {
