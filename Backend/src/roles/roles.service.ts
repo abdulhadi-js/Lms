@@ -10,25 +10,25 @@ export class RolesService {
     private readonly repo: Repository<Role>,
   ) {}
 
-  async create(data: any, currentUser: any): Promise<Role> {
-    if (!currentUser.isSuperAdmin) {
+  async create(data: any, currentUser?: any): Promise<Role> {
+    if (currentUser && !currentUser.isSuperAdmin) {
       data.campusId = currentUser.campusId;
     }
     const role = this.repo.create(data as Role);
     return this.repo.save(role);
   }
 
-  async findAll(currentUser: any): Promise<Role[]> {
+  async findAll(currentUser?: any): Promise<Role[]> {
     const qb = this.repo.createQueryBuilder('role').leftJoinAndSelect('role.matrix', 'matrix');
-    if (!currentUser.isSuperAdmin) {
+    if (currentUser && !currentUser.isSuperAdmin) {
       qb.where('role.campusId = :campusId OR role.campusId IS NULL', { campusId: currentUser.campusId });
     }
     return qb.getMany();
   }
 
-  async findOne(id: string, currentUser: any): Promise<Role> {
+  async findOne(id: string, currentUser?: any): Promise<Role> {
     const qb = this.repo.createQueryBuilder('role').leftJoinAndSelect('role.matrix', 'matrix').where('role.id = :id', { id });
-    if (!currentUser.isSuperAdmin) {
+    if (currentUser && !currentUser.isSuperAdmin) {
       qb.andWhere('(role.campusId = :campusId OR role.campusId IS NULL)', { campusId: currentUser.campusId });
     }
     const role = await qb.getOne();
@@ -36,7 +36,7 @@ export class RolesService {
     return role;
   }
 
-  async update(id: string, data: any, currentUser: any): Promise<Role> {
+  async update(id: string, data: any, currentUser?: any): Promise<Role> {
     const role = await this.findOne(id, currentUser);
     
     // If matrix is being updated, TypeORM cascade can sometimes append rather than replace
@@ -50,7 +50,7 @@ export class RolesService {
     return this.repo.save(role);
   }
 
-  async remove(id: string, currentUser: any): Promise<void> {
+  async remove(id: string, currentUser?: any): Promise<void> {
     const role = await this.findOne(id, currentUser);
     await this.repo.remove(role);
   }

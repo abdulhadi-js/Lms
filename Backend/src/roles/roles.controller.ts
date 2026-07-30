@@ -13,7 +13,6 @@ import { RolesService } from './roles.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MatrixGuard } from '../auth/guards/matrix.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
-import { Request } from '@nestjs/common';
 import { ModuleId } from './entities/module-permission.entity';
 
 @Controller('roles')
