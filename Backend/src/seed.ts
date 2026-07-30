@@ -49,7 +49,8 @@ async function seed() {
     // 1. Principal / Campus Admin
     const principalRole = await rolesService.create({
       name: 'Principal',
-      campusId: campus.id,
+      campusId: null,
+      isSystem: true,
       matrix: [
         {
           moduleId: ModuleId.USERS_STAFF,
@@ -102,7 +103,8 @@ async function seed() {
     // 2. Teacher
     const teacherRole = await rolesService.create({
       name: 'Teacher',
-      campusId: campus.id,
+      campusId: null,
+      isSystem: true,
       matrix: [
         {
           moduleId: ModuleId.ACADEMICS,
@@ -141,7 +143,8 @@ async function seed() {
     // 3. Student
     const studentRole = await rolesService.create({
       name: 'Student',
-      campusId: campus.id,
+      campusId: null,
+      isSystem: true,
       matrix: [
         {
           moduleId: ModuleId.ACADEMICS,

@@ -50,8 +50,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
   }
 }
 
+import { DataSource } from 'typeorm';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Enforce system roles alignment with V2 PRD on startup
+  const dataSource = app.get(DataSource);
+  await dataSource.query(
+    `UPDATE roles SET "isSystem" = true, "campusId" = null WHERE name IN ('Principal', 'Teacher', 'Student')`
+  ).catch(e => console.log('Notice: Could not enforce system roles:', e.message));
+
   const configService = app.get(ConfigService);
 
   // Serve static uploads
