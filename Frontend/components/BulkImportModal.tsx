@@ -198,7 +198,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
 
           {results && (
             <div className="space-y-6">
-              <div className={\`p-6 rounded-xl flex flex-col items-center justify-center text-center \${results.errors && results.errors.length > 0 ? 'bg-error/10 border border-error/20' : 'bg-success/10 border border-success/20'}\`}>
+              <div className={`p-6 rounded-xl flex flex-col items-center justify-center text-center ${results.errors && results.errors.length > 0 ? 'bg-error/10 border border-error/20' : 'bg-success/10 border border-success/20'}`}>
                 {results.errors && results.errors.length > 0 ? (
                   <AlertCircle className="w-12 h-12 text-error mb-3" />
                 ) : (
@@ -207,7 +207,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
                 <h3 className="text-xl font-bold text-on-surface mb-1">
                   {results.errors && results.errors.length > 0 && results.count === 0 
                     ? 'Import Failed' 
-                    : \`Imported \${results.count} users\`}
+                    : `Imported ${results.count} users`}
                 </h3>
                 {results.errors && results.errors.length > 0 && (
                   <p className="text-error font-medium text-sm mt-2">Encountered {results.errors.length} errors during import.</p>
