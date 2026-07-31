@@ -90,6 +90,37 @@ export class AuthService {
     };
   }
 
+  async testBypassLogin(email: string = 'dev.alhadi@gmail.com') {
+    const user = await this.usersService.findByEmail(email);
+    if (!user || user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Invalid testing credentials or inactive account');
+    }
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      isSuperAdmin: user.isSuperAdmin,
+      campusId: user.campusId,
+      roleId: user.roleId || null,
+    };
+    const { accessToken, refreshToken } = this.generateTokens(payload);
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        isSuperAdmin: user.isSuperAdmin,
+        campusId: user.campusId,
+        role: user.role?.name,
+        roleId: user.roleId,
+        matrix: (user as any).role?.matrix || [],
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profilePicture: user.profilePicture,
+      },
+    };
+  }
+
   async refresh(userId: string) {
     const user = await this.usersService.findOne(userId);
     if (!user || user.status !== 'ACTIVE') {

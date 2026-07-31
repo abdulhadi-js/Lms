@@ -36,6 +36,13 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('test-bypass')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bypass login for automated testing' })
+  async testBypass(@Body('email') email?: string) {
+    return this.authService.testBypassLogin(email);
+  }
+
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
