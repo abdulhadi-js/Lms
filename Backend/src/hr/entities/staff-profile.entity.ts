@@ -26,10 +26,10 @@ export class StaffProfile {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   basicSalary: number;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   allowances: any;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   deductions: any;
 
   @Column({ nullable: true })

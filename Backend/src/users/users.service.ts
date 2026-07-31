@@ -210,8 +210,10 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUser> {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ where: { id }, relations: { role: true } });
     if (!user) throw new NotFoundException(`User #${id} not found`);
+    
+    const oldRoleId = user.roleId;
 
     const { password, ...rest } = updateUserDto as any;
     Object.assign(user, rest);
@@ -221,6 +223,34 @@ export class UsersService {
     }
 
     const saved = await this.userRepo.save(user);
+
+    // Send email notification if role changed
+    if (updateUserDto.roleId && updateUserDto.roleId !== oldRoleId) {
+      try {
+        const newRole = await this.roleRepo.findOne({ where: { id: updateUserDto.roleId } });
+        if (newRole && this.emailService) {
+          const roleName = newRole.name.charAt(0).toUpperCase() + newRole.name.slice(1).toLowerCase();
+          await this.emailService.sendMail({
+            to: saved.email,
+            subject: `EduCore LMS: Your Role Has Been Updated`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <h2 style="color: #2F5233; margin-top: 0;">Role Update Notification</h2>
+                <p>Dear ${saved.firstName},</p>
+                <p>Your account role in the EduCore LMS has been successfully updated to: <strong style="color: #1a56db;">${roleName}</strong>.</p>
+                <p>Your new permissions will take effect the next time you log in.</p>
+                <p>If you have any questions or believe this was a mistake, please contact your administrator.</p>
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+                <p style="color: #6b7280; font-size: 12px; margin-bottom: 0;">This is an automated message from EduCore LMS.</p>
+              </div>
+            `,
+          });
+        }
+      } catch (emailErr) {
+        console.error('Failed to send role update email:', emailErr);
+      }
+    }
+
     return this.sanitize(saved);
   }
 
