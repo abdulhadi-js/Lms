@@ -1,6 +1,6 @@
 # 🖥️ Frontend Architecture
 
-> **Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · Axios · Playwright (E2E)
+> **Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · React Query · Lucide Icons · Axios · Playwright (E2E)
 
 Related: [[Home]] | [[API Endpoints]] | [[Authentication Flow]] | [[Pages - Admin Portal]] | [[Pages - Teacher Portal]] | [[Pages - Student Portal]]
 

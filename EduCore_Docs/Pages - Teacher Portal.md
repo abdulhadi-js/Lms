@@ -12,26 +12,26 @@ Related: [[Home]] | [[Frontend Architecture]] | [[Role-Based Access Control]]
 **File:** `Frontend/app/teacher/page.tsx`
 
 The main instructor dashboard showing:
-- **My courses** — list of assigned courses with student counts
+- **My subjects** — list of assigned subjects based on timetable with student counts
 - **Upcoming assignments** — assignments with approaching due dates
 - **Recent submissions** — latest student submissions awaiting grading
 - **Gradebook quick view** — recent grade entries
-- **At-risk students widget** — students in your courses below threshold
+- **At-risk students widget** — students in your subjects below threshold
 
 ---
 
-## `/teacher/courses` — My Courses
+## `/teacher/subjects` — My Subjects
 
-**File:** `Frontend/app/teacher/courses/`
+**File:** `Frontend/app/teacher/subjects/`
 
 Features:
-- List all courses assigned to the current instructor
-- **View course details** — description, credits, enrolled students
-- **Manage modules** — add, edit, reorder modules within a course
+- List all subjects assigned to the current instructor (via timetable)
+- **View subject details** — description, credits, enrolled students
+- **Manage modules** — add, edit, reorder modules within a subject
 - **Manage lessons** — add video/PDF/link/text lessons inside modules
-- **Edit course info** — update title and description (cannot change code)
+- **Edit subject info** — update title and description (cannot change code)
 
-API calls: `coursesApi.list()`, `coursesApi.get()`, `coursesApi.getModules()`, `coursesApi.createModule()`, `coursesApi.updateModule()`, `coursesApi.removeModule()`
+API calls: `timetableApi.getTeacherTimetable()`, `academicsApi.getSubject()`, `academicsApi.getModules()`, `academicsApi.createModule()`, `academicsApi.updateModule()`, `academicsApi.removeModule()`
 
 ---
 
@@ -40,7 +40,7 @@ API calls: `coursesApi.list()`, `coursesApi.get()`, `coursesApi.getModules()`, `
 **File:** `Frontend/app/teacher/assignments/`
 
 Features:
-- List all assignments for instructor's courses
+- List all assignments for instructor's subjects
 - **Create assignment** — set title, description, max marks, due date, weight percent, rubric
 - **Edit assignment** — update any field
 - **Delete assignment**
@@ -56,12 +56,12 @@ API calls: `assignmentsApi.list()`, `assignmentsApi.create()`, `assignmentsApi.u
 **File:** `Frontend/app/teacher/gradebook/`
 
 Features:
-- Select a course → view the full student gradebook
+- Select a subject → view the full student gradebook
 - **Enter marks** — enter scores for midterms, finals, quizzes, projects
 - **Edit marks** — update previously entered marks
 - Calculates and displays average and grade letters
 
-API calls: `marksApi.getGradebook(courseId)`, `marksApi.enterMark()`, `marksApi.updateMark()`
+API calls: `marksApi.getGradebook(subjectId)`, `marksApi.enterMark()`, `marksApi.updateMark()`
 
 ---
 
@@ -70,15 +70,15 @@ API calls: `marksApi.getGradebook(courseId)`, `marksApi.enterMark()`, `marksApi.
 **File:** `Frontend/app/teacher/attendance/`
 
 Features:
-- Select course and date → mark each enrolled student as `PRESENT`, `ABSENT`, `LATE`, or `EXCUSED`
-- View attendance history for a course
+- Select subject and date → mark each enrolled student as `PRESENT`, `ABSENT`, `LATE`, or `EXCUSED`
+- View attendance history for a subject
 - Attendance summary stats per student
 
 API calls: `attendanceApi.get()`, `attendanceApi.mark()`, `attendanceApi.getSummary()`
 
 ---
 
-## `/teacher/analytics` — Course Analytics
+## `/teacher/analytics` — Subject Analytics
 
 **File:** `Frontend/app/teacher/analytics/`
 
@@ -88,7 +88,7 @@ Features:
 - At-risk student list (below configurable threshold)
 - Submission rates per assignment
 
-API calls: `reportsApi.performance(courseId)`, `reportsApi.attendance(courseId)`, `reportsApi.atRisk(threshold)`
+API calls: `reportsApi.performance(subjectId)`, `reportsApi.attendance(subjectId)`, `reportsApi.atRisk(threshold)`
 
 ---
 
@@ -99,7 +99,7 @@ API calls: `reportsApi.performance(courseId)`, `reportsApi.attendance(courseId)`
 Features:
 - View conversations with students
 - Send and receive messages in real-time (WebSocket + REST fallback)
-- Course group chats
+- Subject group chats
 
 API calls: `chatApi.getConversations()`, `chatApi.getMessages()`, `chatApi.sendMessage()`
 
@@ -119,4 +119,4 @@ Features:
 
 - Sidebar with navigation links
 - Shows notification count
-- Shows course assignment summary in header
+- Shows subject assignment summary in header

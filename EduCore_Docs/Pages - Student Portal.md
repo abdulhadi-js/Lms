@@ -12,7 +12,7 @@ Related: [[Home]] | [[Frontend Architecture]] | [[Role-Based Access Control]]
 **File:** `Frontend/app/student/page.tsx`
 
 The student's home showing:
-- **My courses** — enrolled courses with progress
+- **My subjects** — enrolled subjects with progress
 - **Upcoming assignments** — deadlines sorted by due date
 - **Recent grades** — last few marks entered
 - **Fee status** — any pending or overdue invoices
@@ -20,16 +20,16 @@ The student's home showing:
 
 ---
 
-## `/student/courses` — My Courses
+## `/student/subjects` — My Subjects
 
-**File:** `Frontend/app/student/courses/`
+**File:** `Frontend/app/student/subjects/`
 
 Features:
-- List all courses the student is enrolled in
-- Click a course to view its full module/lesson tree
+- List all subjects the student is enrolled in
+- Click a subject to view its full module/lesson tree
 - Browse video, PDF, and link content inside lessons
 
-API calls: `coursesApi.list()`, `coursesApi.get(id)`, `coursesApi.getModules(courseId)`
+API calls: `enrollmentsApi.getMySubjects()`, `academicsApi.getSubject(id)`, `academicsApi.getModules(subjectId)`
 
 ---
 
@@ -38,7 +38,7 @@ API calls: `coursesApi.list()`, `coursesApi.get(id)`, `coursesApi.getModules(cou
 **File:** `Frontend/app/student/assignments/`
 
 Features:
-- List all assignments from enrolled courses
+- List all assignments from enrolled subjects
 - See due date, max marks, and submission status for each
 - **Submit assignment** — text submission or file upload (PDF, DOCX)
 - Upload progress bar for file submissions
@@ -56,7 +56,7 @@ API calls: `assignmentsApi.list()`, `assignmentsApi.get()`, `assignmentsApi.subm
 
 Features:
 - View all marks entered for the current student
-- Organized by course
+- Organized by subject
 - Shows score, max score, percentage, and letter grade
 
 API calls: `marksApi.getStudentMarks(studentId)` → `GET /marks?studentId=`
@@ -69,7 +69,7 @@ API calls: `marksApi.getStudentMarks(studentId)` → `GET /marks?studentId=`
 
 Features:
 - Official-style academic transcript view
-- Lists all courses with final grades, GPA, and credit hours
+- Lists all subjects with final grades, GPA, and credit hours
 - **Download PDF** button — triggers server-side PDF generation
 
 > **Note:** The page h1 reads `"Unofficial Transcript"` (Playwright test updated to match — QA fix H-02)
@@ -96,11 +96,11 @@ API calls: `feesApi.list()`
 **File:** `Frontend/app/student/attendance/`
 
 Features:
-- View own attendance records per course
+- View own attendance records per subject
 - Attendance summary: total classes, present count, attendance percentage
 - Filter by date range
 
-API calls: `attendanceApi.get(courseId, studentId)`, `attendanceApi.getSummary(courseId, studentId)`
+API calls: `attendanceApi.get(subjectId, studentId)`, `attendanceApi.getSummary(subjectId, studentId)`
 
 ---
 
@@ -110,7 +110,7 @@ API calls: `attendanceApi.get(courseId, studentId)`, `attendanceApi.getSummary(c
 
 Features:
 - Message instructors directly
-- Participate in course group chats
+- Participate in subject group chats
 
 API calls: `chatApi.getConversations()`, `chatApi.getMessages()`, `chatApi.sendMessage()`
 
@@ -128,6 +128,6 @@ Features:
 
 ## Student Layout (`app/student/layout.tsx`)
 
-- Mobile-friendly bottom navigation bar (Courses, Assignments, Grades, Profile)
+- Mobile-friendly bottom navigation bar (Subjects, Assignments, Grades, Profile)
 - Notification bell in header
 - Logged-in student's name and avatar

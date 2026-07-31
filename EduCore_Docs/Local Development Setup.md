@@ -66,6 +66,7 @@ cd Frontend
 npm install
 
 # Create environment file
+# Note: Local setup requires NEXT_PUBLIC_API_URL to point to the backend
 echo "NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1" > .env.local
 
 # Start development server

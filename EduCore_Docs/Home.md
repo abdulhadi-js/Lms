@@ -56,7 +56,7 @@ EduCore LMS
 ├── Backend (NestJS)
 │   ├── AuthModule
 │   ├── UsersModule
-│   ├── CoursesModule
+│   ├── AcademicsModule
 │   ├── EnrollmentsModule
 │   ├── AssignmentsModule
 │   ├── MarksModule

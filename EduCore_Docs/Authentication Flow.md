@@ -121,7 +121,8 @@ AuthService.resetPassword(token, newPassword)
 |---|---|---|
 | `JwtAuthGuard` | `jwt` strategy (JWT_SECRET) | All protected routes |
 | `JwtRefreshGuard` | `jwt-refresh` strategy (JWT_REFRESH_SECRET) | Only `POST /auth/refresh` |
-| `RolesGuard` | Reads `@Roles()` decorator | Routes with specific role restrictions |
+| `RolesGuard` | Reads `@Roles()` decorator | Routes with specific role restrictions (legacy) |
+| `PermissionsGuard` | Reads `@Permissions()` decorator | Routes leveraging the new Matrix-based granular RBAC |
 
 ---
 

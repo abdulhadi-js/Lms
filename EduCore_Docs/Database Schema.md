@@ -9,24 +9,26 @@ Related: [[Home]] | [[Backend Architecture]] | [[API Endpoints]]
 ## Entity Relationship Overview
 
 ```
-users ──────────┬── courses (teacherId)
-                ├── enrollments (studentId)
+users ──────────┬── enrollments (studentId)
                 ├── fees (studentId)
-                └── submissions (studentId)
+                ├── submissions (studentId)
+                └── timetable (teacherId)
 
-courses ─────────┬── modules
-                 │     └── lessons
-                 ├── enrollments (courseId)
-                 ├── assignments (courseId)
-                 └── fees (courseId)
+academic_classes ── sections ── enrollments (sectionId)
+                  └── subjects
+
+sections ────────┬── timetable (sectionId)
+                 └── attendance (sectionId, studentId, date)
+
+subjects ────────┬── timetable (subjectId)
+                 ├── assignments (subjectId, sectionId)
+                 └── marks (subjectId, sectionId, studentId)
 
 assignments ─────└── submissions (assignmentId)
 
-marks ────────────── (standalone: studentId, courseId, subject)
+fees ────────────── (standalone: studentId, sectionId)
 notifications ─────── (standalone: audienceRole)
-timetable ─────────── (standalone: courseId, day, time)
-attendance ────────── (courseId, studentId, date)
-chat_messages ─────── (senderId, receiverId / courseId)
+chat_messages ─────── (senderId, receiverId / sectionId)
 ```
 
 ---
@@ -52,50 +54,37 @@ chat_messages ─────── (senderId, receiverId / courseId)
 
 ---
 
-## Table: `courses`
+## Table: `academic_classes`
 
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
 | `id` | `uuid` | PK | |
-| `code` | `varchar` | UNIQUE | e.g., `CS101` |
-| `title` | `varchar` | NOT NULL | |
+| `name` | `varchar` | UNIQUE | e.g., `Grade 10` |
 | `description` | `varchar` | NULLABLE | |
-| `teacherId` | `uuid` | FK → `users.id` | Nullable — course can be unassigned |
-| `credits` | `int` | DEFAULT `3` | |
-| `schedule` | `simple-json` | NULLABLE | Array of `{ day, time }` slots |
-| `room` | `varchar` | NULLABLE | |
 | `status` | `varchar` | DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED` |
 
-**Relations:** `teacher` (ManyToOne → User), `modules` (OneToMany → CourseModule)
+---
+
+## Table: `subjects`
+
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `id` | `uuid` | PK | |
+| `classId` | `uuid` | FK → `academic_classes.id` | |
+| `name` | `varchar` | NOT NULL | e.g., `Mathematics` |
+| `code` | `varchar` | UNIQUE | e.g., `MATH10` |
+| `credits` | `int` | DEFAULT `3` | |
 
 ---
 
-## Table: `modules`
+## Table: `sections`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `uuid` PK | |
-| `courseId` | `uuid` FK | → courses.id |
-| `title` | `varchar` | |
-| `description` | `varchar` | NULLABLE |
-| `order` | `int` | Sort order |
-
-**Relations:** `course` (ManyToOne), `lessons` (OneToMany → Lesson)
-
----
-
-## Table: `lessons`
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `uuid` PK | |
-| `moduleId` | `uuid` FK | → modules.id |
-| `title` | `varchar` | |
-| `description` | `varchar` | NULLABLE |
-| `contentType` | `varchar` | `VIDEO`, `PDF`, `LINK`, `TEXT` |
-| `contentUrl` | `varchar` | NULLABLE |
-| `order` | `int` | |
-| `duration` | `int` | Minutes |
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `id` | `uuid` | PK | |
+| `classId` | `uuid` | FK → `academic_classes.id` | |
+| `name` | `varchar` | NOT NULL | e.g., `Section A` |
+| `capacity` | `int` | DEFAULT `30` | |
 
 ---
 
@@ -105,11 +94,25 @@ chat_messages ─────── (senderId, receiverId / courseId)
 |---|---|---|---|
 | `id` | `uuid` | PK | |
 | `studentId` | `uuid` | FK → users.id, INDEX | |
-| `courseId` | `uuid` | FK → courses.id, INDEX | |
+| `sectionId` | `uuid` | FK → sections.id, INDEX | |
 | `status` | `varchar` | DEFAULT `ENROLLED` | `ENROLLED`, `ACTIVE`, `DROPPED`, `COMPLETED` |
 | `dropReason` | `varchar` | NULLABLE | |
 | `droppedAt` | `timestamp` | NULLABLE | |
 | `createdAt` | `timestamp` | Auto | |
+
+---
+
+## Table: `timetable`
+
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `id` | `uuid` | PK | |
+| `sectionId` | `uuid` | FK → sections.id | |
+| `subjectId` | `uuid` | FK → subjects.id | |
+| `teacherId` | `uuid` | FK → users.id | Teacher assignment is handled here |
+| `room` | `varchar` | NOT NULL | Room booking |
+| `day` | `varchar` | NOT NULL | e.g., `Monday` |
+| `time` | `varchar` | NOT NULL | e.g., `10:00 AM - 11:30 AM` |
 
 ---
 
@@ -118,7 +121,8 @@ chat_messages ─────── (senderId, receiverId / courseId)
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` PK | |
-| `courseId` | `uuid` FK | → courses.id |
+| `subjectId` | `uuid` FK | → subjects.id |
+| `sectionId` | `uuid` FK | → sections.id |
 | `title` | `varchar` | |
 | `description` | `text` | NULLABLE |
 | `rubric` | `text` | NULLABLE — grading criteria |
@@ -149,8 +153,9 @@ chat_messages ─────── (senderId, receiverId / courseId)
 |---|---|---|
 | `id` | `uuid` PK | |
 | `studentId` | `uuid` FK | |
-| `courseId` | `uuid` FK | |
-| `subject` | `varchar` | e.g., `Midterm`, `Assignment 1` |
+| `sectionId` | `uuid` FK | |
+| `subjectId` | `uuid` FK | |
+| `assessmentName` | `varchar` | e.g., `Midterm`, `Assignment 1` |
 | `score` | `float` | |
 | `maxScore` | `float` | |
 | `gradedBy` | `uuid` | Teacher who entered the mark |
@@ -164,7 +169,7 @@ chat_messages ─────── (senderId, receiverId / courseId)
 |---|---|---|
 | `id` | `uuid` PK | |
 | `studentId` | `uuid` FK | |
-| `courseId` | `uuid` FK | |
+| `sectionId` | `uuid` FK | |
 | `amount` | `decimal` | Total invoice amount |
 | `description` | `varchar` | e.g., `"Spring 2026 Tuition"` |
 | `dueDate` | `timestamp` | |
@@ -184,7 +189,7 @@ chat_messages ─────── (senderId, receiverId / courseId)
 | `title` | `varchar` | Notification headline |
 | `body` | `text` | Full message |
 | `audienceRole` | `varchar` | NULLABLE — `STUDENT`, `INSTRUCTOR`, `ADMIN` or NULL (all roles) |
-| `courseId` | `uuid` | NULLABLE |
+| `sectionId` | `uuid` | NULLABLE |
 | `senderId` | `uuid` | Who created the notification |
 | `isRead` | `boolean` | DEFAULT `false` — added in QA fix H-01 |
 | `createdAt` | `timestamp` | Auto |
@@ -196,7 +201,7 @@ chat_messages ─────── (senderId, receiverId / courseId)
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` PK | |
-| `courseId` | `uuid` FK | |
+| `sectionId` | `uuid` FK | |
 | `studentId` | `uuid` FK | |
 | `date` | `date` | Class date |
 | `status` | `varchar` | `PRESENT`, `ABSENT`, `LATE`, `EXCUSED` |
@@ -223,11 +228,8 @@ PENDING | PAID | OVERDUE | PARTIAL | REFUNDED
 // Attendance status
 PRESENT | ABSENT | LATE | EXCUSED
 
-// Course status
+// Academic status
 ACTIVE | ARCHIVED
-
-// Content type (lessons)
-VIDEO | PDF | LINK | TEXT
 
 // Schedule Days
 Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday

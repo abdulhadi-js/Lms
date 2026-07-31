@@ -9,10 +9,10 @@ Related: [[Home]] | [[Environment Variables]] | [[Backend Architecture]] | [[Fro
 ```
 Internet
    │
-   ├── Vercel (Frontend — Next.js)
-   │     └── NEXT_PUBLIC_API_URL → Render URL
+   ├── Vercel (Frontend — Next.js) — lms-theta-sooty.vercel.app
+   │     └── NEXT_PUBLIC_API_URL → https://educore-backend-sde8.onrender.com/api/v1
    │
-   └── Render (Backend — NestJS)
+   └── Render (Backend — NestJS) — educore-backend-sde8.onrender.com
          └── DATABASE_URL → Neon PostgreSQL
 ```
 
@@ -33,7 +33,7 @@ Vercel automatically detects Next.js. No special framework settings needed.
 ### Required Environment Variables
 Set in **Vercel → Project → Settings → Environment Variables**:
 ```
-NEXT_PUBLIC_API_URL = https://your-render-app.onrender.com/api/v1
+NEXT_PUBLIC_API_URL = https://educore-backend-sde8.onrender.com/api/v1
 ```
 
 ### Important Config Note
@@ -43,7 +43,7 @@ NEXT_PUBLIC_API_URL = https://your-render-app.onrender.com/api/v1
 1. Push to `main` branch on GitHub
 2. Vercel picks up the commit automatically and rebuilds
 3. Check the deployment log in Vercel dashboard
-4. Visit your Vercel URL to verify
+4. Visit your Vercel URL (`https://lms-theta-sooty.vercel.app`) to verify
 
 ---
 
@@ -82,7 +82,7 @@ Response: `{ "status": "ok", "timestamp": "2026-07-28T..." }`
 1. Push to `main` on GitHub
 2. Render auto-deploys from GitHub
 3. Watch the deployment log in Render dashboard
-4. If healthy, the service shows "Live" status
+4. If healthy, the service shows "Live" status at `https://educore-backend-sde8.onrender.com`
 
 ---
 

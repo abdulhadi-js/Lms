@@ -43,54 +43,31 @@ it('should return status ok with a timestamp', () => {
 
 ---
 
-## Frontend: E2E Tests (Playwright)
+## Frontend: E2E Tests (TestSprite)
 
-### Setup
+We now use **TestSprite** for E2E Automated UI Testing (which runs Playwright in the background). 
 
-```bash
-cd Frontend
+### Setup & Execution
 
-# Install Playwright browsers (first time only)
-npx playwright install
+We use the TestSprite MCP tool for testing workflows. You do not need to run Playwright manually.
 
-# Run all E2E tests (requires backend + frontend to be running)
-npx playwright test
+- **Generate Test Plans**: Use the TestSprite MCP tool to generate structured test plans for the frontend.
+- **Execute Tests**: The tool executes tests automatically in the background using Playwright.
+- **Test Reports**: Test results and dashboards are accessible via the tool (e.g. `testsprite_open_test_result_dashboard`).
 
-# Run in headed mode (see the browser)
-npx playwright test --headed
+### E2E Test Cases Overview
 
-# Run a specific spec file
-npx playwright test e2e/student.spec.ts
-```
-
-### Test Files
-
-| File | Description |
-|---|---|
-| `e2e/student.spec.ts` | Tests for the Student Portal |
-
-### Student E2E Test Cases
-
-1. **Login as student** — fills email/password, clicks submit, expects redirect to `/student`
-2. **View courses** — navigates to `/student/courses`, checks for `h1: "My Courses"`
-3. **View assignments** — navigates to `/student/assignments`, checks for `h1: "Assignments"`
-4. **View transcript** — navigates to `/student/transcript`, checks for `h1: "Unofficial Transcript"` *(fixed in QA H-02)*, verifies PDF download button
-
-### Configuration (`playwright.config.ts`)
-
-```typescript
-{
-  testDir: './e2e',
-  baseURL: 'http://localhost:3000',
-  use: { trace: 'on-first-retry' }
-}
-```
+Typical test scenarios include:
+1. **Login as student** — verifies authentication flows and redirects.
+2. **View courses** — checks for course listing page and headers.
+3. **View assignments** — ensures assignment tables render correctly.
+4. **View transcript** — verifies the Unofficial Transcript and PDF download functionality.
 
 ### Known Gotchas
 
-- E2E tests require **both** the backend and frontend to be running
-- Tests use the **seeded student account**: `student@educore.com` / `Student@123!`
-- Playwright saves test artifacts (`test-results/`, `playwright-report/`) — these are gitignored
+- E2E tests require **both** the backend and frontend to be running.
+- Tests use the **seeded accounts** (e.g., `student@educore.com` / `Student@123!`).
+- Test artifacts and reports are managed by TestSprite, but any local Playwright artifacts (`test-results/`, `playwright-report/`) remain gitignored.
 
 ---
 

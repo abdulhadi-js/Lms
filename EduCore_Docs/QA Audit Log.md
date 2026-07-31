@@ -54,7 +54,7 @@
 ### H-02 — Playwright test always failing (wrong h1 assertion)
 - **File:** `Frontend/e2e/student.spec.ts` L29
 - **Root cause:** Test expected `h1` to contain `"Grades & Transcripts"` but the actual page renders `"Unofficial Transcript"`.
-- **Fix:** Updated assertion to `toContainText('Unofficial Transcript')`.
+- **Fix:** Updated assertion to `toContainText('Unofficial Transcript')`. *Note: We now use TestSprite for E2E Automated UI Testing (which runs Playwright in the background).*
 - **Commit:** `fix(H-02)` on 2026-07-28
 
 ### H-03 — TypeORM `synchronize` could run in staging

@@ -1,9 +1,9 @@
 [
   {
     "id": "TC001",
-    "title": "Admin reaches the admin dashboard after login",
-    "description": "This verifies that an admin can sign in and land on the admin dashboard successfully.",
-    "category": "Authentication",
+    "title": "Sign in and reach the admin dashboard",
+    "description": "This verifies that valid admin credentials sign the user in and route them to the correct dashboard.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
@@ -11,11 +11,7 @@
       },
       {
         "type": "action",
-        "description": "Select the admin role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -23,61 +19,37 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "assertion",
         "description": "Verify the admin dashboard is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify admin-specific navigation is available"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC002",
-    "title": "Student reaches the student dashboard after login",
-    "description": "This verifies that a student can sign in and land on the student dashboard successfully.",
-    "category": "Authentication",
+    "title": "Redirect unauthenticated users away from protected admin pages",
+    "description": "This verifies that opening a protected admin page without a session sends the user back to sign in.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /login"
-      },
-      {
-        "type": "action",
-        "description": "Select the student role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
-      },
-      {
-        "type": "action",
-        "description": "Submit the form"
+        "description": "Navigate to /admin"
       },
       {
         "type": "assertion",
-        "description": "Verify the student dashboard is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify student-specific navigation is available"
+        "description": "Verify the login page is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC003",
-    "title": "Teacher signs in and reaches the dashboard",
-    "description": "This verifies that a teacher can log in and land on the correct dashboard for their role.",
-    "category": "Teacher Dashboard",
+    "title": "Sign in and reach the teacher dashboard",
+    "description": "This verifies that valid teacher credentials sign the user in and route them to the teacher portal.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
@@ -85,11 +57,7 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -97,24 +65,20 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "assertion",
         "description": "Verify the teacher dashboard is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify assigned class information is visible"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC004",
-    "title": "Teacher reaches the teacher dashboard after login",
-    "description": "This verifies that a teacher can sign in and land on the teacher dashboard successfully.",
-    "category": "Authentication",
+    "title": "Sign in and reach the student dashboard",
+    "description": "This verifies that valid student credentials sign the user in and route them to the student portal.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
@@ -122,11 +86,7 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -134,24 +94,20 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "assertion",
-        "description": "Verify the teacher dashboard is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify teacher-specific navigation is available"
+        "description": "Verify the student dashboard is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC005",
-    "title": "Teacher opens gradebook and updates a grade",
-    "description": "This verifies that a teacher can access the gradebook, enter a grade, and confirm the updated record is shown.",
-    "category": "Teacher Dashboard",
+    "title": "Reject invalid login credentials",
+    "description": "This verifies that invalid credentials are not accepted and an error message is shown.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
@@ -159,52 +115,28 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
+        "description": "Fill in the email field with an invalid email"
       },
       {
         "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the password field with an invalid password"
       },
       {
         "type": "action",
-        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
-      },
-      {
-        "type": "action",
-        "description": "Submit the form"
-      },
-      {
-        "type": "action",
-        "description": "Open the gradebook"
-      },
-      {
-        "type": "action",
-        "description": "Select a student record"
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid grade for the selected record"
-      },
-      {
-        "type": "action",
-        "description": "Save the grade update"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "assertion",
-        "description": "Verify the updated grade record is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the gradebook remains accessible"
+        "description": "Verify a sign-in error message is visible"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC006",
-    "title": "Teacher reviews assigned classes and opens the gradebook",
-    "description": "This verifies that a teacher can move from the dashboard into the gradebook and view student grade records.",
-    "category": "Teacher Dashboard",
+    "title": "Keep protected admin pages inaccessible after sign in as a non-admin",
+    "description": "This verifies that a non-admin user can access only their own portal and is blocked from protected admin areas.",
+    "category": "Global Authentication Flow",
     "steps": [
       {
         "type": "action",
@@ -212,11 +144,7 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -224,28 +152,24 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the gradebook area"
+        "description": "Click the link to open the admin area"
       },
       {
         "type": "assertion",
-        "description": "Verify student grade records are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the gradebook view is available"
+        "description": "Verify access is restricted to the user’s permitted dashboard"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC007",
-    "title": "Admin reviews users and manages a user account",
-    "description": "This verifies that an admin can open the users area, review accounts, and reach a user management action.",
-    "category": "Admin Dashboard",
+    "title": "Access the user directory after signing in",
+    "description": "This verifies that an authenticated admin can open the protected user directory page.",
+    "category": "Staff HR Directory Management",
     "steps": [
       {
         "type": "action",
@@ -253,11 +177,7 @@
       },
       {
         "type": "action",
-        "description": "Select the admin role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -265,32 +185,24 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the users area"
-      },
-      {
-        "type": "action",
-        "description": "Open a user account for management"
+        "description": "Click the link to open the user directory"
       },
       {
         "type": "assertion",
-        "description": "Verify user account details are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a user management control is available"
+        "description": "Verify the staff user directory is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC008",
-    "title": "Teacher updates a student's grade",
-    "description": "This verifies that a teacher can enter a grade and see the updated record reflected in the gradebook.",
-    "category": "Teacher Dashboard",
+    "title": "See the campus list and add a new campus",
+    "description": "This verifies that an authorized admin can create a campus and see it added to the campus list.",
+    "category": "Multi-Campus Management",
     "steps": [
       {
         "type": "action",
@@ -298,11 +210,7 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -310,36 +218,36 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the gradebook area"
+        "description": "Click the link to open campus management"
       },
       {
         "type": "action",
-        "description": "Enter a grade for a student"
+        "description": "Open the create campus flow"
       },
       {
         "type": "action",
-        "description": "Save the update"
+        "description": "Fill in the campus name, code, and address"
+      },
+      {
+        "type": "action",
+        "description": "Submit the campus form"
       },
       {
         "type": "assertion",
-        "description": "Verify the updated grade record is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the gradebook shows the saved change"
+        "description": "Verify the new campus appears in the list"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC009",
-    "title": "Admin reviews courses and manages a course record",
-    "description": "This verifies that an admin can open the courses area, review course records, and reach a course management action.",
-    "category": "Admin Dashboard",
+    "title": "Add a new staff user",
+    "description": "This verifies that an authorized user can create a staff account and see it added to the directory.",
+    "category": "Staff HR Directory Management",
     "steps": [
       {
         "type": "action",
@@ -347,11 +255,7 @@
       },
       {
         "type": "action",
-        "description": "Select the admin role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -359,32 +263,36 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the courses area"
+        "description": "Click the link to open the user directory"
       },
       {
         "type": "action",
-        "description": "Open a course record for management"
+        "description": "Open the add user flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the user details with a unique staff record"
+      },
+      {
+        "type": "action",
+        "description": "Submit the user form"
       },
       {
         "type": "assertion",
-        "description": "Verify course record details are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a course management control is available"
+        "description": "Verify the new user appears in the directory"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC010",
-    "title": "Student opens an enrolled course and views its content",
-    "description": "This verifies that a student can open enrolled courses and reach course content successfully.",
-    "category": "Student Dashboard",
+    "title": "Edit an existing staff user",
+    "description": "This verifies that an authorized user can update a staff record and see the changes reflected in the directory.",
+    "category": "Staff HR Directory Management",
     "steps": [
       {
         "type": "action",
@@ -392,11 +300,7 @@
       },
       {
         "type": "action",
-        "description": "Select the student role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -404,32 +308,36 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the courses area"
+        "description": "Click the link to open the user directory"
       },
       {
         "type": "action",
-        "description": "Open an enrolled course"
+        "description": "Open the edit flow for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Update the user details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
       },
       {
         "type": "assertion",
-        "description": "Verify enrolled course information is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify course content is displayed"
+        "description": "Verify the updated user record is visible in the directory"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC011",
-    "title": "Student reviews assignment details and feedback",
-    "description": "This verifies that a student can open assignments and view assignment details, grades, and feedback.",
-    "category": "Student Dashboard",
+    "title": "Toggle a campus active state",
+    "description": "This verifies that an authorized admin can change a campus active state and see the updated status in the list.",
+    "category": "Multi-Campus Management",
     "steps": [
       {
         "type": "action",
@@ -437,11 +345,7 @@
       },
       {
         "type": "action",
-        "description": "Select the student role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -449,32 +353,28 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the assignments area"
+        "description": "Click the link to open campus management"
       },
       {
         "type": "action",
-        "description": "Open an assignment"
+        "description": "Toggle the active state of an existing campus"
       },
       {
         "type": "assertion",
-        "description": "Verify assignment details are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify grades and feedback are displayed"
+        "description": "Verify the campus status changes in the list"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC012",
-    "title": "Login shows validation for incomplete credentials",
-    "description": "This verifies that submitting incomplete login credentials shows validation feedback and keeps the user on the login page.",
-    "category": "Authentication",
+    "title": "Delete a staff user",
+    "description": "This verifies that an authorized user can remove a staff record from the directory.",
+    "category": "Staff HR Directory Management",
     "steps": [
       {
         "type": "action",
@@ -482,36 +382,40 @@
       },
       {
         "type": "action",
-        "description": "Select the student role"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
       },
       {
         "type": "action",
-        "description": "Leave the password field empty"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Click the link to open the user directory"
+      },
+      {
+        "type": "action",
+        "description": "Open the delete flow for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
       },
       {
         "type": "assertion",
-        "description": "Verify a login validation error is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the login page remains displayed"
+        "description": "Verify the user no longer appears in the directory"
       }
     ],
-    "priority": "Low"
+    "priority": "High"
   },
   {
     "id": "TC013",
-    "title": "Teacher remains on login page when credentials are incomplete",
-    "description": "This verifies that incomplete login credentials are rejected with validation while the user stays on the login page.",
-    "category": "Teacher Dashboard",
+    "title": "Import staff users from a CSV file",
+    "description": "This verifies that authorized staff can bulk import users from a CSV and see imported records reflected in the directory.",
+    "category": "Staff HR Directory Management",
     "steps": [
       {
         "type": "action",
@@ -519,32 +423,44 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
-        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the user directory"
+      },
+      {
+        "type": "action",
+        "description": "Open the import CSV flow"
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid CSV file"
+      },
+      {
+        "type": "action",
+        "description": "Submit the import"
       },
       {
         "type": "assertion",
-        "description": "Verify a login validation message is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the login page remains visible"
+        "description": "Verify imported users are shown in the directory"
       }
     ],
-    "priority": "Low"
+    "priority": "High"
   },
   {
     "id": "TC014",
-    "title": "Student is blocked from unavailable course content",
-    "description": "This verifies that a student attempting to access content outside their enrollment sees restricted access messaging.",
-    "category": "Student Dashboard",
+    "title": "Add a class and a linked section",
+    "description": "This verifies that an authorized user can create a class and then create a section that is tied to that class.",
+    "category": "Academic Hierarchy Configuration",
     "steps": [
       {
         "type": "action",
@@ -552,11 +468,7 @@
       },
       {
         "type": "action",
-        "description": "Select the student role"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the username field with {{LOGIN_USER}}"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
@@ -564,32 +476,338 @@
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Submit the sign-in form"
       },
       {
         "type": "action",
-        "description": "Open the courses area"
+        "description": "Click the link to open academic setup"
       },
       {
         "type": "action",
-        "description": "Open unavailable course content"
+        "description": "Open the classes view"
+      },
+      {
+        "type": "action",
+        "description": "Create a new class"
+      },
+      {
+        "type": "action",
+        "description": "Open the sections view"
+      },
+      {
+        "type": "action",
+        "description": "Create a new section linked to the class"
       },
       {
         "type": "assertion",
-        "description": "Verify an access restricted message is visible"
+        "description": "Verify the new class and linked section are shown in academic setup"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "Create a section for a class",
+    "description": "An authorized user can create a section linked to an existing class and see it reflected in the sections list.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the section creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Choose a class"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid section name into the section name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the section"
       },
       {
         "type": "assertion",
-        "description": "Verify unavailable course content is not accessible"
+        "description": "Verify the new section appears linked to the selected class"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Switch between academic hierarchy tabs",
+    "description": "This verifies that an authorized user can move between the classes, sections, and subjects views in academic setup.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign-in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open academic setup"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the sections view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the subjects view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the academic tabs display their respective content"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Create a new class",
+    "description": "An authorized user can create a class and see it appear in the classes list.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the class creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid class name into the class name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the class"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new class appears in the classes list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "View academic hierarchy tabs",
+    "description": "An authorized user can open the academics area and switch between the hierarchy tabs to view the configured academic structure.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the academic hierarchy tabs are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the configured academic lists are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Persist class changes after adding multiple classes",
+    "description": "An authorized user can add more than one class and verify both are retained in the hierarchy view.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the class creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid class name into the class name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the class"
+      },
+      {
+        "type": "action",
+        "description": "Open the class creation flow again"
+      },
+      {
+        "type": "action",
+        "description": "Fill a different valid class name into the class name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the class"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify both classes appear in the classes list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Keep section hierarchy after switching tabs",
+    "description": "An authorized user can create a class and section, switch between tabs, and still see the hierarchy displayed correctly.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the class creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid class name into the class name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the class"
+      },
+      {
+        "type": "action",
+        "description": "Open the section creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Choose the class that was just created"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid section name into the section name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the section"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the sections tab"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the classes tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the created class and section remain visible in the hierarchy"
       }
     ],
     "priority": "Low"
   },
   {
-    "id": "TC015",
-    "title": "Teacher sees an empty state when no classes are assigned",
-    "description": "This verifies that the teacher dashboard shows an empty-state view when there are no assigned classes.",
-    "category": "Teacher Dashboard",
+    "id": "TC021",
+    "title": "Show validation for incomplete class submission",
+    "description": "An authorized user sees a validation error when trying to save a class without the required details.",
+    "category": "Academic Hierarchy Configuration",
     "steps": [
       {
         "type": "action",
@@ -597,27 +815,72 @@
       },
       {
         "type": "action",
-        "description": "Select the teacher role"
+        "description": "Fill in {{LOGIN_USER}} into the username field"
       },
       {
         "type": "action",
-        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
       },
       {
         "type": "action",
-        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+        "description": "Submit the login form"
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the class creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Save the class"
       },
       {
         "type": "assertion",
-        "description": "Verify an empty state message is visible"
+        "description": "Verify a class validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC022",
+    "title": "Show validation for incomplete section submission",
+    "description": "An authorized user sees a validation error when trying to save a section without selecting a class or providing section details.",
+    "category": "Academic Hierarchy Configuration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the academics management link"
+      },
+      {
+        "type": "action",
+        "description": "Open the section creation flow"
+      },
+      {
+        "type": "action",
+        "description": "Save the section"
       },
       {
         "type": "assertion",
-        "description": "Verify assigned classes are not displayed"
+        "description": "Verify a section validation error is visible"
       }
     ],
     "priority": "Low"

@@ -12,9 +12,9 @@ Related: [[Home]] | [[Frontend Architecture]] | [[Role-Based Access Control]]
 **File:** `Frontend/app/admin/page.tsx`
 
 The main admin dashboard displaying:
-- **Stats cards:** Total students, total instructors, total courses, total enrollments, pending applications
+- **Stats cards:** Total students, total instructors, total classes, total enrollments, pending applications
 - **Revenue summary:** Total collected fees and outstanding balance
-- **Quick actions:** Links to manage users, courses, applications
+- **Quick actions:** Links to manage users, academics, applications
 - **At-risk students widget:** Students below 50% average mark
 - **Recent activity feed**
 
@@ -37,19 +37,20 @@ API calls: `usersApi.list(role?)`, `usersApi.create()`, `usersApi.update()`, `us
 
 ---
 
-## `/admin/courses` — Course Management
+## `/admin/academics` — Academics Management
 
-**File:** `Frontend/app/admin/courses/`
+**File:** `Frontend/app/admin/academics/`
 
 Features:
-- List all courses with status badges (ACTIVE / ARCHIVED)
-- **Create course** — set code, title, description, credits, room, and assign a teacher
-- **Dynamic 7-Day Schedule** — Select multiple days and assign specific timeslots per day
+- List all academic entities with status badges (ACTIVE / ARCHIVED)
+- **Manage AcademicClasses** — create class levels (e.g., Grade 10, Computer Science 101)
+- **Manage Subjects** — set subject code, title, description, credits, and assign a teacher
+- **Manage Sections** — create sections within classes and assign subjects to them
+- **Dynamic 7-Day Schedule** — Select multiple days and assign specific timeslots per day for sections
 - **Strict Validation** — Teacher assignment, room, credits, and schedule are all strictly required
-- **Edit course** — update metadata or archive
-- **Module management** — add/edit/remove modules and lessons inside a course
+- **Module management** — add/edit/remove modules and lessons inside a subject
 
-API calls: `coursesApi.list()`, `coursesApi.create()`, `coursesApi.update()`, `coursesApi.remove()`, `coursesApi.getModules()`, `coursesApi.createModule()`, `coursesApi.updateModule()`, `coursesApi.removeModule()`
+API calls: `academicsApi.listClasses()`, `academicsApi.createClass()`, `academicsApi.listSubjects()`, `academicsApi.createSubject()`, `academicsApi.createSection()`, `academicsApi.getModules()`, `academicsApi.createModule()`
 
 ---
 
@@ -59,8 +60,8 @@ API calls: `coursesApi.list()`, `coursesApi.create()`, `coursesApi.update()`, `c
 
 Features:
 - List all enrollments with status indicators
-- **Bulk enroll** — quickly select multiple students and enroll them in a single course at once
-- **Direct enroll** — immediately enroll a single student in a course (bypass application)
+- **Bulk enroll** — quickly select multiple students and enroll them in a single AcademicClass or Section at once
+- **Direct enroll** — immediately enroll a single student in a class (bypass application)
 - **Manage drops** — review and approve/reject drop requests from students
 - **Remove enrollment** — hard remove an enrollment record
 
@@ -74,10 +75,10 @@ API calls: `enrollmentsApi.list()`, `enrollmentsApi.bulkEnroll()`, `enrollmentsA
 
 Features:
 - List all public enrollment applications (from `/apply` page)
-- View dynamic course titles mapped from the public active courses catalog
+- View dynamic class titles mapped from the public active classes catalog
 - Filter by status: `PENDING_REVIEW`, `APPROVED`, `REJECTED`
 - **Review application** — approve or reject with optional notes
-- **Automated Provisioning** — Approved applications automatically provision a new `STUDENT` user account with a default password and directly create the corresponding course enrollment record.
+- **Automated Provisioning** — Approved applications automatically provision a new `STUDENT` user account with a default password and directly create the corresponding enrollment record.
 
 API calls: `enrollmentsApi.getApplications(status)`, `enrollmentsApi.reviewApplication(id, status, notes)`
 
@@ -89,7 +90,7 @@ API calls: `enrollmentsApi.getApplications(status)`, `enrollmentsApi.reviewAppli
 
 Features:
 - List all student fee records
-- **Create invoice** — assign a fee to a student for a course
+- **Create invoice** — assign a fee to a student for an AcademicClass
 - **Record payment** — log a payment against an invoice
 - **Update fee** — edit amount, due date, description
 - Fee status automatically updates: `PENDING → PARTIAL → PAID`
@@ -104,8 +105,8 @@ API calls: `feesApi.list()`, `feesApi.create()`, `feesApi.pay()`, `feesApi.updat
 
 Features:
 - **Overview panel** — system-wide stats
-- **Performance report** — average grades per course
-- **Attendance report** — attendance percentages by course
+- **Performance report** — average grades per subject
+- **Attendance report** — attendance percentages by subject/section
 - **At-risk report** — students below configurable grade threshold
 
 API calls: `reportsApi.overview()`, `reportsApi.performance()`, `reportsApi.attendance()`, `reportsApi.atRisk(threshold)`
@@ -118,10 +119,21 @@ API calls: `reportsApi.overview()`, `reportsApi.performance()`, `reportsApi.atte
 
 Features:
 - View all scheduled class slots
-- **Create slot** — assign a course to a day/time/room
+- **Create slot** — assign a Subject/Section to a day/time/room
 - **Edit/delete slots**
 
 API calls: `timetableApi.list()`, `timetableApi.create()`, `timetableApi.update()`, `timetableApi.remove()`
+
+---
+
+## `/admin/hr` — HR Profile Management
+
+**File:** `Frontend/app/admin/hr/`
+
+Features:
+- Manage staff HR profiles (Instructors and Admins)
+- **Dynamic Allowances/Deductions** — Uses dynamic key-value inputs instead of raw JSON strings for easier editing of staff Allowances and Deductions.
+- Update payroll information and employment status
 
 ---
 

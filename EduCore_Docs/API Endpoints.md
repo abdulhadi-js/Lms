@@ -33,35 +33,34 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 ---
 
-## 📚 Courses (`/api/v1/courses`)
+## 📚 Academics (`/api/v1/academics`)
+
+Replaces the old Courses module.
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `GET` | `/public/courses` | ❌ Public | List active courses (used for student applications) |
-| `GET` | `/courses` | ✅ JWT | List courses (scoped by role) |
-| `POST` | `/courses` | ADMIN | Create a new course |
-| `GET` | `/courses/:id` | ✅ JWT | Get a course with its modules |
-| `PATCH` | `/courses/:id` | ADMIN / INSTRUCTOR | Update course details |
-| `DELETE` | `/courses/:id` | ADMIN | Archive a course |
-| `POST` | `/courses/:id/assign-teacher` | ADMIN | Assign an instructor to a course |
-| `GET` | `/courses/:id/modules` | ✅ JWT | Get all modules (with lessons) for a course |
-| `POST` | `/courses/:id/modules` | ADMIN / INSTRUCTOR | Add a module to a course |
-| `PATCH` | `/courses/:courseId/modules/:moduleId` | ADMIN / INSTRUCTOR | Update a module |
-| `DELETE` | `/courses/:courseId/modules/:moduleId` | ADMIN / INSTRUCTOR | Delete a module |
-| `POST` | `/modules/:moduleId/lessons` | ADMIN / INSTRUCTOR | Add a lesson to a module |
+| `GET` | `/academics/classes` | ✅ JWT | List all academic classes |
+| `POST` | `/academics/classes` | ADMIN | Create an academic class |
+| `GET` | `/academics/classes/:id` | ✅ JWT | Get details of an academic class |
+| `GET` | `/academics/subjects` | ✅ JWT | List subjects |
+| `POST` | `/academics/subjects` | ADMIN | Create a subject |
+| `GET` | `/academics/sections` | ✅ JWT | List sections |
+| `POST` | `/academics/sections` | ADMIN | Create a section |
 
 ---
 
 ## 📋 Enrollments (`/api/v1/enrollments`)
 
+Students are now enrolled into Sections.
+
 | Method | Route | Auth | Description |
 |---|---|---|---|
 | `GET` | `/enrollments` | ✅ JWT | List enrollments (scoped by role) |
-| `POST` | `/enrollments` | ADMIN | Directly enroll a student in a course |
-| `POST` | `/enrollments/bulk` | ADMIN | Bulk enroll multiple students in a single course |
+| `POST` | `/enrollments` | ADMIN | Directly enroll a student in a section |
+| `POST` | `/enrollments/bulk` | ADMIN | Bulk enroll multiple students in a single section |
 | `PATCH` | `/enrollments/:id` | ADMIN | Update an enrollment record |
 | `DELETE` | `/enrollments/:id` | ADMIN | Remove an enrollment record |
-| `POST` | `/enrollments/:id/drop` | ✅ JWT | Student or admin requests a course drop |
+| `POST` | `/enrollments/:id/drop` | ✅ JWT | Student or admin requests a section drop |
 | `PATCH` | `/enrollments/:id/drop/review` | ADMIN | Admin approves or rejects a drop request |
 
 ---
@@ -70,7 +69,7 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `GET` | `/applications?status=PENDING_REVIEW` | ADMIN | List all public enrollment applications |
+| `GET` | `/applications?status=PENDING_REVIEW` | ADMIN | List all public enrollment applications (to sections) |
 | `PATCH` | `/applications/:id/review` | ADMIN | Approve or reject an application |
 
 ---
@@ -79,9 +78,9 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `GET` | `/assignments` | ✅ JWT | List assignments (scoped by role — students see only enrolled courses) |
+| `GET` | `/assignments` | ✅ JWT | List assignments (scoped by role) |
 | `GET` | `/assignments/:id` | ✅ JWT | Get a single assignment |
-| `POST` | `/courses/:courseId/assignments` | ADMIN / INSTRUCTOR | Create an assignment |
+| `POST` | `/academics/subjects/:subjectId/sections/:sectionId/assignments` | ADMIN / INSTRUCTOR | Create an assignment |
 | `PATCH` | `/assignments/:id` | ADMIN / INSTRUCTOR | Update an assignment |
 | `DELETE` | `/assignments/:id` | ADMIN / INSTRUCTOR | Delete an assignment |
 | `POST` | `/assignments/:id/submissions` | STUDENT | Submit an assignment (supports file upload via `multipart/form-data`) |
@@ -94,8 +93,8 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `GET` | `/marks?studentId=&courseId=` | ✅ JWT | Get marks by student or course |
-| `GET` | `/marks/gradebook?courseId=` | ✅ JWT | Get full gradebook for a course |
+| `GET` | `/marks?studentId=&sectionId=&subjectId=` | ✅ JWT | Get marks by student, section, or subject |
+| `GET` | `/marks/gradebook?sectionId=&subjectId=` | ✅ JWT | Get full gradebook for a section/subject |
 | `POST` | `/marks` | ADMIN / INSTRUCTOR | Enter a mark |
 | `PATCH` | `/marks/:id` | ADMIN / INSTRUCTOR | Update a mark |
 | `GET` | `/marks/transcript/:studentId` | ✅ JWT | Get full academic transcript |
@@ -109,18 +108,20 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/attendance?courseId=&studentId=&startDate=&endDate=` | Get attendance records with filters |
-| `GET` | `/attendance/summary?courseId=&studentId=` | Get attendance summary stats |
-| `POST` | `/attendance` | Mark attendance for a class session |
+| `GET` | `/attendance?sectionId=&studentId=&startDate=&endDate=` | Get attendance records with filters |
+| `GET` | `/attendance/summary?sectionId=&studentId=` | Get attendance summary stats |
+| `POST` | `/attendance` | Mark attendance for a section session |
 
 ---
 
 ## 🗓️ Timetable (`/api/v1/timetable`)
 
+Manages room booking, teacher assignments to subjects/sections, and schedules.
+
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/timetable` | Get all scheduled slots |
-| `POST` | `/timetable` | Create a new scheduled slot |
+| `GET` | `/timetable?sectionId=&teacherId=` | Get scheduled slots |
+| `POST` | `/timetable` | Create a new scheduled slot (assigns a teacher to a subject in a section and books a room) |
 | `PATCH` | `/timetable/:id` | Update a slot |
 | `DELETE` | `/timetable/:id` | Remove a slot |
 
@@ -143,8 +144,8 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 | Method | Route | Description |
 |---|---|---|
 | `GET` | `/chat/conversations` | List all conversations for current user |
-| `GET` | `/chat/messages?partnerId=&courseId=` | Get messages for a conversation |
-| `POST` | `/chat/messages` | Send a message `{ receiverId?, courseId?, body }` |
+| `GET` | `/chat/messages?partnerId=&sectionId=` | Get messages for a conversation |
+| `POST` | `/chat/messages` | Send a message `{ receiverId?, sectionId?, body }` |
 
 > Chat also supports **WebSocket** for real-time messaging.
 
@@ -166,8 +167,8 @@ Related: [[Home]] | [[Backend Architecture]] | [[Authentication Flow]] | [[Role-
 | Method | Route | Description |
 |---|---|---|
 | `GET` | `/reports/overview` | Dashboard stats (counts, revenue, etc.) |
-| `GET` | `/reports/performance?courseId=` | Grade performance report |
-| `GET` | `/reports/attendance?courseId=` | Attendance report |
+| `GET` | `/reports/performance?sectionId=` | Grade performance report |
+| `GET` | `/reports/attendance?sectionId=` | Attendance report |
 | `GET` | `/reports/at-risk?threshold=50` | Students below a grade threshold |
 
 ---

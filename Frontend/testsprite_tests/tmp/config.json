@@ -4,14 +4,14 @@
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000",
   "executionArgs": {
-    "projectName": "frontend",
-    "projectPath": "C:\\Users\\saadi\\OneDrive\\Desktop\\LMS project\\frontend",
+    "projectName": "Frontend",
+    "projectPath": "C:\\Users\\saadi\\OneDrive\\Desktop\\LMS project\\Frontend",
     "testIds": [],
-    "additionalInstruction": "",
-    "serverMode": "development",
+    "additionalInstruction": "The application has authentication completely disabled. When you navigate to ANY page (e.g., /admin, /admin/users, /admin/campuses), it will automatically log you in as a Super Admin and the page will load directly. Do NOT look for login screens or try to log in. NOTE: The link in the sidebar for Users is named \"Staff HR\", not \"Users\". It points to /admin/users.",
+    "serverMode": "production",
     "envs": {
       "API_KEY": "sk-user-qrZoLYTRsUVa9KxRcZw_WayqaGC3-d2IcQH57LKvTevt0QVwQYZc33Am4_FpGPB06Z2BTel2PGaxgY6Eo34LX_bI0s27-DUwJ2PxwTKP3i7rRzkAjSxAjImrPJ_qzJ8sxew"
     }
   },
-  "serverPort": 53415
+  "serverPort": 53098
 }

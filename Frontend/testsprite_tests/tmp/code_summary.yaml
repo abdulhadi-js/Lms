@@ -1,34 +1,111 @@
 version: "2"
 type: frontend
 tech_stack:
-  - react
-  - next.js
-  - tailwindcss
-  - typescript
+  - TypeScript
+  - Next.js (App Router)
+  - Tailwind CSS
+  - React Hook Form
+  - Zod
+routes:
+  - path: /login
+    file: app/login/page.tsx
+    auth_required: false
+    description: User authentication entry point
+  - path: /admin
+    file: app/admin/page.tsx
+    auth_required: true
+    description: Super Admin and Principal dashboard
+  - path: /admin/users
+    file: app/admin/users/page.tsx
+    auth_required: true
+    description: Staff HR and user directory management
+  - path: /admin/campuses
+    file: app/admin/campuses/page.tsx
+    auth_required: true
+    description: Manage physical or logical campuses
+  - path: /admin/roles
+    file: app/admin/roles/page.tsx
+    auth_required: true
+    description: RBAC Matrix Guard permission assignment
+  - path: /admin/academics
+    file: app/admin/academics/page.tsx
+    auth_required: true
+    description: Manage Classes, Sections, and Subjects
+  - path: /admin/enrollments
+    file: app/admin/enrollments/page.tsx
+    auth_required: true
+    description: Manage student enrollments
+  - path: /admin/fees
+    file: app/admin/fees/page.tsx
+    auth_required: true
+    description: Fee structures and vouchers
+  - path: /student
+    file: app/student/page.tsx
+    auth_required: true
+    description: Student portal dashboard
+  - path: /teacher
+    file: app/teacher/page.tsx
+    auth_required: true
+    description: Teacher portal dashboard
 features:
-  - name: Authentication
-    description: Login page with role selection
+  - name: Global Authentication Flow
+    description: User logs in using JWT credentials or is redirected if unauthenticated
     files:
       - app/login/page.tsx
-    endpoints: []
-  - name: Admin Dashboard
-    description: Admin view for managing users and courses
+      - lib/auth-context.tsx
+    entry_route: /login
+    user_interactions:
+      - Enter email and password
+      - Click Sign In
+      - View error toasts on failure
+      - Auto redirect based on RBAC role (Admin/Teacher/Student)
+    api_calls:
+      - method: POST
+        endpoint: /api/v1/auth/login
+    auth_required: false
+  - name: Staff HR Directory Management
+    description: View, add, update, and bulk import staff and admin users
     files:
-      - app/admin/page.tsx
       - app/admin/users/page.tsx
-      - app/admin/courses/page.tsx
-    endpoints: []
-  - name: Student Dashboard
-    description: Student view for courses, assignments, and grades
+      - components/BulkImportModal.tsx
+    entry_route: /admin/users
+    user_interactions:
+      - View paginated user table
+      - Open "Add User" modal and submit form
+      - Open "Import CSV" modal, upload file, and submit bulk import
+      - Click edit/delete icons on a user row
+    api_calls:
+      - method: GET
+        endpoint: /api/v1/users
+      - method: POST
+        endpoint: /api/v1/users/bulk-import
+      - method: POST
+        endpoint: /api/v1/users
+    auth_required: true
+  - name: Multi-Campus Management
+    description: Create and manage branch campuses for the institution
     files:
-      - app/student/page.tsx
-      - app/student/courses/page.tsx
-      - app/student/assignments/page.tsx
-    endpoints: []
-  - name: Teacher Dashboard
-    description: Teacher view for managing classes and grades
+      - app/admin/campuses/page.tsx
+    entry_route: /admin/campuses
+    user_interactions:
+      - View campus list
+      - Add a new campus by entering Name, Code, and Address
+      - Toggle campus active status
+    api_calls:
+      - method: GET
+        endpoint: /api/v1/campuses
+    auth_required: true
+  - name: Academic Hierarchy Configuration
+    description: Configure Classes, Sections, and link Subjects to them
     files:
-      - app/teacher/page.tsx
-      - app/teacher/gradebook/page.tsx
-    endpoints: []
+      - app/admin/academics/page.tsx
+    entry_route: /admin/academics
+    user_interactions:
+      - Switch between Classes, Sections, and Subjects tabs
+      - Add a new Class
+      - Add a Section within a Class
+    api_calls:
+      - method: GET
+        endpoint: /api/v1/classes
+    auth_required: true
 known_limitations: []

@@ -43,16 +43,16 @@ Related: [[Home]] | [[Backend Architecture]] | [[Deployment Guide]]
 ### Email / SMTP
 | Variable | Example | Description |
 |---|---|---|
-| `MAIL_HOST` | `smtp.gmail.com` | SMTP server. Also supports Resend (`smtp.resend.com`) or Mailtrap |
-| `MAIL_PORT` | `587` | SMTP port (587 = STARTTLS, 465 = SSL) |
-| `MAIL_USER` | `you@gmail.com` | SMTP username |
-| `MAIL_PASS` | `xxxx xxxx xxxx xxxx` | Gmail: use App Password, not your real password |
-| `MAIL_FROM` | `"EduCore LMS" <noreply@educore.com>` | Sender display name and address |
+| `MAIL_HOST` | `smtp.resend.com` | SMTP server. **Note:** We use Resend for emails, but it is currently restricted to a single verified domain on the free tier. |
+| `MAIL_PORT` | `465` | SMTP port (587 = STARTTLS, 465 = SSL) |
+| `MAIL_USER` | `resend` | SMTP username |
+| `MAIL_PASS` | `re_...` | Resend API key |
+| `MAIL_FROM` | `"EduCore LMS" <noreply@educore.com>` | Sender display name and address (must match Resend verified domain) |
 
 ### CORS
 | Variable | Default | Description |
 |---|---|---|
-| `FRONTEND_URL` | `http://localhost:3000` | Whitelisted in CORS policy. Set to your Vercel URL in production |
+| `FRONTEND_URL` | `http://localhost:3000` | Whitelisted in CORS policy. Set to `https://lms-theta-sooty.vercel.app` in production |
 
 ---
 
@@ -62,7 +62,7 @@ Related: [[Home]] | [[Backend Architecture]] | [[Deployment Guide]]
 
 | Variable | Default | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:3001/api/v1` | Points the frontend to the backend. Set to your Render URL in production, e.g. `https://your-app.onrender.com/api/v1` |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3001/api/v1` | Points the frontend to the backend. Set to `https://educore-backend-sde8.onrender.com/api/v1` in production |
 
 ---
 
@@ -80,15 +80,15 @@ Set these in **Render → Your Service → Environment**:
 - [x] `CLOUDINARY_API_KEY`
 - [x] `CLOUDINARY_API_SECRET`
 - [x] `CLOUDINARY_UPLOAD_PRESET`
-- [x] `MAIL_HOST`
+- [x] `MAIL_HOST` (e.g., `smtp.resend.com`)
 - [x] `MAIL_PORT`
 - [x] `MAIL_USER`
 - [x] `MAIL_PASS`
 - [x] `MAIL_FROM`
-- [x] `FRONTEND_URL` ← your Vercel URL
+- [x] `FRONTEND_URL` ← `https://lms-theta-sooty.vercel.app`
 
 ## Vercel Production Variables Checklist
 
 Set these in **Vercel → Your Project → Settings → Environment Variables**:
 
-- [x] `NEXT_PUBLIC_API_URL` ← your Render backend URL + `/api/v1`
+- [x] `NEXT_PUBLIC_API_URL` ← `https://educore-backend-sde8.onrender.com/api/v1`

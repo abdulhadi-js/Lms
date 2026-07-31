@@ -41,16 +41,23 @@ The server entry point configures the following global middleware:
 |---|---|---|
 | `AuthModule` | `/api/v1/auth` | Login, JWT, password reset |
 | `UsersModule` | `/api/v1/users` | User CRUD (Admin only) |
-| `CoursesModule` | `/api/v1/courses` | Courses, modules, lessons |
-| `EnrollmentsModule` | `/api/v1/enrollments` | Student enrollments & drop requests |
+| `AcademicsModule` | `/api/v1/academics` | AcademicClasses, Subjects, Sections |
+| `EnrollmentsModule` | `/api/v1/enrollments` | Student enrollments in sections & drop requests |
 | `AssignmentsModule` | `/api/v1/assignments` | Assignments & submissions |
 | `MarksModule` | `/api/v1/marks` | Gradebook & transcripts |
 | `AttendanceModule` | `/api/v1/attendance` | Attendance records |
-| `TimetableModule` | `/api/v1/timetable` | Schedule management |
+| `TimetableModule` | `/api/v1/timetable` | Schedule management, room booking, teacher assignment |
 | `FeesModule` | `/api/v1/fees` | Invoices & payments |
 | `ChatModule` | `/api/v1/chat` | REST messaging + WebSocket |
 | `NotificationsModule` | `/api/v1/notifications` | Announcements & alerts |
 | `ReportsModule` | `/api/v1/reports` | Analytics & overviews |
+
+---
+
+## Hosting and Deployment
+
+- **Backend:** Hosted on Render (`educore-backend-sde8.onrender.com`). Environment variables manage DB connection and frontend URL.
+- **Frontend:** Hosted on Vercel.
 
 ---
 
@@ -62,12 +69,14 @@ The server entry point configures the following global middleware:
 | `JwtAuthGuard` | `auth/guards/jwt-auth.guard.ts` | Validates the `Authorization: Bearer <token>` header |
 | `JwtRefreshGuard` | `auth/guards/jwt-refresh.guard.ts` | Validates the refresh token (uses a separate `JWT_REFRESH_SECRET`) |
 | `RolesGuard` | `common/guards/roles.guard.ts` | Checks `@Roles()` decorator on routes |
+| `PermissionsGuard` | `common/guards/permissions.guard.ts` | Checks matrix-based granular RBAC permissions |
 
 ### Decorators
 | Decorator | Description |
 |---|---|
 | `@CurrentUser()` | Extracts `req.user` from the JWT payload |
 | `@Roles(...roles)` | Restricts a route to specific roles |
+| `@Permissions(...)` | Restricts a route based on granular matrix-based module permissions |
 
 ### Enums
 ```typescript
@@ -109,8 +118,8 @@ See [[Authentication Flow]] for the full flow diagram.
 **Methods in `MailService`:**
 - `sendPasswordReset(email, name, token, frontendUrl)`
 - `sendWelcome(email, name, tempPassword)`
-- `sendApplicationApproved(email, name, courseName)`
-- `sendApplicationRejected(email, name, courseName, reason)`
+- `sendApplicationApproved(email, name, sectionName)`
+- `sendApplicationRejected(email, name, sectionName, reason)`
 - `sendFeeReminder(email, name, amount, dueDate)`
 
 > Failures are logged but do **not** throw — email errors won't break the core app flow.
