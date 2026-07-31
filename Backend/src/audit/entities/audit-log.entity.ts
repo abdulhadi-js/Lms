@@ -19,10 +19,10 @@ export class AuditLog {
   @Column({ type: 'varchar' })
   entityId: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   reason: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   userId: string;
 
   @CreateDateColumn()
