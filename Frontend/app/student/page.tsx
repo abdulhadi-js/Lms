@@ -60,15 +60,18 @@ export default function StudentDashboard() {
 
   const currentDayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   const allScheduleSlots: Array<{courseCode: string, courseTitle: string, room: string, day: string, time: string}> = [];
+  // For now, students don't have schedule attached directly to enrollments.
+  // We'd need to fetch timetable or map section/class. Leaving this empty or mocked for now.
   activeEnrollments.forEach((enrollment: any) => {
-    if (enrollment.course?.schedule && Array.isArray(enrollment.course.schedule)) {
-      enrollment.course.schedule.forEach((slot: any) => {
+    // If schedule existed on section:
+    if (enrollment.section?.schedule && Array.isArray(enrollment.section.schedule)) {
+      enrollment.section.schedule.forEach((slot: any) => {
         allScheduleSlots.push({
-          courseCode: enrollment.course.code,
-          courseTitle: enrollment.course.title,
-          room: enrollment.course.room,
-          day: slot.day,
-          time: slot.time
+          courseCode: enrollment.section.name,
+          courseTitle: enrollment.section.academicClass?.name,
+          room: slot.room || 'TBA',
+          day: slot.dayOfWeek || slot.day,
+          time: slot.startTime || slot.time
         });
       });
     }
@@ -191,16 +194,16 @@ export default function StudentDashboard() {
                   const colors = ['bg-blue-500', 'bg-primary', 'bg-amber-500', 'bg-success'];
                   const color = colors[i % colors.length];
                   return (
-                    <Link href={`/student/courses/${enrollment.course?.id}`} key={enrollment.id || i}
+                    <Link href={`/student/courses/${enrollment.section?.id}`} key={enrollment.id || i}
                       className="block border border-divider rounded-lg p-4 hover:border-primary transition-colors group">
                       <div className="flex justify-between items-start mb-3">
                         <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase tracking-wider">
-                          {enrollment.course?.code || 'CODE'}
+                          {enrollment.section?.name || 'SEC'}
                         </span>
                         <PlayCircle className="w-5 h-5 text-body-secondary group-hover:text-primary transition-colors" />
                       </div>
-                      <h4 className="font-bold text-on-surface mb-1 truncate">{enrollment.course?.title || 'Untitled Course'}</h4>
-                      <p className="text-xs text-body-secondary mb-4">{enrollment.course?.credits || 3} Credits</p>
+                      <h4 className="font-bold text-on-surface mb-1 truncate">{enrollment.section?.academicClass?.name || 'Untitled Class'}</h4>
+                      <p className="text-xs text-body-secondary mb-4">{enrollment.section?.capacity || 30} Students</p>
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-xs text-body-secondary">
                           <span>Progress</span>
@@ -297,7 +300,7 @@ export default function StudentDashboard() {
                       </div>
                       <div className="min-w-0">
                         <h4 className="font-semibold text-sm text-on-surface truncate">{item.title}</h4>
-                        <p className="text-xs text-primary font-medium my-0.5">{item.course?.code || 'Course'}</p>
+                        <p className="text-xs text-primary font-medium my-0.5">{item.subject?.name || item.section?.name || 'Assignment'}</p>
                         <p className={`text-xs flex items-center gap-1 ${isUrgent ? 'text-error font-semibold' : 'text-body-secondary'}`}>
                           Due: {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>

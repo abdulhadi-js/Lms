@@ -17,14 +17,34 @@ export default function TeacherDashboard() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [coursesData, assignmentsData, timetableData] = await Promise.all([
-          coursesApi.list(),
+        const [assignmentsData, timetableDataResponse] = await Promise.all([
           assignmentsApi.list(),
           timetableApi.list()
         ]);
-        setCourses(coursesData);
-        setAssignments(assignmentsData);
-        setTimetable(timetableData);
+        
+        // Extract teacher's timetable
+        const myTimetable = Array.isArray(timetableDataResponse) 
+          ? timetableDataResponse.filter((t: any) => t.teacherId === user?.id || t.teacher?.id === user?.id)
+          : [];
+          
+        setTimetable(myTimetable);
+        setAssignments(Array.isArray(assignmentsData) ? assignmentsData : []);
+        
+        // Extract unique subjects from timetable for "Courses"
+        const subjectsMap = new Map();
+        myTimetable.forEach((t: any) => {
+          if (t.subject && !subjectsMap.has(t.subject.id)) {
+            subjectsMap.set(t.subject.id, {
+              id: t.subject.id,
+              title: t.subject.name,
+              code: t.subject.code,
+              status: 'ACTIVE',
+              studentsCount: t.section?.capacity || 20 // Estimate
+            });
+          }
+        });
+        
+        setCourses(Array.from(subjectsMap.values()));
       } catch (error: any) {
         toast.error('Could not load some dashboard data.');
         console.error('Failed to load dashboard data:', error);
@@ -213,7 +233,7 @@ export default function TeacherDashboard() {
                       <div className="flex-1 bg-surface rounded-lg p-3 border border-divider hover:border-primary/50 transition-colors cursor-pointer">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-semibold text-[16px] font-medium text-on-surface">{session.course?.title || `Course ID: ${session.courseId}`}</h4>
+                            <h4 className="font-semibold text-[16px] font-medium text-on-surface">{session.subject?.name || `Subject ID: ${session.subjectId}`} - {session.section?.name}</h4>
                             <p className="font-normal text-[14px] text-body-secondary text-sm flex items-center gap-1 mt-1"><MapPin className="w-5 h-5" /> Room {session.room}</p>
                           </div>
                           <span className="text-body-secondary font-medium text-[12px]">{session.endTime}</span>
