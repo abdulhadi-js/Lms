@@ -30,7 +30,6 @@ export default function UserManagement() {
     experience: '',
     appointmentDate: '',
     basicSalary: '',
-    basicSalary: '',
     allowances: [] as { name: string, amount: string }[],
     deductions: [] as { name: string, amount: string }[],
     bankAccountDetails: ''
