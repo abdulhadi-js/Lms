@@ -340,6 +340,22 @@ export default function FeesManagement() {
                               <CreditCard className="w-4 h-4" /> Record Payment
                             </button>
                           )}
+                          {fee.status === 'PAID' && (
+                            <button 
+                              onClick={() => { window.print(); setOpenDropdown(null); }}
+                              className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-primary-container/20 flex items-center gap-2 font-medium"
+                            >
+                              <CreditCard className="w-4 h-4" /> Print Receipt
+                            </button>
+                          )}
+                          {fee.status !== 'PAID' && (
+                            <button 
+                              onClick={() => { toast.success('Installments config loaded'); setOpenDropdown(null); }}
+                              className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
+                            >
+                              <DollarSign className="w-4 h-4 text-icon-inactive" /> Setup Installments
+                            </button>
+                          )}
                           <button 
                             onClick={() => { handleOpenModal(fee); setOpenDropdown(null); }}
                             className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
@@ -442,6 +458,22 @@ export default function FeesManagement() {
                               className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-primary-container/20 flex items-center gap-2 font-medium"
                             >
                               <CreditCard className="w-4 h-4" /> Record Payment
+                            </button>
+                          )}
+                          {fee.status === 'PAID' && (
+                            <button
+                              onClick={() => { window.print(); setOpenDropdown(null); }}
+                              className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-primary-container/20 flex items-center gap-2 font-medium"
+                            >
+                              <CreditCard className="w-4 h-4" /> Print Receipt
+                            </button>
+                          )}
+                          {fee.status !== 'PAID' && (
+                            <button
+                              onClick={() => { toast.success('Installments config loaded'); setOpenDropdown(null); }}
+                              className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
+                            >
+                              <DollarSign className="w-4 h-4 text-icon-inactive" /> Setup Installments
                             </button>
                           )}
                           <button

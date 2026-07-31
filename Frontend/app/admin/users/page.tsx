@@ -248,7 +248,9 @@ export default function UserManagement() {
     return (
       user.email?.toLowerCase().includes(query) ||
       user.firstName?.toLowerCase().includes(query) ||
-      user.lastName?.toLowerCase().includes(query)
+      user.lastName?.toLowerCase().includes(query) ||
+      user.id?.toLowerCase().includes(query) ||
+      (user.metadata && user.metadata.toLowerCase().includes(query))
     );
   });
 

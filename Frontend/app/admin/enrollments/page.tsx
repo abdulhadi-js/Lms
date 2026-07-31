@@ -161,14 +161,15 @@ export default function EnrollmentsManagement() {
   };
 
   const filteredEnrollments = enrollments.filter(e => {
-    const matchesStatus = statusFilter === 'ALL' || e.status === statusFilter;
+    const matchesStatus = statusFilter === 'ALL' || (e.status || '').toUpperCase() === statusFilter.toUpperCase();
     // B16 FIX: search by student name, email, course title, and course code
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q ||
       `${e.student?.firstName || ''} ${e.student?.lastName || ''}`.toLowerCase().includes(q) ||
       (e.student?.email || '').toLowerCase().includes(q) ||
       (e.course?.title || '').toLowerCase().includes(q) ||
-      (e.course?.code || '').toLowerCase().includes(q);
+      (e.course?.code || '').toLowerCase().includes(q) ||
+      (e.student?.id || '').toLowerCase().includes(q);
     return matchesStatus && matchesSearch;
   });
 

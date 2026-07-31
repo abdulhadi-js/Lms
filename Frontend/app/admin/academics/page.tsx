@@ -157,16 +157,26 @@ export default function AcademicsManagement() {
           <h2 className="text-3xl font-bold text-heading-on-light">Academics Management</h2>
           <p className="text-sm text-body-secondary mt-1">Manage school classes, sections, and subjects structure.</p>
         </div>
-        <button 
-          onClick={() => {
-            setEditingClass(null);
-            setClassForm({ name: '', level: 1 });
-            setClassModalOpen(true);
-          }}
-          className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add New Class
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => {
+              toast.success('Session promotion started...');
+            }}
+            className="bg-surface text-primary border border-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-primary/10 flex items-center gap-2"
+          >
+            Session Rollover / Promote
+          </button>
+          <button 
+            onClick={() => {
+              setEditingClass(null);
+              setClassForm({ name: '', level: 1 });
+              setClassModalOpen(true);
+            }}
+            className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Add New Class
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
