@@ -1,3 +1,8 @@
+import { Campus } from '../campuses/entities/campus.entity';
+import { Section } from '../academics/entities/section.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { StaffProfile } from '../hr/entities/staff-profile.entity';
+import { Family } from '../families/entities/family.entity';
 import {
   Injectable,
   NotFoundException,
@@ -6,9 +11,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import ImageKit from 'imagekit';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
+import { parseString } from 'fast-csv';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,6 +31,7 @@ export class UsersService {
     private readonly userRepo: Repository<User>,
     private readonly configService: ConfigService,
     private readonly familiesService: FamiliesService,
+    private readonly dataSource: DataSource,
   ) {}
 
   private sanitize(user: User): SafeUser {
@@ -314,4 +321,145 @@ export class UsersService {
     await this.userRepo.save(user);
     return { success: true };
   }
+
+  async bulkImport(fileBuffer: Buffer, currentUser: any): Promise<{ success: boolean; count: number; errors: string[] }> {
+    return new Promise((resolve, reject) => {
+      const rows: any[] = [];
+      const errors: string[] = [];
+      
+      const csvString = fileBuffer.toString('utf8');
+      
+      parseString(csvString, { headers: true, ignoreEmpty: true })
+        .on('data', (row) => rows.push(row))
+        .on('end', async () => {
+          const runner = this.dataSource.createQueryRunner();
+          await runner.connect();
+          await runner.startTransaction();
+          
+          let count = 0;
+          try {
+            for (let i = 0; i < rows.length; i++) {
+              const row = rows[i];
+              const rowNum = i + 2;
+              
+              if (!row.role || !row.firstName || !row.email || !row.campusCode) {
+                errors.push(`Row ${rowNum}: Missing required fields`);
+                continue;
+              }
+              
+              const existing = await runner.manager.findOne(User, { where: { email: row.email }});
+              if (existing) {
+                errors.push(`Row ${rowNum}: Email already exists`);
+                continue;
+              }
+              
+              const campus = await runner.manager.findOne(Campus, { where: { code: row.campusCode }});
+              if (!campus) {
+                errors.push(`Row ${rowNum}: Campus not found`);
+                continue;
+              }
+              
+              const passwordHash = await bcrypt.hash('password123', 10);
+              const roleName = row.role.toUpperCase();
+              
+              const roleEntity = await runner.manager.findOne(Role, { where: { name: roleName }});
+              if (!roleEntity && roleName !== 'STUDENT') {
+                errors.push(`Row ${rowNum}: Role not found`);
+                continue;
+              }
+
+              let familyId: string | undefined = undefined;
+              
+              if (roleName === 'STUDENT') {
+                if (!row.sectionCode) {
+                  errors.push(`Row ${rowNum}: sectionCode is required for students`);
+                  continue;
+                }
+                const section = await runner.manager.findOne(Section, { where: { name: row.sectionCode }});
+                if (!section) {
+                  errors.push(`Row ${rowNum}: Section not found`);
+                  continue;
+                }
+                
+                let family = null;
+                if (row.fatherPhone) {
+                  family = await runner.manager.findOne(Family, { where: { fatherPhone: row.fatherPhone }});
+                  if (!family) {
+                    family = runner.manager.create(Family, {
+                      familyCode: 'FAM-' + Date.now() + Math.floor(Math.random()*100),
+                      fatherName: row.fatherName || 'Unknown',
+                      fatherPhone: row.fatherPhone,
+                      motherName: row.motherName
+                    });
+                    family = await runner.manager.save(family);
+                  }
+                }
+                familyId = family ? family.id : undefined;
+                
+                const user = runner.manager.create(User, {
+                  firstName: row.firstName,
+                  lastName: row.lastName || '',
+                  email: row.email,
+                  phone: row.phone,
+                  passwordHash,
+                  campusId: campus.id,
+                  familyId
+                });
+                const savedUser = await runner.manager.save(user);
+                
+                const enrollment = runner.manager.create(Enrollment, {
+                  studentId: savedUser.id,
+                  sectionId: section.id,
+                  status: 'ENROLLED',
+                  enrollmentDate: new Date(),
+                  campusId: campus.id
+                });
+                await runner.manager.save(enrollment);
+                count++;
+                
+              } else if (roleName === 'TEACHER' || roleName === 'ADMIN') {
+                const user = runner.manager.create(User, {
+                  firstName: row.firstName,
+                  lastName: row.lastName || '',
+                  email: row.email,
+                  phone: row.phone,
+                  passwordHash,
+                  campusId: campus.id,
+                  roleId: roleEntity?.id
+                });
+                const savedUser = await runner.manager.save(user);
+                
+                if (roleName === 'TEACHER') {
+                  const profile = runner.manager.create(StaffProfile, {
+                    userId: savedUser.id,
+                    basicSalary: row.basicSalary ? parseFloat(row.basicSalary) : 0,
+                    qualifications: row.qualifications || '',
+                    experience: row.experience || ''
+                  });
+                  await runner.manager.save(profile);
+                }
+                count++;
+              }
+            }
+            
+            if (errors.length > 0 && count === 0) {
+              await runner.rollbackTransaction();
+            } else {
+              await runner.commitTransaction();
+            }
+          } catch (e: any) {
+            await runner.rollbackTransaction();
+            errors.push('Transaction Failed: ' + e.message);
+          } finally {
+            await runner.release();
+          }
+          
+          resolve({ success: true, count, errors });
+        })
+        .on('error', (err) => {
+          reject(new BadRequestException('Invalid CSV file: ' + err.message));
+        });
+    });
+  }
+
 }

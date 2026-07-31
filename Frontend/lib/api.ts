@@ -115,6 +115,21 @@ export const usersApi = {
   create: (data: any) => fetchAuthApi('/users', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/users/${id}`, { method: 'DELETE' }),
+  bulkImport: async (file: File) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('lms_access_token') : null;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/users/bulk-import`, {
+      method: 'POST',
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.message || 'Failed to import CSV');
+    }
+    return res.json();
+  },
 };
 
 export const reportsApi = {

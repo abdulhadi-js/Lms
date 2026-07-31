@@ -30,6 +30,17 @@ import { ModuleId } from '../roles/entities/module-permission.entity';
 @UseGuards(JwtAuthGuard, MatrixGuard)
 @Controller('users')
 export class UsersController {
+  @Post('bulk-import')
+  @RequirePermission(ModuleId.USERS_STAFF, 'ADD')
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async bulkImport(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    if (!file) throw new BadRequestException('File is required');
+    return this.usersService.bulkImport(file.buffer, user);
+  }
+
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
