@@ -165,10 +165,10 @@ export const enrollmentsApi = {
 };
 
 export const coursesApi = {
-  list: async () => [],
+  list: async (): Promise<any> => [],
   getPublic: () => fetchApi('/public/courses'),
-  get: async (id: string) => null,
-  getModules: async (courseId: string) => [],
+  get: async (id: string): Promise<any> => null,
+  getModules: async (courseId: string): Promise<any> => [],
   createModule: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules`, { method: 'POST', body: JSON.stringify(data) }),
   updateModule: (courseId: string, modId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'PATCH', body: JSON.stringify(data) }),
   removeModule: (courseId: string, modId: string) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'DELETE' }),
