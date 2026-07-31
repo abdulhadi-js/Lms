@@ -34,7 +34,6 @@ export default function UserManagement() {
     allowances: [] as { name: string, amount: string }[],
     deductions: [] as { name: string, amount: string }[],
     bankAccountDetails: ''
-    bankAccountDetails: ''
   });
   
   const [formData, setFormData] = useState({
