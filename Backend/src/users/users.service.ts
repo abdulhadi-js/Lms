@@ -101,6 +101,59 @@ export class UsersService {
     }
   }
 
+  private async sendRoleUpdateEmail(user: User, newRole: Role) {
+    try {
+      let transporter;
+      if (this.configService.get('MAIL_HOST')) {
+        transporter = nodemailer.createTransport({
+          host: this.configService.get('MAIL_HOST'),
+          port: this.configService.get('MAIL_PORT'),
+          secure: true,
+          auth: {
+            user: this.configService.get('MAIL_USER'),
+            pass: this.configService.get('MAIL_PASS'),
+          },
+        });
+      } else {
+        const testAccount = await nodemailer.createTestAccount();
+        transporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+          },
+        });
+      }
+
+      const roleName = newRole.name.charAt(0).toUpperCase() + newRole.name.slice(1).toLowerCase();
+
+      const info = await transporter.sendMail({
+        from: '"EduCore LMS" <no-reply@educore.com>',
+        to: user.email,
+        subject: `EduCore LMS: Your Role Has Been Updated`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+            <h2 style="color: #2F5233; margin-top: 0;">Role Update Notification</h2>
+            <p>Dear ${user.firstName},</p>
+            <p>Your account role in the EduCore LMS has been successfully updated to: <strong style="color: #1a56db;">${roleName}</strong>.</p>
+            <p>Your new permissions will take effect the next time you log in.</p>
+            <p>If you have any questions or believe this was a mistake, please contact your administrator.</p>
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+            <p style="color: #6b7280; font-size: 12px; margin-bottom: 0;">This is an automated message from EduCore LMS.</p>
+          </div>
+        `,
+      });
+      console.log('Role update email sent: %s', info.messageId);
+      if (!this.configService.get('MAIL_HOST')) {
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+      }
+    } catch (error) {
+      console.error('Failed to send role update email', error);
+    }
+  }
+
   async create(createUserDto: CreateUserDto): Promise<SafeUser> {
     const {
       password,
@@ -227,24 +280,9 @@ export class UsersService {
     // Send email notification if role changed
     if (updateUserDto.roleId && updateUserDto.roleId !== oldRoleId) {
       try {
-        const newRole = await this.roleRepo.findOne({ where: { id: updateUserDto.roleId } });
-        if (newRole && this.emailService) {
-          const roleName = newRole.name.charAt(0).toUpperCase() + newRole.name.slice(1).toLowerCase();
-          await this.emailService.sendMail({
-            to: saved.email,
-            subject: `EduCore LMS: Your Role Has Been Updated`,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                <h2 style="color: #2F5233; margin-top: 0;">Role Update Notification</h2>
-                <p>Dear ${saved.firstName},</p>
-                <p>Your account role in the EduCore LMS has been successfully updated to: <strong style="color: #1a56db;">${roleName}</strong>.</p>
-                <p>Your new permissions will take effect the next time you log in.</p>
-                <p>If you have any questions or believe this was a mistake, please contact your administrator.</p>
-                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
-                <p style="color: #6b7280; font-size: 12px; margin-bottom: 0;">This is an automated message from EduCore LMS.</p>
-              </div>
-            `,
-          });
+        const newRole = await this.dataSource.getRepository(Role).findOne({ where: { id: updateUserDto.roleId } });
+        if (newRole) {
+          await this.sendRoleUpdateEmail(saved, newRole);
         }
       } catch (emailErr) {
         console.error('Failed to send role update email:', emailErr);
