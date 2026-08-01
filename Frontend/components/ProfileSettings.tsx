@@ -67,7 +67,9 @@ export default function ProfileSettings() {
         setTimeout(() => window.location.reload(), 1000);
       } else {
         const err = await res.json();
-        toast.error(err.message || 'Failed to update profile');
+        let errMsg = err.message || 'Failed to update profile';
+        if (Array.isArray(errMsg)) errMsg = errMsg.join(', ');
+        toast.error(errMsg);
       }
     } catch (e) {
       toast.error('Network error. Failed to connect.');
@@ -101,7 +103,9 @@ export default function ProfileSettings() {
         setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
       } else {
         const err = await res.json();
-        toast.error(err.message || 'Failed to update password');
+        let errMsg = err.message || 'Failed to update password';
+        if (Array.isArray(errMsg)) errMsg = errMsg.join(', ');
+        toast.error(errMsg);
       }
     } catch (e) {
       toast.error('Network error. Failed to connect.');

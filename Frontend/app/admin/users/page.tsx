@@ -287,10 +287,11 @@ export default function UserManagement() {
           <div className="flex gap-2 w-full md:w-auto">
             <select 
               value={roleFilter}
+              disabled={isLoading}
               onChange={e => setRoleFilter(e.target.value)}
-              className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             >
-              <option value="ALL">All Roles</option>
+              <option value="ALL">{isLoading ? 'Loading Roles...' : 'All Roles'}</option>
               {roles.map(r => (
                 <option key={r.id} value={r.id}>{r.name}</option>
               ))}
@@ -299,30 +300,46 @@ export default function UserManagement() {
         </div>
         
         <div className="overflow-x-auto min-h-[400px]">
-          {isLoading ? (
-             <div className="flex justify-center items-center h-64">
-               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-             </div>
-          ) : filteredUsers.length === 0 ? (
-             <div className="flex flex-col justify-center items-center h-64 text-body-secondary">
-               <Users className="w-12 h-12 mb-2 opacity-20" />
-               <p>No users found.</p>
-             </div>
-          ) : (
-            <>
-              {/* Desktop Table View */}
-              <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                  <th className="py-4 px-6 font-semibold">User</th>
-                  <th className="py-4 px-6 font-semibold">Role</th>
-                  <th className="py-4 px-6 font-semibold">Campus</th>
-                  <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
+                <th className="py-4 px-6 font-semibold">User</th>
+                <th className="py-4 px-6 font-semibold">Role</th>
+                <th className="py-4 px-6 font-semibold">Campus</th>
+                <th className="py-4 px-6 font-semibold">Status</th>
+                <th className="py-4 px-6 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={`skeleton-${idx}`} className="border-b border-border-light animate-pulse">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-divider"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 bg-divider rounded"></div>
+                          <div className="h-3 w-48 bg-divider rounded"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6"><div className="h-4 w-24 bg-divider rounded"></div></td>
+                    <td className="py-4 px-6"><div className="h-4 w-20 bg-divider rounded"></div></td>
+                    <td className="py-4 px-6"><div className="h-6 w-16 bg-divider rounded-full"></div></td>
+                    <td className="py-4 px-6 text-right"><div className="h-8 w-8 bg-divider rounded ml-auto"></div></td>
+                  </tr>
+                ))
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-12">
+                    <div className="flex flex-col justify-center items-center text-body-secondary">
+                      <Users className="w-12 h-12 mb-2 opacity-20" />
+                      <p>No users found.</p>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="text-sm">
-                {filteredUsers.map((row) => (
+              ) : (
+                filteredUsers.map((row) => (
                   <tr key={row.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors group relative">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
@@ -400,11 +417,10 @@ export default function UserManagement() {
                       )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            </>
-          )}
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -483,10 +499,11 @@ export default function UserManagement() {
                     <label className="block text-sm font-medium text-on-surface mb-1">Role Assignment</label>
                     <select 
                       required
+                      disabled={isLoading || roles.length === 0}
                       value={formData.roleId} onChange={e => setFormData({...formData, roleId: e.target.value})}
-                      className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
                     >
-                      <option value="" disabled>Select a Role</option>
+                      <option value="" disabled>{(isLoading || roles.length === 0) ? 'Loading roles...' : 'Select a Role'}</option>
                       {roles.map(r => (
                         <option key={r.id} value={r.id}>{r.name}</option>
                       ))}
@@ -497,10 +514,11 @@ export default function UserManagement() {
                       <label className="block text-sm font-medium text-on-surface mb-1">Assign to Campus</label>
                       <select 
                         required
+                        disabled={isLoading || campuses.length === 0}
                         value={formData.campusId} onChange={e => setFormData({...formData, campusId: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
                       >
-                        <option value="" disabled>Select a Campus</option>
+                        <option value="" disabled>{(isLoading || campuses.length === 0) ? 'Loading campuses...' : 'Select a Campus'}</option>
                         {campuses.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}

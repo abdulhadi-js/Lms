@@ -6,11 +6,11 @@ test.describe('Authentication and Navigation', () => {
     await page.goto('/login');
 
     // Fill in credentials
-    await page.fill('input[type="email"]', 'admin@educore.com');
-    await page.fill('input[type="password"]', 'Admin@123!');
+    await page.fill('input[data-testid="login-email"]', 'admin@educore.com');
+    await page.fill('input[data-testid="login-password"]', 'Admin@123!');
 
     // Click login
-    await page.click('button[type="submit"]');
+    await page.click('button[data-testid="login-submit"]');
 
     // Should redirect to admin dashboard
     try {
@@ -29,11 +29,11 @@ test.describe('Authentication and Navigation', () => {
     await page.goto('/login');
 
     // Fill in credentials
-    await page.fill('input[type="email"]', 'student@educore.com');
-    await page.fill('input[type="password"]', 'Student@123!');
+    await page.fill('input[data-testid="login-email"]', 'student@educore.com');
+    await page.fill('input[data-testid="login-password"]', 'Student@123!');
 
     // Click login
-    await page.click('button[type="submit"]');
+    await page.click('button[data-testid="login-submit"]');
 
     // Should redirect to student dashboard
     await expect(page).toHaveURL(/\/student/, { timeout: 30000 });

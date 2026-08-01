@@ -18,6 +18,7 @@ import { Enrollment } from '../../enrollments/entities/enrollment.entity';
 import { Fee } from '../../fees/entities/fee.entity';
 import { Mark } from '../../marks/entities/mark.entity';
 import { StaffProfile } from '../../hr/entities/staff-profile.entity';
+import { Attendance } from '../../attendance/entities/attendance.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')
@@ -72,6 +73,9 @@ export class User {
 
   @OneToMany(() => Mark, (mark) => mark.student)
   marks: Mark[];
+
+  @OneToMany(() => Attendance, (attendance) => attendance.student)
+  attendances: Attendance[];
 
   @OneToOne(() => StaffProfile, (staffProfile) => staffProfile.user)
   staffProfile: StaffProfile;

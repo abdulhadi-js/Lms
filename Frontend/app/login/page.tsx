@@ -130,6 +130,7 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
+                data-testid="login-email"
                 {...register("email")}
                 placeholder="Enter your email"
                 className={`w-full h-12 bg-surface border ${errors.email ? 'border-error' : 'border-divider'} rounded-lg px-4 text-on-surface placeholder-placeholder focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all`}
@@ -150,6 +151,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  data-testid="login-password"
                   {...register("password")}
                   placeholder="Enter your password"
                   className={`w-full h-12 bg-surface border ${errors.password ? 'border-error' : 'border-divider'} rounded-lg pl-4 pr-12 text-on-surface placeholder-placeholder focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all`}
@@ -182,6 +184,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
+              data-testid="login-submit"
               disabled={isLoading}
               className="w-full h-[52px] rounded-lg font-semibold text-white transition-all hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 primary-gradient flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >

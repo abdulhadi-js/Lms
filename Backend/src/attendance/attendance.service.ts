@@ -9,6 +9,8 @@ import { Attendance, AttendanceStatus } from './entities/attendance.entity';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 
 import { User } from '../users/entities/user.entity';
+import { MessagingService } from '../messaging/messaging.service';
+import { MessageStatus } from '../messaging/entities/message-outbox.entity';
 
 @Injectable()
 export class AttendanceService {
@@ -17,6 +19,7 @@ export class AttendanceService {
     private attendanceRepo: Repository<Attendance>,
     @InjectRepository(User)
     private userRepo: Repository<User>,
+    private messagingService: MessagingService,
   ) {}
 
   async markAttendance(dto: MarkAttendanceDto, currentUser: any) {
@@ -43,6 +46,19 @@ export class AttendanceService {
       record.status = student.status;
       record.notes = student.notes ?? (null as any);
       records.push(record);
+
+      if (student.status === AttendanceStatus.ABSENT) {
+        const studentUser = await this.userRepo.findOne({
+          where: { id: student.studentId },
+        });
+        if (studentUser && studentUser.phone) {
+          await this.messagingService.queueMessage({
+            recipientPhone: studentUser.phone,
+            content: `Notice: ${studentUser.firstName} ${studentUser.lastName} was marked ABSENT on ${dto.classDate}.`,
+            status: MessageStatus.PENDING,
+          });
+        }
+      }
     }
     return this.attendanceRepo.save(records);
   }

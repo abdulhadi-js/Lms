@@ -154,7 +154,31 @@ export default function TeacherCourses() {
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-body-secondary">Loading your courses...</div>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={`skeleton-${idx}`} className="bg-white rounded-xl border border-divider brand-shadow p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulse">
+              <div className="flex items-start gap-4 w-full">
+                <div className="w-12 h-12 bg-divider rounded-lg mt-1 shrink-0"></div>
+                <div className="space-y-3 w-full">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-48 bg-divider rounded"></div>
+                    <div className="h-5 w-16 bg-divider rounded"></div>
+                  </div>
+                  <div className="h-4 w-64 md:w-96 bg-divider rounded"></div>
+                  <div className="flex gap-4 mt-3">
+                    <div className="h-4 w-32 bg-divider rounded"></div>
+                    <div className="h-4 w-24 bg-divider rounded"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 justify-end mt-4 md:mt-0">
+                <div className="w-8 h-8 bg-divider rounded-full"></div>
+                <div className="w-8 h-8 bg-divider rounded-full"></div>
+                <div className="w-8 h-8 bg-divider rounded-full"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : error ? (
         <div className="p-12 text-center text-error">{error}</div>
       ) : courses.length === 0 ? (
@@ -214,7 +238,23 @@ export default function TeacherCourses() {
                   </div>
                   
                   {modulesLoading[course.id] ? (
-                    <div className="p-4 text-center text-sm text-body-secondary">Loading modules...</div>
+                    <div className="space-y-3">
+                      {Array.from({ length: 2 }).map((_, idx) => (
+                        <div key={`mod-skel-${idx}`} className="p-4 bg-white border border-border-light rounded-lg flex justify-between items-center animate-pulse">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-8 h-8 bg-divider rounded shrink-0"></div>
+                            <div className="space-y-2 w-full">
+                              <div className="h-4 w-32 bg-divider rounded"></div>
+                              <div className="h-3 w-48 bg-divider rounded"></div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="w-8 h-4 bg-divider rounded"></div>
+                            <div className="w-10 h-4 bg-divider rounded"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       {courseModules[course.id]?.length > 0 ? (

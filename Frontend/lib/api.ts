@@ -4,37 +4,59 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:300
 export const BASE_URL = API_BASE.replace('/api/v1', '');
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-  // Global 401 handler — clear tokens and redirect to login
-  if (res.status === 401) {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('lms_access_token');
-      localStorage.removeItem('lms_refresh_token');
-      window.location.href = '/login';
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    // Global 401 handler — clear tokens and redirect to login
+    if (res.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('lms_access_token');
+        localStorage.removeItem('lms_refresh_token');
+        window.location.href = '/login';
+      }
+      throw new Error('Session expired. Please log in again.');
     }
-    throw new Error('Session expired. Please log in again.');
-  }
 
-  if (!res.ok) {
-    // Try to parse backend error message
-    let message = `API error: ${res.status}`;
-    try {
-      const errBody = await res.json();
-      message = errBody?.message || errBody?.error || message;
-    } catch {
-      // ignore parse errors
+    if (!res.ok) {
+      // Try to parse backend error message
+      let message = `API error: ${res.status}`;
+      try {
+        const errBody = await res.json();
+        if (Array.isArray(errBody?.message)) {
+          message = errBody.message.join(', ');
+        } else {
+          message = errBody?.message || errBody?.error || message;
+        }
+      } catch {
+        // ignore parse errors
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
-  }
 
-  return res.json();
+    if (res.status === 204) return null;
+    return await res.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your internet connection.');
+    }
+    if (error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('Network'))) {
+      throw new Error('Network error. Unable to connect to the server.');
+    }
+    throw error;
+  }
 }
 
 export const tokens = {
@@ -207,6 +229,11 @@ export const academicsApi = {
   createSubject: (data: any) => fetchAuthApi(`/academics/subjects`, { method: 'POST', body: JSON.stringify(data) }),
   updateSubject: (id: string, data: any) => fetchAuthApi(`/academics/subjects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   removeSubject: (id: string) => fetchAuthApi(`/academics/subjects/${id}`, { method: 'DELETE' }),
+};
+
+export const familiesApi = {
+  list: (familyCode?: string) => fetchAuthApi(familyCode ? `/families?familyCode=${familyCode}` : '/families'),
+  get: (id: string) => fetchAuthApi(`/families/${id}`),
 };
 
 export const campusesApi = {

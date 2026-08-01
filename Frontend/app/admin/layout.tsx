@@ -20,13 +20,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role?.toUpperCase() !== 'ADMIN' && user.role?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin) {
-        router.push('/');
+      } else {
+        const roleName = typeof user.role === 'object' ? (user.role as any)?.name : user.role;
+        if (roleName?.toUpperCase() !== 'ADMIN' && roleName?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin) {
+          router.push('/');
+        }
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || (user.role?.toUpperCase() !== 'ADMIN' && user.role?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin)) {
+  const roleName = user ? (typeof user.role === 'object' ? (user.role as any)?.name : user.role) : null;
+  if (isLoading || !user || (roleName?.toUpperCase() !== 'ADMIN' && roleName?.toUpperCase() !== 'PRINCIPAL' && !user.isSuperAdmin)) {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
   
@@ -45,6 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
     { name: 'Enrollments', path: '/admin/enrollments', icon: Users, moduleId: 'USERS_STUDENTS' },
     { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
+    { name: 'Families & Siblings', path: '/admin/families', icon: Users, moduleId: 'USERS_STUDENTS' },
     { name: 'Fees', path: '/admin/fees', icon: BarChart3, moduleId: 'FEES' },
     { name: 'Accounts (Ledger)', path: '/admin/accounts', icon: BarChart3, moduleId: 'ACCOUNTS' },
     { name: 'Messaging', path: '/admin/messaging', icon: Bell, moduleId: 'MESSAGING' },
@@ -136,6 +141,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link 
                   href={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
+                  data-testid={`nav-${link.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${active ? 'bg-primary-container text-on-primary-container' : 'text-body-secondary hover:bg-surface-container hover:text-on-surface'} ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
                   title={isSidebarCollapsed && !isMobileMenuOpen ? link.name : undefined}
                 >

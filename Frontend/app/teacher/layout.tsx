@@ -15,17 +15,20 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role?.toUpperCase() !== 'INSTRUCTOR' && user.role?.toUpperCase() !== 'TEACHER') {
-        router.push('/');
+      } else {
+        const roleName = typeof user.role === 'object' ? (user.role as any)?.name : user.role;
+        if (roleName?.toUpperCase() !== 'INSTRUCTOR' && roleName?.toUpperCase() !== 'TEACHER') {
+          router.push('/');
+        }
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || (user.role?.toUpperCase() !== 'INSTRUCTOR' && user.role?.toUpperCase() !== 'TEACHER')) {
+  const roleName = user ? (typeof user.role === 'object' ? (user.role as any)?.name : user.role) : null;
+  if (isLoading || !user || (roleName?.toUpperCase() !== 'INSTRUCTOR' && roleName?.toUpperCase() !== 'TEACHER')) {
     return <div className="flex h-screen items-center justify-center bg-page-bg text-evergreen">Loading...</div>;
   }
   const isActive = (path: string) => pathname === path;
@@ -97,6 +100,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
               <Link
                 href={href}
                 title={isCollapsed ? label : undefined}
+                data-testid={`nav-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${
                   isActive(href)
                     ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}`

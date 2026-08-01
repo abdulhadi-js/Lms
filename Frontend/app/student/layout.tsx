@@ -16,17 +16,20 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.role?.toUpperCase() !== 'STUDENT') {
-        router.push('/');
+      } else {
+        const roleName = typeof user.role === 'object' ? (user.role as any)?.name : user.role;
+        if (roleName?.toUpperCase() !== 'STUDENT') {
+          router.push('/');
+        }
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user || user.role?.toUpperCase() !== 'STUDENT') {
+  const roleName = user ? (typeof user.role === 'object' ? (user.role as any)?.name : user.role) : null;
+  if (isLoading || !user || roleName?.toUpperCase() !== 'STUDENT') {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-page-bg text-evergreen gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -96,49 +99,49 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         </div>
         <ul className={`flex flex-col gap-1 ${isCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'} flex-grow overflow-y-auto`}>
           <li>
-            <Link href="/student" title={isCollapsed ? "Dashboard" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname === '/student' ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student" title={isCollapsed ? "Dashboard" : undefined} data-testid="nav-dashboard" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname === '/student' ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <LayoutDashboard className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Dashboard</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/courses" title={isCollapsed ? "My Courses" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/courses') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/courses" title={isCollapsed ? "My Courses" : undefined} data-testid="nav-my-courses" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/courses') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <GraduationCap className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">My Courses</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/assignments" title={isCollapsed ? "Assignments" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/assignments') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/assignments" title={isCollapsed ? "Assignments" : undefined} data-testid="nav-assignments" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/assignments') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <FileText className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Assignments</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/transcript" title={isCollapsed ? "Grades & Transcripts" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/transcript') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/transcript" title={isCollapsed ? "Grades & Transcripts" : undefined} data-testid="nav-grades-transcripts" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/transcript') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <Award className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Grades & Transcripts</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/attendance" title={isCollapsed ? "Attendance" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/attendance') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/attendance" title={isCollapsed ? "Attendance" : undefined} data-testid="nav-attendance" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/attendance') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <Calendar className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Attendance</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/fees" title={isCollapsed ? "Fees & Payments" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/fees') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/fees" title={isCollapsed ? "Fees & Payments" : undefined} data-testid="nav-fees-payments" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/fees') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <CreditCard className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Fees & Payments</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/chat" title={isCollapsed ? "Messages" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/chat') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/chat" title={isCollapsed ? "Messages" : undefined} data-testid="nav-messages" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/chat') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <MessageSquare className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Messages</span>}
             </Link>
           </li>
           <li>
-            <Link href="/student/profile" title={isCollapsed ? "Profile Settings" : undefined} className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/profile') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+            <Link href="/student/profile" title={isCollapsed ? "Profile Settings" : undefined} data-testid="nav-profile-settings" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/profile') ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <Settings className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Profile Settings</span>}
             </Link>

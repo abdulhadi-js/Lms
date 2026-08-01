@@ -4,11 +4,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AttendanceService } from './attendance.service';
 import { AttendanceController } from './attendance.controller';
 import { Attendance } from './entities/attendance.entity';
-
 import { User } from '../users/entities/user.entity';
+import { MessagingModule } from '../messaging/messaging.module';
 
 @Module({
-  imports: [RolesModule, TypeOrmModule.forFeature([Attendance, User])],
+  imports: [
+    RolesModule,
+    MessagingModule,
+    TypeOrmModule.forFeature([Attendance, User]),
+  ],
   controllers: [AttendanceController],
   providers: [AttendanceService],
   exports: [AttendanceService],

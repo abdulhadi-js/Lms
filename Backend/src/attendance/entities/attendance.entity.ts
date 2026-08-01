@@ -1,4 +1,5 @@
 import { Campus } from '../../campuses/entities/campus.entity';
+import { User } from '../../users/entities/user.entity';
 import {
   Index,
   Entity,
@@ -7,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum AttendanceStatus {
@@ -23,6 +25,10 @@ export class Attendance {
 
   @Column({ type: 'uuid', nullable: true })
   studentId: string;
+
+  @ManyToOne(() => User, (user) => user.attendances, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'studentId' })
+  student: User;
 
   @Column({ type: 'uuid', nullable: true })
   userId: string;

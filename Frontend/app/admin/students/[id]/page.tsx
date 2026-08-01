@@ -5,7 +5,7 @@ import { usersApi, feesApi, BASE_URL } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { 
   User, Mail, Phone, MapPin, Users, BookOpen, Banknote, 
-  Award, Clock, ArrowLeft, Loader2, CheckCircle, XCircle, FileText 
+  Award, Clock, ArrowLeft, Loader2, CheckCircle, XCircle, FileText, Printer, Calendar 
 } from 'lucide-react';
 import { RequireAccess } from '@/components/RequireAccess';
 
@@ -41,13 +41,16 @@ export default function UnifiedStudentProfile() {
     try {
       const res = await feesApi.getFamilyConsolidated(student.family.familyCode);
       toast.success(`Generated consolidated voucher for $${res.totalUnpaid}`);
-      // In a real app, this would open a PDF or a printable view
       console.log('Consolidated fees:', res.fees);
     } catch (err: any) {
       toast.error(err.message || 'Failed to generate voucher');
     } finally {
       setGeneratingVoucher(false);
     }
+  };
+
+  const handlePrintStudentFile = () => {
+    window.print();
   };
 
   if (loading) {
@@ -65,17 +68,27 @@ export default function UnifiedStudentProfile() {
   const enrollments = student.enrollments || [];
   const fees = student.fees || [];
   const marks = student.marks || [];
+  const attendances = student.attendances || [];
 
   return (
     <RequireAccess module="USERS_STUDENTS" action="canView">
       <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6 animate-in fade-in duration-300">
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center text-sm font-semibold text-body-secondary hover:text-primary transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to List
-        </button>
+        <div className="flex justify-between items-center print:hidden">
+          <button 
+            onClick={() => router.back()}
+            className="flex items-center text-sm font-semibold text-body-secondary hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to List
+          </button>
+          <button
+            onClick={handlePrintStudentFile}
+            className="bg-surface hover:bg-surface-container border border-divider text-on-surface text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all"
+          >
+            <Printer className="w-4 h-4 text-primary" />
+            Print Student File
+          </button>
+        </div>
 
         {/* Top Header - Student Info */}
         <div className="bg-surface rounded-xl border border-divider brand-shadow p-6 flex flex-col md:flex-row gap-6 items-start md:items-center relative overflow-hidden">
@@ -309,6 +322,55 @@ export default function UnifiedStudentProfile() {
                       )) : (
                         <tr>
                           <td colSpan={4} className="py-6 text-center text-body-secondary">No academic results recorded yet.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </RequireAccess>
+
+            {/* Attendance History */}
+            <RequireAccess module="ATTENDANCE" action="canView">
+              <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
+                <div className="p-5 border-b border-divider bg-surface flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-heading-on-light flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-warning" />
+                    Attendance History
+                  </h3>
+                  {attendances.length > 0 && (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-container text-body-secondary">
+                      Total Records: {attendances.length}
+                    </span>
+                  )}
+                </div>
+                <div className="p-0 overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider">
+                        <th className="py-3 px-5 font-semibold">Date</th>
+                        <th className="py-3 px-5 font-semibold">Status</th>
+                        <th className="py-3 px-5 font-semibold">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {attendances.length > 0 ? attendances.slice(0, 10).map((att: any) => (
+                        <tr key={att.id} className="border-b border-border-light last:border-0 hover:bg-surface-container-low">
+                          <td className="py-3 px-5 font-medium text-on-surface">{new Date(att.classDate || att.createdAt).toLocaleDateString()}</td>
+                          <td className="py-3 px-5">
+                            <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
+                              att.status === 'PRESENT' ? 'bg-success-bg text-success' :
+                              att.status === 'ABSENT' ? 'bg-error-bg text-error' :
+                              att.status === 'LATE' ? 'bg-warning-bg text-warning' : 'bg-surface-container text-body-secondary'
+                            }`}>
+                              {att.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-5 text-body-secondary">{att.notes || '—'}</td>
+                        </tr>
+                      )) : (
+                        <tr>
+                          <td colSpan={3} className="py-6 text-center text-body-secondary">No attendance records logged.</td>
                         </tr>
                       )}
                     </tbody>

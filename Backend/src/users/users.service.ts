@@ -248,6 +248,7 @@ export class UsersService {
         enrollments: { section: true },
         fees: true,
         marks: true,
+        attendances: true,
       },
     });
     if (!user) throw new NotFoundException(`Student #${id} not found`);

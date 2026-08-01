@@ -51,8 +51,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         tokens.set(data.accessToken, data.refreshToken);
         // Schedule the next refresh cycle
         scheduleRefresh();
-      } catch {
-        // Refresh failed — session truly expired, force logout
+      } catch (err: any) {
+        // If it's a network error (Failed to fetch), retry in 1 minute
+        if (err instanceof TypeError && err.message.includes('fetch')) {
+           refreshTimerRef.current = setTimeout(() => {
+             // Re-trigger the logic
+             scheduleRefresh();
+           }, 60 * 1000);
+           return;
+        }
+
+        // Refresh failed — session truly expired or invalid, force logout
         tokens.clear();
         localStorage.removeItem("lms_user");
         setUser(null);
@@ -133,11 +142,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Route based on role — handle super admin edge cases
       let nextPath = "/";
-      if (data.user.isSuperAdmin || data.user.role?.toUpperCase() === "PRINCIPAL" || data.user.role?.toUpperCase() === "ADMIN") {
+      const roleName = typeof data.user.role === 'object' ? (data.user.role as any)?.name : data.user.role;
+      
+      if (data.user.isSuperAdmin || roleName?.toUpperCase() === "PRINCIPAL" || roleName?.toUpperCase() === "ADMIN") {
         nextPath = "/admin";
-      } else if (data.user.role?.toUpperCase() === "TEACHER" || data.user.role?.toUpperCase() === "INSTRUCTOR") {
+      } else if (roleName?.toUpperCase() === "TEACHER" || roleName?.toUpperCase() === "INSTRUCTOR") {
         nextPath = "/teacher";
-      } else if (data.user.role?.toUpperCase() === "STUDENT") {
+      } else if (roleName?.toUpperCase() === "STUDENT") {
         nextPath = "/student";
       }
 
