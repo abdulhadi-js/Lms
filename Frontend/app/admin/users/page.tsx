@@ -5,13 +5,11 @@ import { usersApi, rolesApi, campusesApi, hrApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<any[]>([]);
-  const [roles, setRoles] = useState<any[]>([]);
-  const [campuses, setCampuses] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Filters
@@ -54,27 +52,26 @@ export default function UserManagement() {
     address: ''
   });
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [usersData, rolesData, campusesData] = await Promise.all([
-        usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined),
-        rolesApi.list().catch(() => []),
-        campusesApi.list().catch(() => [])
-      ]);
-      setUsers(usersData.data || usersData || []);
-      setRoles(rolesData);
-      setCampuses(campusesData);
-    } catch (error) {
-      toast.error('Failed to load users');
-    } finally {
-      setIsLoading(false);
+  const { data: usersData, isLoading: isUsersLoading } = useQuery({
+    queryKey: ['users', roleFilter],
+    queryFn: async () => {
+      const res = await usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined);
+      return res.data || res || [];
     }
-  };
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [roleFilter]);
+  const { data: roles = [], isLoading: isRolesLoading } = useQuery({
+    queryKey: ['roles'],
+    queryFn: async () => rolesApi.list().catch(() => [])
+  });
+
+  const { data: campuses = [], isLoading: isCampusesLoading } = useQuery({
+    queryKey: ['campuses'],
+    queryFn: async () => campusesApi.list().catch(() => [])
+  });
+
+  const users = usersData || [];
+  const isLoading = isUsersLoading || isRolesLoading || isCampusesLoading;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -131,58 +128,71 @@ export default function UserManagement() {
     setOpenDropdown(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const payload: any = {
-        email: formData.email,
-        roleId: formData.roleId || undefined,
-        campusId: formData.campusId || undefined,
-        status: formData.status,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone || undefined,
-        isSuperAdmin: formData.isSuperAdmin,
-        familyCode: formData.familyCode || undefined,
-        fatherName: formData.fatherName || undefined,
-        fatherPhone: formData.fatherPhone || undefined,
-        motherName: formData.motherName || undefined,
-        guardianName: formData.guardianName || undefined,
-        address: formData.address || undefined
-      };
-      
-      if (formData.password) {
-        payload.password = formData.password;
-      }
-
+  const submitMutation = useMutation({
+    mutationFn: async (payload: any) => {
       if (isEditMode) {
         await usersApi.update(formData.id, payload);
-        toast.success('User updated successfully');
       } else {
-        if (!formData.password) throw new Error("Password is required for new users");
         await usersApi.create(payload);
-        toast.success('User created successfully');
       }
+    },
+    onSuccess: () => {
+      toast.success(isEditMode ? 'User updated successfully' : 'User created successfully');
       setIsModalOpen(false);
-      fetchData();
-    } catch (error: any) {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error: any) => {
       toast.error(error.message || 'Failed to save user');
-    } finally {
-      setIsSubmitting(false);
     }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isEditMode && !formData.password) {
+      toast.error("Password is required for new users");
+      return;
+    }
+    
+    const payload: any = {
+      email: formData.email,
+      roleId: formData.roleId || undefined,
+      campusId: formData.campusId || undefined,
+      status: formData.status,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      phone: formData.phone || undefined,
+      isSuperAdmin: formData.isSuperAdmin,
+      familyCode: formData.familyCode || undefined,
+      fatherName: formData.fatherName || undefined,
+      fatherPhone: formData.fatherPhone || undefined,
+      motherName: formData.motherName || undefined,
+      guardianName: formData.guardianName || undefined,
+      address: formData.address || undefined
+    };
+    
+    if (formData.password) {
+      payload.password = formData.password;
+    }
+
+    submitMutation.mutate(payload);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user? (They will be marked as INACTIVE)')) return;
-    try {
-      await usersApi.remove(id);
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => usersApi.remove(id),
+    onSuccess: () => {
       toast.success('User deactivated successfully');
-      fetchData();
-    } catch (error: any) {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setOpenDropdown(null);
+    },
+    onError: (error: any) => {
       toast.error(error.message || 'Failed to deactivate user');
+      setOpenDropdown(null);
     }
-    setOpenDropdown(null);
+  });
+
+  const handleDelete = (id: string) => {
+    if (!confirm('Are you sure you want to delete this user? (They will be marked as INACTIVE)')) return;
+    deleteMutation.mutate(id);
   };
 
   const handleOpenHrModal = async (userId: string) => {
@@ -619,11 +629,11 @@ export default function UserManagement() {
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" disabled={isSubmitting}
+                  <button 
+                  type="submit" disabled={submitMutation.isPending}
                   className="px-4 py-2 text-sm font-semibold text-white primary-gradient rounded-lg hover:shadow-md transition-shadow disabled:opacity-70 flex items-center"
                 >
-                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {submitMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {isEditMode ? 'Save Changes' : 'Create User'}
                 </button>
               </div>

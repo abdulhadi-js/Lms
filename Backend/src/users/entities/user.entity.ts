@@ -31,6 +31,7 @@ export class User {
   @Column({ default: false })
   isSuperAdmin: boolean;
 
+  @Index()
   @Column({ nullable: true })
   roleId: string;
 
@@ -38,6 +39,7 @@ export class User {
   @JoinColumn({ name: 'roleId' })
   role: Role;
 
+  @Index()
   @Column({ type: 'uuid', nullable: true })
   campusId: string;
 
