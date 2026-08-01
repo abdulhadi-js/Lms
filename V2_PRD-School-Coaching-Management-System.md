@@ -362,3 +362,22 @@ Full architecture rationale, tech-stack recommendation, and reporting layer deta
 | Dashboard KPIs | F | F | V (scoped) | V (fee KPIs) |
 
 Legend: F = Full · M = Manage (no Delete) · E = Entry only · V = View only · – = No access
+
+---
+
+## 16. Phase 2 & V2 Implemented Additions (Missing Features Added)
+
+During the development and stabilization phases of V2, several key features and architectural upgrades were successfully implemented that expand the scope beyond the original PRD:
+
+### 16.1 Functional Additions
+- **Real-Time In-App Chat (WebSockets)**: Dedicated `/student/chat` and `/teacher/chat` portals enabling direct, real-time messaging between students and instructors.
+- **Dynamic HR Profile Management**: Granular control for staff members featuring dynamic Allowances, Deductions, Bank Account tracking, Experience, and Qualifications via the Admin Portal (`/admin/users`).
+- **PDF Academic Transcripts**: Automated generation of formalized, downloadable PDF student transcripts via `/marks/transcript/:studentId/pdf`.
+- **Dynamic Timetable Builder**: Interactive 7-day schedule builder allowing the mapping of `sectionId`, `subjectId`, and `teacherId` with room and time blocks.
+
+### 16.2 Architectural & Non-Functional Additions
+- **React Query State Management (TanStack)**: Replaced legacy local state fetching with declarative caching, background refetching, and pagination to improve client performance and UI responsiveness.
+- **Global Error Boundaries**: Implemented native Next.js root error boundaries (`global-error.tsx`) to gracefully catch deeply nested rendering crashes without unmounting the layout.
+- **Database Indexing**: Optimized large-scale queries (Bulk Import, Role/Campus filtering) by applying TypeORM indices to high-traffic columns (`roleId`, `campusId`).
+- **Comprehensive E2E Testing**: Full Playwright/TestSprite integration ensuring strict Continuous Integration (CI) stability across critical DOM elements, hydration, and API edge cases.
+- **Role-Based Auth Guards**: Upgraded dual-token (Access + Refresh) JWT authentication featuring matrix-based permission boundaries mapped directly into the Next.js layouts (`layout.tsx`).
