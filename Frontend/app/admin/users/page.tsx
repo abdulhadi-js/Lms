@@ -20,6 +20,7 @@ export default function UserManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isHrLoading, setIsHrLoading] = useState(false);
   
   const [isHrModalOpen, setIsHrModalOpen] = useState(false);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function UserManagement() {
     address: ''
   });
 
-  const { data: usersData, isLoading: isUsersLoading } = useQuery({
+  const { data: usersData, isLoading: isUsersLoading } = useQuery<any[]>({
     queryKey: ['users', roleFilter],
     queryFn: async () => {
       const res = await usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined);
@@ -60,12 +61,12 @@ export default function UserManagement() {
     }
   });
 
-  const { data: roles = [], isLoading: isRolesLoading } = useQuery({
+  const { data: roles = [], isLoading: isRolesLoading } = useQuery<any[]>({
     queryKey: ['roles'],
     queryFn: async () => rolesApi.list().catch(() => [])
   });
 
-  const { data: campuses = [], isLoading: isCampusesLoading } = useQuery({
+  const { data: campuses = [], isLoading: isCampusesLoading } = useQuery<any[]>({
     queryKey: ['campuses'],
     queryFn: async () => campusesApi.list().catch(() => [])
   });
@@ -198,7 +199,7 @@ export default function UserManagement() {
   const handleOpenHrModal = async (userId: string) => {
     setSelectedStaffId(userId);
     setOpenDropdown(null);
-    setIsLoading(true);
+    setIsHrLoading(true);
     try {
       const profile = await hrApi.getProfile(userId);
       setHrFormData({
@@ -218,7 +219,7 @@ export default function UserManagement() {
       });
       setIsHrModalOpen(true);
     } finally {
-      setIsLoading(false);
+      setIsHrLoading(false);
     }
   };
 
