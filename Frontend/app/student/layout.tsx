@@ -16,6 +16,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.push('/login');

@@ -15,6 +15,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.push('/login');
