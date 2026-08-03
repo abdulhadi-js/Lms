@@ -30,6 +30,12 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
     }
 
     if (!res.ok) {
+      if (res.status >= 502 && res.status <= 504) {
+        throw new Error('Server is temporarily unreachable. Please try again later.');
+      }
+      if (res.status === 500) {
+        throw new Error('An internal server error occurred.');
+      }
       // Try to parse backend error message
       let message = `API error: ${res.status}`;
       try {
@@ -175,7 +181,13 @@ export const hrApi = {
 
 export const enrollmentsApi = {
   getApplications: (status?: string) => fetchAuthApi(status ? `/applications?status=${status}` : '/applications'),
-  list: () => fetchAuthApi('/enrollments'),
+  list: (page?: number, limit?: number) => {
+    let url = '/enrollments';
+    if (page && limit) {
+      url += `?page=${page}&limit=${limit}`;
+    }
+    return fetchAuthApi(url);
+  },
   reviewApplication: (id: string, status: string, notes?: string) => fetchAuthApi(`/applications/${id}/review`, {
     method: 'PATCH',
     body: JSON.stringify({ status, notes })
@@ -202,10 +214,10 @@ export const enrollmentsApi = {
 };
 
 export const coursesApi = {
-  list: async (): Promise<any> => [],
+  list: () => fetchAuthApi('/courses'),
   getPublic: () => fetchApi('/public/courses'),
-  get: async (id: string): Promise<any> => null,
-  getModules: async (courseId: string): Promise<any> => [],
+  get: (id: string) => fetchAuthApi(`/courses/${id}`),
+  getModules: (courseId: string) => fetchAuthApi(`/courses/${courseId}/modules`),
   createModule: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules`, { method: 'POST', body: JSON.stringify(data) }),
   updateModule: (courseId: string, modId: string, data: any) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'PATCH', body: JSON.stringify(data) }),
   removeModule: (courseId: string, modId: string) => fetchAuthApi(`/courses/${courseId}/modules/${modId}`, { method: 'DELETE' }),
@@ -345,6 +357,7 @@ export const attendanceApi = {
 export const messagingApi = {
   getTemplates: () => fetchAuthApi('/messaging/templates'),
   createTemplate: (data: any) => fetchAuthApi('/messaging/templates', { method: 'POST', body: JSON.stringify(data) }),
+  updateTemplate: (id: string, data: any) => fetchAuthApi(`/messaging/templates/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   getOutbox: () => fetchAuthApi('/messaging/outbox'),
   send: (data: any) => fetchAuthApi('/messaging/send', { method: 'POST', body: JSON.stringify(data) })
 };

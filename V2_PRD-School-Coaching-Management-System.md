@@ -381,3 +381,18 @@ During the development and stabilization phases of V2, several key features and 
 - **Database Indexing**: Optimized large-scale queries (Bulk Import, Role/Campus filtering) by applying TypeORM indices to high-traffic columns (`roleId`, `campusId`).
 - **Comprehensive E2E Testing**: Full Playwright/TestSprite integration ensuring strict Continuous Integration (CI) stability across critical DOM elements, hydration, and API edge cases.
 - **Role-Based Auth Guards**: Upgraded dual-token (Access + Refresh) JWT authentication featuring matrix-based permission boundaries mapped directly into the Next.js layouts (`layout.tsx`).
+
+---
+
+## 17. Test Accounts & Credentials
+
+The following credentials are provisioned for QA testing and TestSprite E2E validation. All accounts authenticate via standard JWT exchange and are subject to Role-Based Access Control (RBAC):
+
+| Role | Campus Assignment | Capabilities | Email | Password |
+|---|---|---|---|---|
+| **Super Admin** | Global Access | Can create campuses, roles, and assign users globally. | `superadmin@educore.com` | `Admin@123!` |
+| **Principal** | Main Campus | Campus Admin: manage users, courses, roles, and view reports/fees. | `principal@educore.com` | `Principal@123!` |
+| **Teacher** | Main Campus | Instructor: view courses, manage marks/attendance. | `teacher@educore.com` | `Teacher@123!` |
+| **Student** | Main Campus | Learner: view their own courses, marks, and fee history. | `student@educore.com` | `Student@123!` |
+
+**Testing Note**: The login (`/auth/login`), forgot password, and reset password endpoints require "No Authentication" in TestSprite. All other API endpoints expect a global Bearer Token retrieved during login.

@@ -33,7 +33,7 @@ export default function CourseDetail() {
     } catch (err: any) {
       setError(err.message || 'Failed to load course details');
     } finally {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setLoading(false);
     }
   };

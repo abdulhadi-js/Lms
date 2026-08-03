@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { Plus, Building2, MapPin, Phone, MoreVertical, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { campusesApi } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 export default function CampusesManagement() {
   const [campuses, setCampuses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', code: '', address: '', contactPhone: '' });
+  const router = useRouter();
 
   const fetchCampuses = async () => {
     setLoading(true);
@@ -66,7 +68,7 @@ export default function CampusesManagement() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {campuses.map(campus => (
-            <div key={campus.id} className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+            <div key={campus.id} onClick={() => router.push('/admin')} className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
               <div className="h-2 bg-gradient-to-r from-primary to-secondary" />
               <div className="p-5">
                 <div className="flex justify-between items-start mb-4">

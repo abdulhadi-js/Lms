@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Silent token refresh ────────────────────────────────────────────────────
-  const scheduleRefresh = useCallback(() => {
+  const scheduleRefresh = useCallback(function _scheduleRefresh() {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
 
     // Refresh 2 minutes before a standard 15-minute token expires
@@ -50,13 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await authApi.refresh(refreshToken);
         tokens.set(data.accessToken, data.refreshToken);
         // Schedule the next refresh cycle
-        scheduleRefresh();
+        _scheduleRefresh();
       } catch (err: any) {
         // If it's a network error (Failed to fetch), retry in 1 minute
         if (err instanceof TypeError && err.message.includes('fetch')) {
            refreshTimerRef.current = setTimeout(() => {
              // Re-trigger the logic
-             scheduleRefresh();
+             _scheduleRefresh();
            }, 60 * 1000);
            return;
         }

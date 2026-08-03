@@ -17,7 +17,10 @@ function AnimatedCounter({ label, value, prefix = '', suffix = '', duration = 12
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (value === 0) { setDisplay(0); return; }
+    if (value === 0) {
+      setTimeout(() => setDisplay(0), 0);
+      return;
+    }
     startRef.current = null;
     const animate = (ts: number) => {
       if (!startRef.current) startRef.current = ts;

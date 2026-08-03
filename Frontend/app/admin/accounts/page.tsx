@@ -17,6 +17,8 @@ export default function AccountsManagement() {
     date: new Date().toISOString().split('T')[0],
     referenceNumber: ''
   });
+  const [sourceAccount, setSourceAccount] = useState('MAIN_BANK');
+  const [lineItems, setLineItems] = useState([{ amount: '', description: '' }]);
 
   // Filters
   const [typeFilter, setTypeFilter] = useState('ALL');
@@ -42,17 +44,21 @@ export default function AccountsManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await financeApi.createTransaction({
-        type: formData.type,
-        category: formData.category,
-        amount: Number(formData.amount),
-        description: formData.description,
-        date: new Date(formData.date).toISOString(),
-        referenceNumber: formData.referenceNumber || null
-      });
+      await Promise.all(lineItems.map(item => 
+        financeApi.createTransaction({
+          type: formData.type,
+          category: formData.category,
+          amount: Number(item.amount),
+          description: `[${sourceAccount}] ` + item.description,
+          date: new Date(formData.date).toISOString(),
+          referenceNumber: formData.referenceNumber || null
+        })
+      ));
       toast.success('Transaction logged successfully');
       setIsModalOpen(false);
-      setFormData({ ...formData, amount: '', description: '', referenceNumber: '' });
+      setFormData({ ...formData, referenceNumber: '' });
+      setLineItems([{ amount: '', description: '' }]);
+      setSourceAccount('MAIN_BANK');
       fetchTransactions();
     } catch (err: any) {
       toast.error(err.message || 'Failed to log transaction');
@@ -266,21 +272,57 @@ export default function AccountsManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Amount ($)</label>
-                <input 
-                  type="number" step="0.01" required
-                  value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})}
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
-                />
+                <label className="block text-sm font-medium text-on-surface mb-1">Source Account</label>
+                <select 
+                  value={sourceAccount} onChange={e => setSourceAccount(e.target.value)}
+                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                >
+                  <option value="MAIN_BANK">Main Bank Account</option>
+                  <option value="PETTY_CASH">Petty Cash</option>
+                  <option value="ONLINE_GATEWAY">Online Payment Gateway</option>
+                </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Description</label>
-                <input 
-                  type="text" required placeholder="e.g. Monthly electricity bill"
-                  value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
-                />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-medium text-on-surface">Line Items</label>
+                  <button type="button" onClick={() => setLineItems([...lineItems, { amount: '', description: '' }])} className="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
+                    <Plus className="w-3 h-3" /> Add Item
+                  </button>
+                </div>
+                {lineItems.map((item, index) => (
+                  <div key={index} className="flex gap-2 items-start">
+                    <div className="flex-1">
+                      <input 
+                        type="text" required placeholder="Description (e.g. Monthly electricity bill)"
+                        value={item.description} onChange={e => {
+                          const newItems = [...lineItems];
+                          newItems[index].description = e.target.value;
+                          setLineItems(newItems);
+                        }}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm mb-1" 
+                      />
+                    </div>
+                    <div className="w-1/3">
+                      <input 
+                        type="number" step="0.01" required placeholder="Amount ($)"
+                        value={item.amount} onChange={e => {
+                          const newItems = [...lineItems];
+                          newItems[index].amount = e.target.value;
+                          setLineItems(newItems);
+                        }}
+                        className="w-full px-3 py-2 border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm" 
+                      />
+                    </div>
+                    {lineItems.length > 1 && (
+                      <button type="button" onClick={() => {
+                        setLineItems(lineItems.filter((_, i) => i !== index));
+                      }} className="p-2 text-icon-inactive hover:text-error mt-0.5">
+                        &times;
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

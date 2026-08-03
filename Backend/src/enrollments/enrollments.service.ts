@@ -166,22 +166,35 @@ export class EnrollmentsService {
     return enrollment;
   }
 
-  async findEnrollments(currentUser: any) {
+  async findEnrollments(currentUser: any, page: number = 1, limit: number = 0) {
     const whereClause: any = {};
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
 
+    const skip = (page - 1) * limit;
+    const findOptions: any = {
+      where: whereClause,
+      relations: { student: true, section: { academicClass: true } },
+    };
+
+    if (limit > 0) {
+      findOptions.skip = skip;
+      findOptions.take = limit;
+    }
+
     if (currentUser.permissions?.includes('VIEW_ENROLLMENTS')) {
-      return this.enrollmentRepo.find({
-        where: whereClause,
-        relations: { student: true, section: { academicClass: true } },
-      });
+      if (limit > 0) {
+        const [data, total] = await this.enrollmentRepo.findAndCount(findOptions);
+        return { data, total, page, limit };
+      }
+      return this.enrollmentRepo.find(findOptions);
     }
     // Assume student
-    whereClause.studentId = currentUser.id;
-    return this.enrollmentRepo.find({
-      where: whereClause,
-      relations: { section: { academicClass: true } },
-    });
+    findOptions.where.studentId = currentUser.id;
+    if (limit > 0) {
+      const [data, total] = await this.enrollmentRepo.findAndCount(findOptions);
+      return { data, total, page, limit };
+    }
+    return this.enrollmentRepo.find(findOptions);
   }
 
   async remove(id: string, currentUser: any) {

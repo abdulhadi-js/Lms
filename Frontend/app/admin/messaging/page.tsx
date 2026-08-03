@@ -13,7 +13,7 @@ export default function MessagingOutbox() {
   // Template Modal
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [templateForm, setTemplateForm] = useState({
+  const [templateForm, setTemplateForm] = useState<{ id?: string, name: string, type: string, content: string }>({
     name: '',
     type: 'SMS',
     content: ''
@@ -43,8 +43,13 @@ export default function MessagingOutbox() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await messagingApi.createTemplate(templateForm);
-      toast.success('Template saved successfully!');
+      if (templateForm.id) {
+        await messagingApi.updateTemplate(templateForm.id, templateForm);
+        toast.success('Template updated successfully!');
+      } else {
+        await messagingApi.createTemplate(templateForm);
+        toast.success('Template saved successfully!');
+      }
       setIsTemplateModalOpen(false);
       setTemplateForm({ name: '', type: 'SMS', content: '' });
       fetchData();
@@ -136,9 +141,16 @@ export default function MessagingOutbox() {
               No templates created yet.
             </div>
           ) : templates.map((tpl: any) => (
-            <div key={tpl.id} className="bg-surface rounded-xl border border-divider brand-shadow p-5 flex flex-col relative group">
+            <div 
+              key={tpl.id} 
+              className="bg-surface rounded-xl border border-divider brand-shadow p-5 flex flex-col relative group cursor-pointer hover:border-primary transition-colors"
+              onClick={() => {
+                setTemplateForm({ id: tpl.id, name: tpl.name, type: tpl.type, content: tpl.content });
+                setIsTemplateModalOpen(true);
+              }}
+            >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="font-bold text-on-surface">{tpl.name}</h3>
+                <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors">{tpl.name}</h3>
                 <span className={`px-2 py-1 rounded text-xs font-bold ${tpl.type === 'WHATSAPP' ? 'bg-success-bg text-success' : 'bg-primary-container text-primary-fixed'}`}>
                   {tpl.type}
                 </span>
@@ -157,9 +169,9 @@ export default function MessagingOutbox() {
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-primary" /> Create Template
+                <MessageSquare className="w-5 h-5 text-primary" /> {templateForm.id ? 'Edit Template' : 'Create Template'}
               </h3>
-              <button onClick={() => setIsTemplateModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
+              <button onClick={() => { setIsTemplateModalOpen(false); setTemplateForm({ name: '', type: 'SMS', content: '' }); }} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
             </div>
             
             <form onSubmit={handleSaveTemplate} className="p-6 space-y-4">

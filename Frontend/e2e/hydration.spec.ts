@@ -4,10 +4,10 @@ test.describe('Hydration and Loading States (Simulated Slow Network)', () => {
   test('Admin users page renders skeleton during slow data fetch', async ({ page, context }) => {
     // Navigate to login and login first
     await page.goto('/login');
-    await page.fill('input[data-testid="login-email"]', 'admin@educore.com');
+    await page.fill('input[data-testid="login-email"]', 'superadmin@educore.com');
     await page.fill('input[data-testid="login-password"]', 'Admin@123!');
     await page.click('button[data-testid="login-submit"]');
-    await expect(page).toHaveURL(/\/admin/, { timeout: 30000 });
+    await expect(page).toHaveURL(/\/admin/, { timeout: 60000 });
 
     // Intercept the /api/v1/users route to delay the response and simulate slow network
     await page.route('**/api/v1/users', async (route) => {

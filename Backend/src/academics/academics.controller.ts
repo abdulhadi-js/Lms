@@ -24,6 +24,16 @@ import {
 } from './dto/academics.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+@Controller('public')
+export class PublicAcademicsController {
+  constructor(private readonly academicsService: AcademicsService) {}
+
+  @Get('classes')
+  findPublicClasses() {
+    return this.academicsService.findPublicClasses();
+  }
+}
+
 @Controller('academics')
 @UseGuards(JwtAuthGuard, MatrixGuard)
 export class AcademicsController {

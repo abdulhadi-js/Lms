@@ -29,7 +29,7 @@ export default function ApplicationsManagement() {
     } catch (err: any) {
       setError(err.message || 'Failed to load applications');
     } finally {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setLoading(false);
     }
   };
@@ -43,7 +43,7 @@ export default function ApplicationsManagement() {
     try {
       await enrollmentsApi.reviewApplication(id, status, notes);
       toast.success(`Application marked as ${status.replace(/_/g, ' ')}`);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       fetchApplications();
     } catch (err: any) {
       toast.error(err.message || 'Failed to update application');

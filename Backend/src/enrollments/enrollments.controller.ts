@@ -33,8 +33,14 @@ export class EnrollmentsController {
   }
 
   @Get()
-  findEnrollments(@Request() req: any) {
-    return this.enrollmentsService.findEnrollments(req.user);
+  findEnrollments(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Request() req: any
+  ) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 0;
+    return this.enrollmentsService.findEnrollments(req.user, pageNum, limitNum);
   }
 
   @Post('drop')

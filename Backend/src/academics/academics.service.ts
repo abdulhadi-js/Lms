@@ -47,6 +47,12 @@ export class AcademicsService {
     return this.academicClassRepo.save(newClass);
   }
 
+  async findPublicClasses(): Promise<AcademicClass[]> {
+    return this.academicClassRepo.find({
+      relations: { sections: true, subjects: true },
+    });
+  }
+
   async findAllClasses(currentUser: any): Promise<AcademicClass[]> {
     const whereClause = currentUser.isSuperAdmin
       ? {}

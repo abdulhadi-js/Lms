@@ -39,7 +39,9 @@ export function NotificationBell() {
   useEffect(() => {
     if (!user) return;
     
-    fetchNotifications();
+    setTimeout(() => {
+      fetchNotifications().catch(console.error);
+    }, 0);
     let socket: any;
 
     import('socket.io-client').then(({ io }) => {

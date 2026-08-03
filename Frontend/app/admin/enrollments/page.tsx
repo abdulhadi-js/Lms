@@ -14,6 +14,9 @@ export default function EnrollmentsManagement() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [classFilter, setClassFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [grFilter, setGrFilter] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
@@ -34,15 +37,25 @@ export default function EnrollmentsManagement() {
   const [rolloverToCourse, setRolloverToCourse] = useState('');
   const [isRollingOver, setIsRollingOver] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 50;
+
   const fetchData = async () => {
     setLoading(true);
     try {
       const [enrollData, usersData, coursesData] = await Promise.all([
-        enrollmentsApi.list(),
+        enrollmentsApi.list(page, limit),
         usersApi.list('STUDENT'),
         coursesApi.list()
       ]);
-      setEnrollments(enrollData.data || enrollData || []);
+      if (enrollData && typeof enrollData === 'object' && !Array.isArray(enrollData) && enrollData.data) {
+        setEnrollments(enrollData.data);
+        setTotal(enrollData.total || 0);
+      } else {
+        setEnrollments(enrollData || []);
+        setTotal(enrollData?.length || 0);
+      }
       setStudents(usersData.data || usersData || []);
       setCourses(coursesData.data || coursesData || []);
       setError(null);
@@ -55,7 +68,7 @@ export default function EnrollmentsManagement() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -170,7 +183,12 @@ export default function EnrollmentsManagement() {
       (e.course?.title || '').toLowerCase().includes(q) ||
       (e.course?.code || '').toLowerCase().includes(q) ||
       (e.student?.id || '').toLowerCase().includes(q);
-    return matchesStatus && matchesSearch;
+      
+    const matchesClass = !classFilter || (e.course?.title || '').toLowerCase().includes(classFilter.toLowerCase()) || (e.course?.code || '').toLowerCase().includes(classFilter.toLowerCase());
+    const matchesGender = !genderFilter || (e.student?.gender || '').toLowerCase() === genderFilter.toLowerCase();
+    const matchesGr = !grFilter || (e.student?.grNumber || '').toLowerCase().includes(grFilter.toLowerCase());
+    
+    return matchesStatus && matchesSearch && matchesClass && matchesGender && matchesGr;
   });
 
   return (
@@ -221,6 +239,33 @@ export default function EnrollmentsManagement() {
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
+        </div>
+        
+        <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 bg-surface-container-lowest">
+          <input 
+            type="text" 
+            placeholder="Filter by Class / Course..."
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            className="w-full md:w-1/3 px-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <select 
+            value={genderFilter}
+            onChange={(e) => setGenderFilter(e.target.value)}
+            className="w-full md:w-1/4 px-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">Any Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <input 
+            type="text" 
+            placeholder="Filter by GR Number..."
+            value={grFilter}
+            onChange={(e) => setGrFilter(e.target.value)}
+            className="w-full md:w-1/3 px-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+          />
         </div>
         
         <div className="overflow-x-auto">
@@ -374,6 +419,31 @@ export default function EnrollmentsManagement() {
                 ))}
               </tbody>
             </table>
+            
+            {total > limit && (
+              <div className="p-4 border-t border-divider flex items-center justify-between text-sm text-body-secondary">
+                <div>
+                  Showing {Math.min((page - 1) * limit + 1, total)} to {Math.min(page * limit, total)} of {total} enrollments
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                    className="px-3 py-1 rounded-md border border-divider hover:bg-surface-container disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button 
+                    disabled={page * limit >= total}
+                    onClick={() => setPage(page + 1)}
+                    className="px-3 py-1 rounded-md border border-divider hover:bg-surface-container disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+            
             </>
           )}
         </div>
