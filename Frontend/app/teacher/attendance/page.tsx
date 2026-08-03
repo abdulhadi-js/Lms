@@ -178,7 +178,7 @@ export default function TeacherAttendance() {
           <p className="text-sm text-body-secondary mt-1">Mark and manage attendance for your classes.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button onClick={() => router.push('/teacher/analytics?print=true')} className="flex-1 sm:flex-none px-4 py-2 border border-border-light bg-white rounded-lg text-sm font-medium hover:bg-surface-container transition-colors print:hidden">
+          <button onClick={() => router.push('/teacher/analytics?print=true')} className="flex-1 sm:flex-none px-4 py-2 border border-border-light bg-surface rounded-lg text-sm font-medium hover:bg-surface-container transition-colors print:hidden">
             Generate Report
           </button>
           <button 
@@ -199,7 +199,7 @@ export default function TeacherAttendance() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+      <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
             <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export default function TeacherAttendance() {
               <select 
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                className="bg-white border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48 font-medium"
+                className="bg-surface border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48 font-medium"
                 disabled={loading || courses.length === 0}
               >
                 {courses.length === 0 ? (
@@ -229,7 +229,7 @@ export default function TeacherAttendance() {
                   value={date}
                   max={todayStr}
                   onChange={(e) => setDate(e.target.value)}
-                  className="bg-white border border-border-light rounded-lg pl-9 pr-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full"
+                  className="bg-surface border border-border-light rounded-lg pl-9 pr-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full"
                   disabled={loading}
                 />
               </div>
@@ -243,7 +243,7 @@ export default function TeacherAttendance() {
               placeholder="Search student..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" 
+              className="w-full pl-9 pr-4 py-2 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" 
             />
           </div>
         </div>
@@ -291,7 +291,7 @@ export default function TeacherAttendance() {
                   const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
                   
                   return (
-                    <div key={student.id} className="bg-white p-4 rounded-xl border border-divider shadow-sm relative">
+                    <div key={student.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>
@@ -429,7 +429,7 @@ export default function TeacherAttendance() {
                 <select 
                   value={bulkStatus}
                   onChange={e => setBulkStatus(e.target.value)}
-                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full bg-surface border border-border-light rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="PRESENT">PRESENT</option>
                   <option value="ABSENT">ABSENT</option>
@@ -443,7 +443,7 @@ export default function TeacherAttendance() {
                   value={bulkData}
                   onChange={e => setBulkData(e.target.value)}
                   placeholder="e.g. GR-001, GR-002&#10;GR-003"
-                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[150px] font-mono"
+                  className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[150px] font-mono"
                 />
               </div>
             </div>

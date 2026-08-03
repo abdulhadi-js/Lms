@@ -352,19 +352,19 @@ export default function ExamsManagement() {
             <form onSubmit={saveQuestion} className="p-5 space-y-4 overflow-y-auto flex-grow">
               <div>
                 <label className="block text-sm font-medium mb-1">Question Text</label>
-                <textarea required value={qForm.text} onChange={e => setQForm({...qForm, text: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                <textarea required value={qForm.text} onChange={e => setQForm({...qForm, text: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Type</label>
-                  <select value={qForm.type} onChange={e => setQForm({...qForm, type: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
+                  <select value={qForm.type} onChange={e => setQForm({...qForm, type: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
                     <option value="MCQ">Multiple Choice</option>
                     <option value="TRUE_FALSE">True / False</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Marks</label>
-                  <input type="number" min="1" required value={qForm.marks} onChange={e => setQForm({...qForm, marks: Number(e.target.value)})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                  <input type="number" min="1" required value={qForm.marks} onChange={e => setQForm({...qForm, marks: Number(e.target.value)})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
                 </div>
               </div>
 
@@ -372,10 +372,10 @@ export default function ExamsManagement() {
                 <div className="space-y-2 p-3 bg-surface-container-lowest rounded-lg border border-border-light">
                   <label className="block text-sm font-medium">Options</label>
                   {[0,1,2,3].map(i => (
-                    <input key={i} type="text" placeholder={`Option ${i+1}`} required={i<2} value={qForm.options[i]} onChange={e => handleOptionChange(i, e.target.value)} className="w-full bg-white border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary" />
+                    <input key={i} type="text" placeholder={`Option ${i+1}`} required={i<2} value={qForm.options[i]} onChange={e => handleOptionChange(i, e.target.value)} className="w-full bg-surface border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary" />
                   ))}
                   <label className="block text-sm font-medium mt-3">Correct Option (0-3)</label>
-                  <select value={qForm.correctAnswer} onChange={e => setQForm({...qForm, correctAnswer: e.target.value})} className="w-full bg-white border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary">
+                  <select value={qForm.correctAnswer} onChange={e => setQForm({...qForm, correctAnswer: e.target.value})} className="w-full bg-surface border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary">
                     {[0,1,2,3].map(i => <option key={i} value={i.toString()}>Option {i+1}</option>)}
                   </select>
                 </div>
@@ -383,7 +383,7 @@ export default function ExamsManagement() {
               {qForm.type === 'TRUE_FALSE' && (
                  <div className="space-y-2 p-3 bg-surface-container-lowest rounded-lg border border-border-light">
                    <label className="block text-sm font-medium">Correct Answer</label>
-                   <select value={qForm.correctAnswer} onChange={e => setQForm({...qForm, correctAnswer: e.target.value})} className="w-full bg-white border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary">
+                   <select value={qForm.correctAnswer} onChange={e => setQForm({...qForm, correctAnswer: e.target.value})} className="w-full bg-surface border border-border-light rounded-md px-3 py-1.5 text-sm outline-none focus:border-primary">
                      <option value="True">True</option>
                      <option value="False">False</option>
                    </select>
@@ -393,11 +393,11 @@ export default function ExamsManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Chapter</label>
-                  <input type="text" value={qForm.chapter} onChange={e => setQForm({...qForm, chapter: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                  <input type="text" value={qForm.chapter} onChange={e => setQForm({...qForm, chapter: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Difficulty</label>
-                  <select value={qForm.difficulty} onChange={e => setQForm({...qForm, difficulty: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
+                  <select value={qForm.difficulty} onChange={e => setQForm({...qForm, difficulty: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
                     <option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option>
                   </select>
                 </div>
@@ -422,25 +422,25 @@ export default function ExamsManagement() {
             <form onSubmit={saveExam} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Exam Title</label>
-                <input type="text" required value={eForm.title} onChange={e => setEForm({...eForm, title: e.target.value})} placeholder="Midterm Exam" className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                <input type="text" required value={eForm.title} onChange={e => setEForm({...eForm, title: e.target.value})} placeholder="Midterm Exam" className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Duration (Mins)</label>
-                  <input type="number" required value={eForm.durationMinutes} onChange={e => setEForm({...eForm, durationMinutes: Number(e.target.value)})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                  <input type="number" required value={eForm.durationMinutes} onChange={e => setEForm({...eForm, durationMinutes: Number(e.target.value)})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Total Marks</label>
-                  <input type="number" required value={eForm.totalMarks} onChange={e => setEForm({...eForm, totalMarks: Number(e.target.value)})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                  <input type="number" required value={eForm.totalMarks} onChange={e => setEForm({...eForm, totalMarks: Number(e.target.value)})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Start Time Window</label>
-                <input type="datetime-local" required value={eForm.startTime} onChange={e => setEForm({...eForm, startTime: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                <input type="datetime-local" required value={eForm.startTime} onChange={e => setEForm({...eForm, startTime: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">End Time Window</label>
-                <input type="datetime-local" required value={eForm.endTime} onChange={e => setEForm({...eForm, endTime: e.target.value})} className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                <input type="datetime-local" required value={eForm.endTime} onChange={e => setEForm({...eForm, endTime: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               </div>
               <div className="pt-4 border-t border-divider flex justify-end gap-3">
                 <button type="button" onClick={() => setIsExamModalOpen(false)} className="px-4 py-2 text-sm font-medium hover:bg-surface-container rounded-lg">Cancel</button>

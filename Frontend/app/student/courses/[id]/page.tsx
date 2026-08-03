@@ -92,7 +92,7 @@ export default function CourseContent() {
           </div>
         </aside>
         {/* Skeleton Main Content */}
-        <section className="flex-1 bg-white p-6 md:p-10">
+        <section className="flex-1 bg-surface p-6 md:p-10">
           <div className="max-w-4xl mx-auto">
              <div className="h-[300px] bg-surface-container-high rounded-xl mb-8 animate-pulse"></div>
              <div className="h-8 bg-surface-container-high rounded w-1/4 mb-4 animate-pulse"></div>
@@ -170,11 +170,11 @@ export default function CourseContent() {
       </aside>
 
       {/* Right Panel: Content Viewer */}
-      <section className="flex-1 bg-white p-6 md:p-10 overflow-y-auto">
+      <section className="flex-1 bg-surface p-6 md:p-10 overflow-y-auto">
         {activeLesson ? (
           <div className="max-w-4xl mx-auto pb-24">
             {/* Video Player / Content Container */}
-            <div className="bg-white rounded-xl border border-divider shadow-[0_4px_12px_rgba(19,42,19,0.08)] relative overflow-hidden mb-8 min-h-[300px] flex flex-col">
+            <div className="bg-surface rounded-xl border border-divider shadow-[0_4px_12px_rgba(19,42,19,0.08)] relative overflow-hidden mb-8 min-h-[300px] flex flex-col">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#90a955] to-[#4f772d] z-10"></div>
               
               {activeLesson.contentType === 'VIDEO' ? (

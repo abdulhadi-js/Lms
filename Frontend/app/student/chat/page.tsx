@@ -278,7 +278,7 @@ export default function StudentChat() {
         <p className="text-[#5f5f5f]">Communicate with your teachers and peers.</p>
       </div>
 
-      <div className="flex-1 bg-white rounded-[12px] border border-[#c6c6c6] overflow-hidden flex" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="flex-1 bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden flex" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         
         {/* Sidebar Contacts list */}
         <div className="w-full md:w-1/3 border-r border-[#c6c6c6] flex flex-col bg-[#fefef9]">
@@ -287,7 +287,7 @@ export default function StudentChat() {
               <input 
                 type="text" 
                 placeholder="Search messages..." 
-                className="w-full pl-10 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-white text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c]"
+                className="w-full pl-10 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-surface text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c]"
               />
               <Search className="w-5 h-5 text-[#a4a4a4] absolute left-3 top-2.5" />
             </div>
@@ -323,7 +323,7 @@ export default function StudentChat() {
         <div className="hidden md:flex flex-col w-2/3 bg-[#fefef9]">
           {activeContact ? (
             <>
-              <div className="p-4 border-b border-[#c6c6c6] bg-white flex justify-between items-center">
+              <div className="p-4 border-b border-[#c6c6c6] bg-surface flex justify-between items-center">
                 <h2 className="text-lg font-bold text-[#132a13]">{activeContact.name}</h2>
                 <button className="text-[#5f5f5f] hover:text-[#31572c] transition-colors">
                   <MoreVertical className="w-5 h-5" />
@@ -367,7 +367,7 @@ export default function StudentChat() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="p-4 border-t border-[#c6c6c6] bg-white">
+              <div className="p-4 border-t border-[#c6c6c6] bg-surface">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                   <button type="button" className="p-2 text-[#5f5f5f] hover:bg-[#f4f4f4] rounded-full transition-colors">
                     <Paperclip className="w-5 h-5" />

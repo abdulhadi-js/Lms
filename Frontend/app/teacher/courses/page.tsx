@@ -156,7 +156,7 @@ export default function TeacherCourses() {
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={`skeleton-${idx}`} className="bg-white rounded-xl border border-divider brand-shadow p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulse">
+            <div key={`skeleton-${idx}`} className="bg-surface rounded-xl border border-divider brand-shadow p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulse">
               <div className="flex items-start gap-4 w-full">
                 <div className="w-12 h-12 bg-divider rounded-lg mt-1 shrink-0"></div>
                 <div className="space-y-3 w-full">
@@ -182,11 +182,11 @@ export default function TeacherCourses() {
       ) : error ? (
         <div className="p-12 text-center text-error">{error}</div>
       ) : courses.length === 0 ? (
-        <div className="p-12 text-center text-body-secondary bg-white rounded-xl border border-divider">You have not been assigned any courses yet.</div>
+        <div className="p-12 text-center text-body-secondary bg-surface rounded-xl border border-divider">You have not been assigned any courses yet.</div>
       ) : (
         <div className="space-y-4">
           {courses.map(course => (
-            <div key={course.id} className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden transition-all">
+            <div key={course.id} className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden transition-all">
               <div 
                 className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-surface transition-colors"
                 onClick={() => toggleCourseExpand(course.id)}
@@ -232,7 +232,7 @@ export default function TeacherCourses() {
                 <div className="border-t border-divider bg-surface-container-lowest p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="font-bold text-on-surface">Course Modules</h4>
-                    <button onClick={() => openModuleModal()} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-border-light rounded-lg text-sm font-medium text-primary hover:bg-surface-container transition-colors shadow-sm">
+                    <button onClick={() => openModuleModal()} className="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-border-light rounded-lg text-sm font-medium text-primary hover:bg-surface-container transition-colors shadow-sm">
                       <Plus className="w-4 h-4" /> Add Module
                     </button>
                   </div>
@@ -240,7 +240,7 @@ export default function TeacherCourses() {
                   {modulesLoading[course.id] ? (
                     <div className="space-y-3">
                       {Array.from({ length: 2 }).map((_, idx) => (
-                        <div key={`mod-skel-${idx}`} className="p-4 bg-white border border-border-light rounded-lg flex justify-between items-center animate-pulse">
+                        <div key={`mod-skel-${idx}`} className="p-4 bg-surface border border-border-light rounded-lg flex justify-between items-center animate-pulse">
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-8 h-8 bg-divider rounded shrink-0"></div>
                             <div className="space-y-2 w-full">
@@ -259,7 +259,7 @@ export default function TeacherCourses() {
                     <div className="space-y-3">
                       {courseModules[course.id]?.length > 0 ? (
                         courseModules[course.id].map((mod: any, i: number) => (
-                          <div key={mod.id || i} className="p-4 bg-white border border-border-light rounded-lg flex justify-between items-center hover:border-primary/30 transition-colors">
+                          <div key={mod.id || i} className="p-4 bg-surface border border-border-light rounded-lg flex justify-between items-center hover:border-primary/30 transition-colors">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-surface-container flex items-center justify-center rounded text-sm font-bold text-body-secondary">{i + 1}</div>
                               <div>
@@ -274,7 +274,7 @@ export default function TeacherCourses() {
                           </div>
                         ))
                       ) : (
-                        <div className="p-8 text-center text-sm text-body-secondary bg-white border border-border-light border-dashed rounded-lg">
+                        <div className="p-8 text-center text-sm text-body-secondary bg-surface border border-border-light border-dashed rounded-lg">
                           No modules created yet. Click "Add Module" to get started.
                         </div>
                       )}
@@ -290,7 +290,7 @@ export default function TeacherCourses() {
       {/* Course Modal */}
       {showCourseModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b border-divider">
               <h3 className="font-bold text-lg">{editingCourse ? 'Edit Course' : 'Create Course'}</h3>
               <button onClick={() => setShowCourseModal(false)} className="text-body-secondary hover:text-on-surface">
@@ -326,7 +326,7 @@ export default function TeacherCourses() {
       {/* Module Modal */}
       {showModuleModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b border-divider">
               <h3 className="font-bold text-lg">{editingModule ? 'Edit Module' : 'Add Module'}</h3>
               <button onClick={() => setShowModuleModal(false)} className="text-body-secondary hover:text-on-surface">

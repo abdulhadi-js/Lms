@@ -120,7 +120,7 @@ export default function MyGrades() {
 
       {/* GPA Summary Banner */}
       <div className="rounded-xl p-8 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden bg-gradient-to-br from-[#4f772d] via-[#90a955] to-[#ecf39e]">
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl" />
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-surface opacity-10 rounded-full blur-3xl" />
         <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-evergreen opacity-10 rounded-full blur-2xl" />
         <div className="flex flex-col z-10">
           <div className="flex items-baseline gap-2">

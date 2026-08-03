@@ -313,14 +313,14 @@ export default function TeacherGradebook() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+      <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex items-center gap-2 w-full md:w-auto">
             <span className="text-sm font-medium text-body-secondary whitespace-nowrap">Course:</span>
             <select 
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
-              className="bg-white border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-64 font-semibold"
+              className="bg-surface border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-64 font-semibold"
               disabled={loading || courses.length === 0}
             >
               {courses.length === 0 ? (
@@ -341,7 +341,7 @@ export default function TeacherGradebook() {
                 placeholder="Search student..." 
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" 
+                className="w-full pl-9 pr-4 py-2 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all" 
               />
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function TeacherGradebook() {
                 const grade = getGrade(total);
                 
                 return (
-                  <div key={student.id} className="bg-white p-4 rounded-xl border border-divider shadow-sm relative">
+                  <div key={student.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
                     <div className="flex justify-between items-start mb-4 pb-3 border-b border-divider">
                       <div>
                         <div className="font-bold text-on-surface">{student.firstName} {student.lastName}</div>
@@ -454,7 +454,7 @@ export default function TeacherGradebook() {
                     {row.getVisibleCells().map((cell, index) => (
                       <td 
                         key={cell.id} 
-                        className={`py-3 px-4 ${index === 0 ? 'sticky left-0 bg-white z-10 shadow-[1px_0_0_var(--color-divider)]' : ''} ${cell.column.id === 'total' ? 'border-l border-divider bg-surface-container-lowest/50' : ''}`}
+                        className={`py-3 px-4 ${index === 0 ? 'sticky left-0 bg-surface z-10 shadow-[1px_0_0_var(--color-divider)]' : ''} ${cell.column.id === 'total' ? 'border-l border-divider bg-surface-container-lowest/50' : ''}`}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>

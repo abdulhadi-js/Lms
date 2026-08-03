@@ -176,7 +176,7 @@ export default function StudentCoursesPage() {
           })}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden">
+        <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
           <div className="p-12 text-center flex flex-col items-center justify-center">
             <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-icon-inactive mb-4">
               <BookOpen className="w-8 h-8" />

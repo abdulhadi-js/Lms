@@ -244,7 +244,7 @@ export default function TeacherChat() {
         </div>
       </div>
 
-      <div className="flex-1 bg-white rounded-[12px] border border-[#c6c6c6] overflow-hidden flex min-h-0 relative" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="flex-1 bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden flex min-h-0 relative" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         
         {/* Sidebar Contacts list */}
         <div className="w-full md:w-1/3 border-r border-[#c6c6c6] flex flex-col bg-[#fefef9]">
@@ -256,7 +256,7 @@ export default function TeacherChat() {
                   placeholder="Search messages..." 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-white text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c] text-sm"
+                  className="w-full pl-9 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-surface text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c] text-sm"
                 />
                 <Search className="w-4 h-4 text-[#a4a4a4] absolute left-3 top-2.5" />
               </div>
@@ -308,7 +308,7 @@ export default function TeacherChat() {
         {/* Chat Area */}
         {activeContact ? (
           <div className="hidden md:flex flex-col w-2/3 bg-[#fefef9]">
-            <div className="p-4 border-b border-[#c6c6c6] bg-white flex justify-between items-center shadow-sm z-10">
+            <div className="p-4 border-b border-[#c6c6c6] bg-surface flex justify-between items-center shadow-sm z-10">
               <h2 className="text-lg font-bold text-[#132a13]">{getContactName(activeContact)}</h2>
               <button className="text-[#5f5f5f] hover:text-[#31572c] transition-colors">
                 <MoreVertical className="w-5 h-5" />
@@ -335,7 +335,7 @@ export default function TeacherChat() {
                         </div>
                       )}
                       <div 
-                        className={`p-3 rounded-2xl ${isMe ? 'bg-[#31572c] text-white rounded-br-none' : 'bg-white border border-[#c6c6c6] text-[#323232] rounded-bl-none shadow-sm'}`}
+                        className={`p-3 rounded-2xl ${isMe ? 'bg-[#31572c] text-white rounded-br-none' : 'bg-surface border border-[#c6c6c6] text-[#323232] rounded-bl-none shadow-sm'}`}
                       >
                         {!isMe && msg.courseId && msg.sender && (
                           <p className="text-xs font-bold text-[#4f772d] mb-1">{msg.sender.firstName} {msg.sender.lastName}</p>
@@ -353,7 +353,7 @@ export default function TeacherChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-[#c6c6c6] bg-white">
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-[#c6c6c6] bg-surface">
               <div className="flex items-center gap-2">
                 <button type="button" className="p-2 text-[#5f5f5f] hover:bg-[#f4f4f4] rounded-full transition-colors">
                   <Paperclip className="w-5 h-5" />
@@ -385,7 +385,7 @@ export default function TeacherChat() {
 
         {/* New Chat Modal Overlap */}
         {showNewChatModal && (
-          <div className="absolute inset-0 bg-white z-50 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="absolute inset-0 bg-surface z-50 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
             <div className="p-4 border-b border-[#c6c6c6] flex justify-between items-center bg-[#fefef9]">
               <h2 className="text-lg font-bold text-[#132a13]">New Conversation</h2>
               <button onClick={() => setShowNewChatModal(false)} className="p-2 hover:bg-[#e4e4e4] rounded-full transition-colors">
@@ -393,7 +393,7 @@ export default function TeacherChat() {
               </button>
             </div>
             
-            <div className="p-4 border-b border-[#e4e4e4] bg-white">
+            <div className="p-4 border-b border-[#e4e4e4] bg-surface">
               <div className="relative">
                 <input 
                   type="text" 
@@ -417,7 +417,7 @@ export default function TeacherChat() {
                     <button 
                       key={contact.id}
                       onClick={() => startNewChat(contact)}
-                      className="flex items-center gap-4 p-4 border border-[#e4e4e4] rounded-xl hover:bg-[#eff3e7] hover:border-[#31572c] transition-all text-left bg-white brand-shadow"
+                      className="flex items-center gap-4 p-4 border border-[#e4e4e4] rounded-xl hover:bg-[#eff3e7] hover:border-[#31572c] transition-all text-left bg-surface brand-shadow"
                     >
                       <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         {contact.isGroup ? <Users className="w-5 h-5" /> : <User className="w-5 h-5" />}

@@ -97,7 +97,7 @@ export default function TeacherAnalytics() {
         
         {courses.length > 0 && (
           <select 
-            className="bg-white border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary brand-shadow"
+            className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary brand-shadow"
             value={selectedCourseId}
             onChange={(e) => setSelectedCourseId(e.target.value)}
             disabled={loading}
@@ -110,13 +110,13 @@ export default function TeacherAnalytics() {
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-body-secondary bg-white rounded-xl border border-divider">Loading analytics data...</div>
+        <div className="p-12 text-center text-body-secondary bg-surface rounded-xl border border-divider">Loading analytics data...</div>
       ) : !selectedCourseId ? (
-        <div className="p-12 text-center text-body-secondary bg-white rounded-xl border border-divider">No courses assigned to display analytics.</div>
+        <div className="p-12 text-center text-body-secondary bg-surface rounded-xl border border-divider">No courses assigned to display analytics.</div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
               <div className="p-3 bg-primary-container/20 text-primary-fixed rounded-lg">
                 <TrendingUp className="w-6 h-6" />
               </div>
@@ -126,7 +126,7 @@ export default function TeacherAnalytics() {
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
               <div className="p-3 bg-success-bg text-success rounded-lg">
                 <CheckCircle className="w-6 h-6" />
               </div>
@@ -136,7 +136,7 @@ export default function TeacherAnalytics() {
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
               <div className="p-3 bg-error-bg text-error rounded-lg">
                 <AlertCircle className="w-6 h-6" />
               </div>
@@ -175,7 +175,7 @@ export default function TeacherAnalytics() {
               <p className="text-sm text-body-secondary mt-4 text-center">Course avg: {Number(performance?.averagePercentage || 0).toFixed(1)}%</p>
             </div>
 
-            <div className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden flex flex-col">
+            <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden flex flex-col">
               <div className="p-5 border-b border-divider bg-surface">
                 <h3 className="text-lg font-bold text-heading-on-light">At-Risk Students</h3>
                 <p className="text-sm text-body-secondary">Students requiring attention (Grade &lt; 50% or Attendance &lt; 65%).</p>

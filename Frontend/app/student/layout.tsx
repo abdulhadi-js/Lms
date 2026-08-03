@@ -75,7 +75,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         {/* Collapse Toggle Button (Desktop Only) */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:block absolute -right-3 top-8 bg-white text-evergreen border border-divider rounded-full p-1 shadow-md hover:bg-surface-container transition-colors z-50"
+          className="hidden md:block absolute -right-3 top-8 bg-surface text-evergreen border border-divider rounded-full p-1 shadow-md hover:bg-surface-container transition-colors z-50"
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>

@@ -134,26 +134,26 @@ export default function TeacherDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {loading ? (
             Array(3).fill(0).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden h-48 animate-pulse">
+              <div key={i} className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden h-48 animate-pulse">
                 <div className="h-32 bg-surface-container-high"></div>
-                <div className="p-4 bg-white"></div>
+                <div className="p-4 bg-surface"></div>
               </div>
             ))
           ) : courses.length > 0 ? (
             courses.slice(0, 3).map((course, i) => (
-              <div key={course.id || i} className="bg-white rounded-xl border border-divider brand-shadow overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
+              <div key={course.id || i} className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
                 <div className="h-32 relative bg-surface-container">
                   <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundColor: '#2f4f2f' }}></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[rgba(19,42,19,0.9)] to-[rgba(19,42,19,0.2)]"></div>
                   <div className="absolute inset-4 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
                       <span className="bg-lime-cream text-evergreen font-medium text-[12px] px-2 py-1 rounded-full">{course.code}</span>
-                      <span className="bg-success text-white font-medium text-[12px] px-2 py-1 rounded-full flex items-center gap-1"><span className="w-2 h-2 bg-white rounded-full"></span> Active</span>
+                      <span className="bg-success text-white font-medium text-[12px] px-2 py-1 rounded-full flex items-center gap-1"><span className="w-2 h-2 bg-surface rounded-full"></span> Active</span>
                     </div>
                     <h4 className="font-semibold text-[16px] text-white font-bold truncate">{course.title}</h4>
                   </div>
                 </div>
-                <div className="p-4 flex justify-between items-center bg-white border-t border-divider">
+                <div className="p-4 flex justify-between items-center bg-surface border-t border-divider">
                   <Link href={`/teacher/courses/${course.id}`} className="text-primary font-semibold text-[16px] hover:text-success transition-colors flex items-center gap-1">Open Course <ArrowRight className="text-sm w-5 h-5" /></Link>
                   <Link href="/teacher/gradebook" className="text-body-secondary font-semibold text-[16px] hover:text-primary transition-colors">View Gradebook</Link>
                 </div>
@@ -168,7 +168,7 @@ export default function TeacherDashboard() {
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         {/* Pending Actions */}
-        <div className="bg-white rounded-xl border border-divider brand-shadow relative pt-1 overflow-hidden lg:col-span-1">
+        <div className="bg-surface rounded-xl border border-divider brand-shadow relative pt-1 overflow-hidden lg:col-span-1">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#90a955] to-[#ecf39e]"></div>
           <div className="p-6">
             <h3 className="font-semibold text-[20px] font-bold text-heading-on-light mb-4">Pending Actions</h3>
@@ -211,7 +211,7 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Today's Schedule */}
-        <div className="bg-white rounded-xl border border-divider brand-shadow lg:col-span-2 overflow-hidden flex flex-col">
+        <div className="bg-surface rounded-xl border border-divider brand-shadow lg:col-span-2 overflow-hidden flex flex-col">
           <div className="p-6 bg-surface-container-low border-b border-divider flex justify-between items-center">
             <h3 className="font-semibold text-[20px] font-bold text-heading-on-light">Today&apos;s Schedule</h3>
             <span className="font-medium text-[12px] text-body-secondary">

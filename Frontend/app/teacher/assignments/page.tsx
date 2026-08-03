@@ -140,7 +140,7 @@ export default function TeacherAssignments() {
           { title: 'Needs Grading (Past Due)', value: gradingCount },
           { title: 'Total Created', value: assignments.length }
         ].map((stat, i) => (
-          <div key={i} className="bg-white rounded-[12px] border border-[#c6c6c6] p-5 relative overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+          <div key={i} className="bg-surface rounded-[12px] border border-[#c6c6c6] p-5 relative overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
             <div className="absolute top-0 left-0 w-full h-1" style={{ background: 'linear-gradient(90deg, #90a955 0%, #ecf39e 100%)' }}></div>
             <p className="text-sm font-bold text-[#5f5f5f] mb-2">{stat.title}</p>
             <h3 className="text-3xl font-bold text-[#132a13]">{loading ? '-' : stat.value}</h3>
@@ -148,7 +148,7 @@ export default function TeacherAssignments() {
         ))}
       </div>
 
-      <div className="bg-white rounded-[12px] border border-[#c6c6c6] overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-[#5f5f5f]">Loading assignments...</div>
@@ -161,7 +161,7 @@ export default function TeacherAssignments() {
                 {assignments.map((assignment) => {
                   const isPastDue = new Date(assignment.dueDate) <= new Date();
                   return (
-                    <div key={assignment.id} className="bg-white p-4 rounded-xl border border-[#c6c6c6] shadow-sm relative">
+                    <div key={assignment.id} className="bg-surface p-4 rounded-xl border border-[#c6c6c6] shadow-sm relative">
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <div className="font-bold text-[#132a13] flex items-center gap-2">
@@ -220,7 +220,7 @@ export default function TeacherAssignments() {
                   const isPastDue = new Date(assignment.dueDate) <= new Date();
                   
                   return (
-                  <tr key={assignment.id} className={`border-b border-[#c6c6c6] hover:bg-[#eff3e7] transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-[#fcfdf1]'}`}>
+                  <tr key={assignment.id} className={`border-b border-[#c6c6c6] hover:bg-[#eff3e7] transition-colors ${index % 2 === 0 ? 'bg-surface' : 'bg-[#fcfdf1]'}`}>
                     <td className="p-4">
                       <div className="font-bold text-[#132a13] flex items-center gap-2">
                         <FileText className="w-4 h-4 text-[#4f772d]" />
@@ -269,7 +269,7 @@ export default function TeacherAssignments() {
       {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-divider bg-surface-container-low">
               <h2 className="text-xl font-bold text-heading-on-light">
                 {editingId ? 'Edit Assignment' : 'Create Assignment'}
