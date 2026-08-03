@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Enrollment } from './entities/enrollment.entity';
 import { Application } from './entities/application.entity';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -20,6 +20,7 @@ export class EnrollmentsService {
     private enrollmentRepo: Repository<Enrollment>,
     @InjectRepository(Application) private appRepo: Repository<Application>,
     private readonly usersService: UsersService,
+    private dataSource: DataSource,
   ) {}
 
   async apply(dto: CreateApplicationDto, currentUser: any) {
@@ -102,6 +103,52 @@ export class EnrollmentsService {
       ...dto,
       campusId: currentUser.campusId,
     });
+    return this.enrollmentRepo.save(enrollment);
+  }
+
+  async completeAdmission(dto: any, currentUser: any) {
+    // Create User (which handles Family if fatherName is provided)
+    const payload: any = {
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email || `${dto.firstName.toLowerCase()}.${Date.now()}@example.com`,
+      phone: dto.phone,
+      gender: dto.gender,
+      dateOfBirth: dto.dateOfBirth,
+      fatherName: dto.fatherName,
+      motherName: dto.motherName,
+      guardianName: dto.guardianName,
+      previousSchool: dto.previousSchool,
+      discountAmount: dto.discountAmount,
+      password: 'Password123!',
+      campusId: dto.campusId || currentUser.campusId,
+    };
+    
+    // Look up Student Role
+    const studentRole = await this.dataSource.query(
+      `SELECT id FROM roles WHERE name = $1 LIMIT 1`,
+      ['Student']
+    );
+    if (studentRole && studentRole.length > 0) {
+      payload.roleId = studentRole[0].id;
+    }
+
+    let student: any;
+    try {
+      student = await this.usersService.create(payload, currentUser);
+    } catch (e: any) {
+      throw new BadRequestException(e.message || 'Failed to create student user');
+    }
+
+    // Now create Enrollment
+    const enrollment = this.enrollmentRepo.create({
+      status: 'ACTIVE',
+      studentId: student.id,
+      courseId: dto.courseId,
+      campusId: payload.campusId,
+    });
+    
+    // Optional Application trace? Skip for direct admission wizard.
     return this.enrollmentRepo.save(enrollment);
   }
 

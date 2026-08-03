@@ -199,17 +199,20 @@ export default function EnrollmentsManagement() {
           <p className="text-sm text-body-secondary mt-1">Manage student course enrollments and drops.</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/admin/enrollments/new" className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow">
+            <Plus className="h-4 w-4" />
+            New Admission
+          </Link>
           <button 
             onClick={() => setRolloverModalOpen(true)}
-            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors hidden md:flex"
           >
             Session Rollover
           </button>
           <button 
             onClick={() => setEnrollModalOpen(true)}
-            className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+            className="flex items-center gap-2 border border-border-light bg-surface text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-low transition-colors"
           >
-            <Plus className="h-4 w-4" />
             Direct Enroll
           </button>
         </div>
@@ -356,7 +359,7 @@ export default function EnrollmentsManagement() {
                 {filteredEnrollments.map((enr, i) => (
                   <tr key={enr.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors relative">
                     <td className="py-4 px-6">
-                      <Link href={`/admin/students/${enr.student?.id}`} className="font-medium text-on-surface hover:text-primary hover:underline block">
+                      <Link href={`/admin/users/${enr.student?.id}`} className="font-medium text-on-surface hover:text-primary hover:underline block">
                         {enr.student?.firstName} {enr.student?.lastName}
                       </Link>
                       <div className="text-xs text-body-secondary">{enr.student?.email}</div>

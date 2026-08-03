@@ -38,6 +38,12 @@ export class EnrollmentsController {
     return this.enrollmentsService.bulkEnroll(dto, req.user);
   }
 
+  @Post('admission')
+  @RequirePermission(ModuleId.ADMISSIONS, 'ADD')
+  completeAdmission(@Body() dto: any, @Request() req: any) {
+    return this.enrollmentsService.completeAdmission(dto, req.user);
+  }
+
   @Get()
   findEnrollments(
     @Query('page') page: string,

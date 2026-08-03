@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck, LibraryBig } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { BASE_URL } from '@/lib/api';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -53,6 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       section: 'Academics',
       links: [
         { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
+        { name: 'Streams & Groups', path: '/admin/academic-groups', icon: LibraryBig, moduleId: 'ACADEMICS' },
         { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
       ]
     },
@@ -63,6 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
         { name: 'Families & Siblings', path: '/admin/families', icon: Users, moduleId: 'USERS_STUDENTS' },
         { name: 'Staff HR', path: '/admin/users', icon: Users, moduleId: 'USERS_STAFF' },
+        { name: 'Departments', path: '/admin/departments', icon: Building2, moduleId: 'USERS_STAFF' },
       ]
     },
     {
