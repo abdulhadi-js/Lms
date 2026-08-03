@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
-import { fetchApi, academicsApi } from '@/lib/api';
+import { fetchAuthApi as fetchApi, academicsApi } from '@/lib/api';
 import { Check, ChevronLeft, ChevronRight, User, Users, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 

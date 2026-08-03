@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { fetchApi } from '@/lib/api';
+import { fetchAuthApi as fetchApi } from '@/lib/api';
 import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 
 export default function DepartmentsPage() {

@@ -77,7 +77,7 @@ export const tokens = {
   }
 };
 
-async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
+export async function fetchAuthApi(endpoint: string, options: RequestInit = {}) {
   const token = tokens.getAccessToken();
   return fetchApi(endpoint, {
     ...options,

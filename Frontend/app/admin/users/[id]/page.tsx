@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchApi } from '@/lib/api';
+import { fetchAuthApi as fetchApi } from '@/lib/api';
 import { User, Phone, Mail, MapPin, BookOpen, ChevronLeft, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
