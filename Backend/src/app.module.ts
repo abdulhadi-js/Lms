@@ -29,6 +29,8 @@ import { HrModule } from './hr/hr.module';
 import { FinanceModule } from './finance/finance.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { ExamsModule } from './exams/exams.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { AcademicGroupsModule } from './academic-groups/academic-groups.module';
 
 @Module({
   imports: [
@@ -74,6 +76,8 @@ import { ExamsModule } from './exams/exams.module';
     FinanceModule,
     MessagingModule,
     ExamsModule,
+    DepartmentsModule,
+    AcademicGroupsModule,
   ],
   providers: [
     // Apply rate limiting globally

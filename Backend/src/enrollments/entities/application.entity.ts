@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
+import { AcademicGroup } from '../../academic-groups/entities/academic-group.entity';
 
 @Entity('applications')
 export class Application {
@@ -42,6 +43,21 @@ export class Application {
 
   @Column({ type: 'uuid', nullable: true })
   desiredClassId: string; // Links to AcademicClass
+
+  @Column({ type: 'uuid', nullable: true })
+  academicGroupId: string;
+
+  @ManyToOne(() => AcademicGroup, { nullable: true })
+  academicGroup: AcademicGroup;
+
+  @Column({ nullable: true })
+  motherName: string;
+
+  @Column({ nullable: true })
+  guardianName: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discountAmount: number;
 
   @Column({ default: 'PENDING' }) // PENDING, TEST_SCHEDULED, APPROVED_WAITING_FEE, ENROLLED, REJECTED
   status: string;

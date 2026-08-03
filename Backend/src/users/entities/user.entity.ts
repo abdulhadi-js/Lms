@@ -19,6 +19,7 @@ import { Fee } from '../../fees/entities/fee.entity';
 import { Mark } from '../../marks/entities/mark.entity';
 import { StaffProfile } from '../../hr/entities/staff-profile.entity';
 import { Attendance } from '../../attendance/entities/attendance.entity';
+import { Department } from '../../departments/entities/department.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')
@@ -59,7 +60,27 @@ export class User {
   @Column() firstName: string;
   @Column() lastName: string;
   @Column({ nullable: true }) phone: string;
+  @Column({ nullable: true }) dateOfBirth: Date;
+  @Column({ nullable: true }) gender: string;
   @Column({ nullable: true }) profilePicture: string;
+
+  // New Staff Fields
+  @Column({ type: 'uuid', nullable: true })
+  departmentId: string;
+
+  @ManyToOne(() => Department, { nullable: true })
+  @JoinColumn({ name: 'departmentId' })
+  department: Department;
+
+  @Column({ default: false })
+  isTeachingStaff: boolean;
+
+  // New Student Fields
+  @Column({ nullable: true })
+  previousSchool: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discountAmount: number;
   @Column({ type: 'simple-json', nullable: true }) metadata: Record<
     string,
     unknown

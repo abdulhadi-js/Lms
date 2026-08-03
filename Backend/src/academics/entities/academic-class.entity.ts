@@ -1,4 +1,5 @@
 import { Campus } from '../../campuses/entities/campus.entity';
+import { AcademicGroup } from '../../academic-groups/entities/academic-group.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -21,6 +22,12 @@ export class AcademicClass {
 
   @Column({ default: 0 })
   level: number; // for sorting (e.g., 6)
+
+  @Column({ type: 'uuid', nullable: true })
+  academicGroupId: string;
+
+  @ManyToOne(() => AcademicGroup, { nullable: true })
+  academicGroup: AcademicGroup;
 
   @OneToMany(() => Section, (section) => section.academicClass)
   sections: Section[];

@@ -4,12 +4,16 @@ import { UsersService } from './users/users.service';
 import { CampusesService } from './campuses/campuses.service';
 import { RolesService } from './roles/roles.service';
 import { ModuleId } from './roles/entities/module-permission.entity';
+import { DepartmentsService } from './departments/departments.service';
+import { AcademicGroupsService } from './academic-groups/academic-groups.service';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const usersService = app.get(UsersService);
   const campusesService = app.get(CampusesService);
   const rolesService = app.get(RolesService);
+  const departmentsService = app.get(DepartmentsService);
+  const academicGroupsService = app.get(AcademicGroupsService);
 
   const superAdminUser = { isSuperAdmin: true };
 
@@ -45,6 +49,17 @@ async function seed() {
     }
 
     if (!campus) throw new Error('No campus available to assign roles');
+
+    console.log('\nCreating Departments & Academic Groups...');
+    try {
+      await departmentsService.create({ name: 'Science Department', campusId: campus.id }, superAdminUser);
+      await departmentsService.create({ name: 'Arts Department', campusId: campus.id }, superAdminUser);
+      await academicGroupsService.create({ name: 'Pre-Medical', campusId: campus.id }, superAdminUser);
+      await academicGroupsService.create({ name: 'Computer Science', campusId: campus.id }, superAdminUser);
+      console.log('✅ Departments & Academic Groups created!');
+    } catch (e) {
+      console.log('Departments/Groups already exist or error:', e.message);
+    }
 
     console.log('\nCreating Roles and Users...');
 
