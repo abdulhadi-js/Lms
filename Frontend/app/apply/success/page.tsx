@@ -11,7 +11,7 @@ export default function ApplicationSuccess() {
           <span className="material-symbols-outlined text-[64px] text-on-primary" style={{ fontVariationSettings: "'FILL' 0" }}>check</span>
         </div>
         
-        <h2 className="text-[32px] md:text-[40px] font-bold text-evergreen mb-4 leading-tight">Done! 🎉</h2>
+        <h2 className="text-[32px] md:text-[40px] font-bold text-heading-on-light mb-4 leading-tight">Done! 🎉</h2>
         <p className="text-[16px] text-body-secondary max-w-md mx-auto mb-6">
           Your application has been submitted successfully. You&apos;ll receive a confirmation email at <span className="font-semibold text-evergreen">student@email.com</span>
         </p>

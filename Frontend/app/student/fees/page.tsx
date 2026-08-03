@@ -120,7 +120,7 @@ export default function MyFees() {
     <div className="pt-8 px-4 md:px-8 space-y-8 max-w-[1280px] mx-auto w-full pb-24">
       {/* Page Header */}
       <header className="mb-8">
-        <h1 className="text-[28px] font-bold text-evergreen">My Fees & Payments</h1>
+        <h1 className="text-[28px] font-bold text-heading-on-light">My Fees & Payments</h1>
       </header>
 
       {/* Bento Grid Layout */}
@@ -183,7 +183,7 @@ export default function MyFees() {
         <div className="lg:col-span-12 bg-surface rounded-xl border border-border-light shadow-[0_4px_12px_rgba(19,42,19,0.08)] overflow-hidden relative">
           <div className="h-1 w-full bg-gradient-to-r from-success to-primary-container absolute top-0 left-0"></div>
           <div className="p-6">
-            <h2 className="text-[16px] font-bold text-evergreen mb-4">Fee Structure Details</h2>
+            <h2 className="text-[16px] font-bold text-heading-on-light mb-4">Fee Structure Details</h2>
             <div className="overflow-x-auto rounded-lg border border-divider">
               
               {/* Mobile Card View */}
@@ -312,7 +312,7 @@ export default function MyFees() {
       {isModalOpen && selectedFee && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-surface rounded-xl shadow-2xl max-w-md w-full p-6 border border-divider">
-            <h2 className="text-2xl font-bold text-evergreen mb-2">Make Payment</h2>
+            <h2 className="text-2xl font-bold text-heading-on-light mb-2">Make Payment</h2>
             <p className="text-body-secondary text-sm mb-6">Payment for: {selectedFee.description}</p>
             
             <div className="space-y-4 mb-6">

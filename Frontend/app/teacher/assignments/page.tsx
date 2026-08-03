@@ -271,7 +271,7 @@ export default function TeacherAssignments() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-divider bg-surface-container-low">
-              <h2 className="text-xl font-bold text-evergreen">
+              <h2 className="text-xl font-bold text-heading-on-light">
                 {editingId ? 'Edit Assignment' : 'Create Assignment'}
               </h2>
               <button onClick={closeModal} className="text-body-secondary hover:text-error transition-colors">

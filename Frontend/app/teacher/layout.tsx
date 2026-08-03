@@ -79,7 +79,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
         <div className="px-4 mb-8 flex flex-col items-center shrink-0">
           <div className="relative inline-block mb-3">
-            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-on-primary/20 transition-all overflow-hidden ${isCollapsed ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
+            <div className={`rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold border-2 border-white/20 transition-all overflow-hidden ${isCollapsed ? 'w-10 h-10 text-sm' : 'w-16 h-16 text-xl'}`}>
               {user?.profilePicture ? (
                 <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -90,7 +90,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           </div>
           {!isCollapsed && (
             <>
-              <Link href="/" className="font-semibold text-[20px] text-on-primary hover:text-white transition-colors text-center block mt-1">EduCore LMS</Link>
+              <Link href="/" className="font-semibold text-[20px] text-white hover:text-primary-fixed transition-colors text-center block mt-1">EduCore LMS</Link>
               <span className="badge-admin-gradient text-white font-medium text-[12px] px-3 py-1 rounded-full mt-2 inline-block text-center whitespace-nowrap">Teacher Dashboard</span>
             </>
           )}
@@ -104,8 +104,8 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                 data-testid={`nav-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${
                   isActive(href)
-                    ? `text-primary-fixed font-bold bg-primary-container/20 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}`
-                    : `text-on-primary/70 hover:bg-primary-container/50 hover:text-white ${isCollapsed ? '' : 'pl-5'}`
+                    ? `text-primary-fixed font-bold bg-white/10 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}`
+                    : `text-white/70 hover:bg-white/5 hover:text-white ${isCollapsed ? '' : 'pl-5'}`
                 }`}
               >
                 <Icon className="w-5 h-5 shrink-0" />
@@ -116,17 +116,17 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         </ul>
         <div className={`mt-auto shrink-0 flex flex-col gap-2 ${isCollapsed ? 'px-2 items-center' : 'px-6'}`}>
           {!isCollapsed ? (
-            <div className="flex items-center justify-between mb-2 px-2 border border-divider rounded-lg p-2 bg-surface-container/50">
-              <span className="text-sm font-medium text-on-primary/80">Theme</span>
-              <ThemeToggle />
+            <div className="flex items-center justify-between mb-2 px-2 border border-white/10 rounded-lg p-2 bg-black/20">
+              <span className="text-sm font-medium text-white/80">Theme</span>
+              <ThemeToggle className="text-white hover:text-primary-fixed" />
             </div>
           ) : (
-            <ThemeToggle className="mb-2" />
+            <ThemeToggle className="mb-2 text-white hover:text-primary-fixed" />
           )}
 
           <button onClick={() => logout()} 
             title={isCollapsed ? "Logout" : undefined}
-            className={`flex items-center justify-center text-on-primary/70 font-medium hover:text-white transition-colors ${isCollapsed ? 'w-10 h-10' : 'w-full gap-2 py-2 text-[14px]'}`}
+            className={`flex items-center justify-center text-white/70 font-medium hover:text-white hover:bg-white/5 rounded-lg transition-colors ${isCollapsed ? 'w-10 h-10' : 'w-full gap-2 py-2 text-[14px]'}`}
           >
             <LogOut className="w-5 h-5" />
             {!isCollapsed && <span>Logout</span>}

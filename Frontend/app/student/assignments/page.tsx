@@ -61,7 +61,7 @@ export default function MyAssignments() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-[28px] font-bold text-evergreen mb-4">My Assignments</h1>
+          <h1 className="text-[28px] font-bold text-heading-on-light mb-4">My Assignments</h1>
           {/* Filter Pills */}
           <div className="flex flex-wrap gap-2">
             <button className="px-4 py-1.5 rounded-full bg-primary-container text-white text-[12px] font-medium transition-colors border border-primary-container">

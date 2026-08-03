@@ -70,7 +70,7 @@ export default function TeacherDashboard() {
       {/* Page Header */}
       <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="font-semibold text-[20px] font-bold text-evergreen">
+          <h1 className="font-semibold text-[20px] font-bold text-heading-on-light">
             {getGreeting()},{user?.lastName ? ` Prof. ${user.lastName}` : (user?.firstName ? ` Prof. ${user.firstName}` : '')} 👋
           </h1>
         </div>
@@ -128,7 +128,7 @@ export default function TeacherDashboard() {
       {/* My Courses Section */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-[20px] md:text-[18px] font-bold text-evergreen">My Assigned Courses</h3>
+          <h3 className="font-semibold text-[20px] md:text-[18px] font-bold text-heading-on-light">My Assigned Courses</h3>
           <Link href="/teacher/courses" className="font-semibold text-[16px] text-success hover:underline">View All</Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -171,7 +171,7 @@ export default function TeacherDashboard() {
         <div className="bg-white rounded-xl border border-divider brand-shadow relative pt-1 overflow-hidden lg:col-span-1">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#90a955] to-[#ecf39e]"></div>
           <div className="p-6">
-            <h3 className="font-semibold text-[20px] font-bold text-evergreen mb-4">Pending Actions</h3>
+            <h3 className="font-semibold text-[20px] font-bold text-heading-on-light mb-4">Pending Actions</h3>
             {loading ? (
                <div className="space-y-4">
                  {[1,2,3].map(i => <div key={i} className="h-16 bg-surface-container-high rounded-lg animate-pulse"></div>)}
@@ -213,7 +213,7 @@ export default function TeacherDashboard() {
         {/* Today's Schedule */}
         <div className="bg-white rounded-xl border border-divider brand-shadow lg:col-span-2 overflow-hidden flex flex-col">
           <div className="p-6 bg-surface-container-low border-b border-divider flex justify-between items-center">
-            <h3 className="font-semibold text-[20px] font-bold text-evergreen">Today&apos;s Schedule</h3>
+            <h3 className="font-semibold text-[20px] font-bold text-heading-on-light">Today&apos;s Schedule</h3>
             <span className="font-medium text-[12px] text-body-secondary">
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
             </span>

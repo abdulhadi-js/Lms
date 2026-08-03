@@ -113,7 +113,7 @@ export default function MyAttendance() {
     <div className="max-w-container-max mx-auto space-y-8 pb-12 pt-8 px-4 md:px-8 w-full">
       {/* Page Header */}
       <div>
-        <h1 className="text-[28px] font-bold text-evergreen mb-1">My Attendance</h1>
+        <h1 className="text-[28px] font-bold text-heading-on-light mb-1">My Attendance</h1>
         <p className="text-[14px] text-body-secondary">Track your attendance across all enrolled courses.</p>
       </div>
 
@@ -142,7 +142,7 @@ export default function MyAttendance() {
             ></circle>
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={`text-[20px] font-bold leading-none ${isGloballyAtRisk ? 'text-error' : 'text-evergreen'}`}>{overallPercent}%</span>
+            <span className={`text-[20px] font-bold leading-none ${isGloballyAtRisk ? 'text-error' : 'text-heading-on-light'}`}>{overallPercent}%</span>
             <span className="text-[12px] font-medium text-body-secondary mt-1">Overall</span>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function MyAttendance() {
 
       {/* Per-Course Attendance Cards Grid */}
       <div>
-        <h2 className="text-[20px] font-semibold text-evergreen mb-4">Course Breakdown</h2>
+        <h2 className="text-[20px] font-semibold text-heading-on-light mb-4">Course Breakdown</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {data.length > 0 ? (
             data.map(({ course, summary }) => {
@@ -197,7 +197,7 @@ export default function MyAttendance() {
                   {!isAtRisk && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-success to-lime-cream"></div>}
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-[24px] font-semibold text-evergreen">{course.code ? `${course.code} — ` : ''}{course.title}</h3>
+                      <h3 className="text-[24px] font-semibold text-heading-on-light">{course.code ? `${course.code} — ` : ''}{course.title}</h3>
                       <p className="text-[14px] text-body-secondary mt-1">{course.teacher ? `Instructor: ${course.teacher.firstName} ${course.teacher.lastName}` : 'No Instructor Assigned'}</p>
                     </div>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium border ${isAtRisk ? 'bg-error-bg text-error border-error/20' : 'bg-success-bg text-success border-success/20'}`}>
@@ -207,7 +207,7 @@ export default function MyAttendance() {
                   
                   <div className="mb-4">
                     <div className="flex justify-between text-[14px] mb-1">
-                      <span className={`${isAtRisk ? 'text-error' : 'text-evergreen'} font-semibold`}>{percent}% Attendance</span>
+                      <span className={`${isAtRisk ? 'text-error' : 'text-heading-on-light'} font-semibold`}>{percent}% Attendance</span>
                       <span className="text-body-secondary">Required: 75%</span>
                     </div>
                     <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden relative">
@@ -220,7 +220,7 @@ export default function MyAttendance() {
                     <div className={`${isAtRisk ? 'bg-surface border border-divider/50' : 'bg-neutral-bg'} p-2 rounded-lg`}><span className="block text-success font-semibold">{present}</span><span className="text-xs text-body-secondary">Present</span></div>
                     <div className={`${isAtRisk ? 'bg-error-bg border border-error/20' : 'bg-neutral-bg'} p-2 rounded-lg`}><span className="block text-error font-semibold">{absent}</span><span className="text-xs text-body-secondary">Absent</span></div>
                     <div className={`${isAtRisk ? 'bg-surface border border-divider/50' : 'bg-neutral-bg'} p-2 rounded-lg`}><span className="block text-warning font-semibold">{late}</span><span className="text-xs text-body-secondary">Late</span></div>
-                    <div className={`${isAtRisk ? 'bg-surface border border-divider/50' : 'bg-neutral-bg'} p-2 rounded-lg`}><span className="block text-evergreen font-semibold">{total}</span><span className="text-xs text-body-secondary">Total</span></div>
+                    <div className={`${isAtRisk ? 'bg-surface border border-divider/50' : 'bg-neutral-bg'} p-2 rounded-lg`}><span className="block text-heading-on-light font-semibold">{total}</span><span className="text-xs text-body-secondary">Total</span></div>
                   </div>
                 </div>
               );
