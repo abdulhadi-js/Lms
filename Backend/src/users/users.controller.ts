@@ -45,19 +45,20 @@ export class UsersController {
 
   @Post()
   @RequirePermission(ModuleId.USERS_STAFF, 'ADD')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() createUserDto: CreateUserDto, @CurrentUser() user: any) {
+    return this.usersService.create(createUserDto, user);
   }
 
   @Get()
   @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
   @ApiQuery({ name: 'roleId', required: false })
   findAll(
-    @Query('roleId') roleId?: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('roleId') roleId: string | undefined,
+    @Query('limit') limit: number | undefined,
+    @Query('offset') offset: number | undefined,
+    @CurrentUser() user: any,
   ) {
-    return this.usersService.findAll(roleId, limit, offset);
+    return this.usersService.findAll(roleId, limit, offset, user);
   }
 
   @Patch('profile')
@@ -83,26 +84,26 @@ export class UsersController {
 
   @Get('students/:id/unified')
   @RequirePermission(ModuleId.USERS_STUDENTS, 'VIEW')
-  getUnifiedProfile(@Param('id') id: string) {
-    return this.usersService.getUnifiedStudentProfile(id);
+  getUnifiedProfile(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.usersService.getUnifiedStudentProfile(id, user);
   }
 
   @Get(':id')
   @RequirePermission(ModuleId.USERS_STAFF, 'VIEW')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.usersService.findOne(id, user);
   }
 
   @Patch(':id')
   @RequirePermission(ModuleId.USERS_STAFF, 'EDIT')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @CurrentUser() user: any) {
+    return this.usersService.update(id, updateUserDto, user);
   }
 
   @Delete(':id')
   @RequirePermission(ModuleId.USERS_STAFF, 'DELETE')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.usersService.remove(id, user);
   }
 
   @Post(':id/reset-password')
@@ -110,7 +111,8 @@ export class UsersController {
   resetPassword(
     @Param('id') id: string,
     @Body('newPassword') newPassword: string,
+    @CurrentUser() user: any,
   ) {
-    return this.usersService.resetPassword(id, newPassword);
+    return this.usersService.resetPassword(id, newPassword, user);
   }
 }

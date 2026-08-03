@@ -154,7 +154,10 @@ export class UsersService {
     }
   }
 
-  async create(createUserDto: CreateUserDto): Promise<SafeUser> {
+  async create(createUserDto: CreateUserDto, currentUser: any): Promise<SafeUser> {
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      createUserDto.campusId = currentUser.campusId;
+    }
     const {
       password,
       familyCode,
@@ -217,31 +220,43 @@ export class UsersService {
   }
 
   async findAll(
-    roleId?: string,
+    roleId: string | undefined,
     limit: number = 50,
     offset: number = 0,
+    currentUser: any,
   ): Promise<SafeUser[]> {
     const qb = this.userRepo
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('user.campus', 'campus');
     if (roleId) qb.where('user.roleId = :roleId', { roleId });
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      qb.andWhere('user.campusId = :campusId', { campusId: currentUser.campusId });
+    }
     const users = await qb.take(limit).skip(offset).getMany();
     return users.map((u) => this.sanitize(u));
   }
 
-  async findOne(id: string): Promise<SafeUser> {
+  async findOne(id: string, currentUser: any): Promise<SafeUser> {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereClause.campusId = currentUser.campusId;
+    }
     const user = await this.userRepo.findOne({
-      where: { id },
+      where: whereClause,
       relations: { role: { matrix: true }, campus: true },
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return this.sanitize(user);
   }
 
-  async getUnifiedStudentProfile(id: string): Promise<SafeUser> {
+  async getUnifiedStudentProfile(id: string, currentUser: any): Promise<SafeUser> {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereClause.campusId = currentUser.campusId;
+    }
     const user = await this.userRepo.findOne({
-      where: { id },
+      where: whereClause,
       relations: {
         campus: true,
         family: { users: true },
@@ -263,8 +278,12 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUser> {
-    const user = await this.userRepo.findOne({ where: { id }, relations: { role: true } });
+  async update(id: string, updateUserDto: UpdateUserDto, currentUser: any): Promise<SafeUser> {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereClause.campusId = currentUser.campusId;
+    }
+    const user = await this.userRepo.findOne({ where: whereClause, relations: { role: true } });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     
     const oldRoleId = user.roleId;
@@ -372,8 +391,12 @@ export class UsersService {
     }
   }
 
-  async remove(id: string): Promise<{ success: boolean }> {
-    const user = await this.userRepo.findOne({ where: { id } });
+  async remove(id: string, currentUser: any): Promise<{ success: boolean }> {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereClause.campusId = currentUser.campusId;
+    }
+    const user = await this.userRepo.findOne({ where: whereClause });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     (user as any).status = 'INACTIVE';
     await this.userRepo.save(user);
@@ -383,8 +406,13 @@ export class UsersService {
   async resetPassword(
     id: string,
     newPassword: string,
+    currentUser: any,
   ): Promise<{ success: boolean }> {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereClause.campusId = currentUser.campusId;
+    }
+    const user = await this.userRepo.findOne({ where: whereClause });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     await this.userRepo.save(user);
