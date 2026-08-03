@@ -227,7 +227,8 @@ export const coursesApi = {
 };
 
 export const academicsApi = {
-  getPublicClasses: () => fetchApi('/public/classes'),
+  getPublicClasses: (campusId: string) => fetchApi(`/public/classes?campusId=${campusId}`),
+  getPublicCampuses: () => fetchApi('/public/campuses'),
   listClasses: () => fetchAuthApi('/academics/classes'),
   getClass: (id: string) => fetchAuthApi(`/academics/classes/${id}`),
   createClass: (data: any) => fetchAuthApi('/academics/classes', { method: 'POST', body: JSON.stringify(data) }),

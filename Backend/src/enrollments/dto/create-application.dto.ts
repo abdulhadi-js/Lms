@@ -47,4 +47,8 @@ export class CreateApplicationDto {
   @IsUUID()
   @IsNotEmpty()
   desiredClassId: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  campusId: string;
 }

@@ -47,8 +47,11 @@ export class AcademicsService {
     return this.academicClassRepo.save(newClass);
   }
 
-  async findPublicClasses(): Promise<AcademicClass[]> {
+  async findPublicClasses(campusId?: string): Promise<AcademicClass[]> {
+    const where: any = {};
+    if (campusId) where.campusId = campusId;
     return this.academicClassRepo.find({
+      where,
       relations: { sections: true, subjects: true },
     });
   }

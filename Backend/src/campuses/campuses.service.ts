@@ -25,6 +25,10 @@ export class CampusesService {
     return this.repo.find();
   }
 
+  async findPublic(): Promise<Campus[]> {
+    return this.repo.find({ select: ['id', 'name', 'code', 'address'] });
+  }
+
   async findOne(id: string, currentUser: any): Promise<Campus> {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) {

@@ -26,7 +26,7 @@ export class EnrollmentsService {
     const app = this.appRepo.create({
       ...dto,
       status: 'PENDING',
-      campusId: currentUser.campusId,
+      campusId: dto.campusId || currentUser.campusId,
     });
     return this.appRepo.save(app);
   }
@@ -70,14 +70,14 @@ export class EnrollmentsService {
             phone: app.phone,
             password: 'Password123!',
           };
-          student = (await this.usersService.create(payload)) as any;
+          student = (await this.usersService.create(payload, { campusId: app.campusId })) as any;
         }
 
         const enrollment = this.enrollmentRepo.create({
           status: 'ACTIVE',
           studentId: student!.id,
           sectionId: dto.sectionId,
-          campusId: currentUser.campusId,
+          campusId: app.campusId,
         });
         await this.enrollmentRepo.save(enrollment);
       } catch (e) {

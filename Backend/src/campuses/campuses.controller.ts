@@ -14,6 +14,17 @@ import { MatrixGuard } from '../auth/guards/matrix.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { ModuleId } from '../roles/entities/module-permission.entity';
 
+@Controller('public/campuses')
+export class PublicCampusesController {
+  constructor(private readonly campusesService: CampusesService) {}
+
+  @Get()
+  findPublic() {
+    // Only return active campuses with minimal info
+    return this.campusesService.findPublic();
+  }
+}
+
 @Controller('campuses')
 @UseGuards(JwtAuthGuard, MatrixGuard)
 export class CampusesController {

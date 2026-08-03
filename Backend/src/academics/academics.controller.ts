@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AcademicsService } from './academics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -29,8 +30,8 @@ export class PublicAcademicsController {
   constructor(private readonly academicsService: AcademicsService) {}
 
   @Get('classes')
-  findPublicClasses() {
-    return this.academicsService.findPublicClasses();
+  findPublicClasses(@Query('campusId') campusId: string) {
+    return this.academicsService.findPublicClasses(campusId);
   }
 }
 

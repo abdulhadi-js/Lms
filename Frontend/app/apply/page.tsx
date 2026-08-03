@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { enrollmentsApi, academicsApi } from '@/lib/api';
 
 export default function ApplyPage() {
+  const [campuses, setCampuses] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     studentFirstName: '',
@@ -17,6 +18,7 @@ export default function ApplyPage() {
     email: '',
     phone: '',
     previousSchool: '',
+    campusId: '',
     desiredClassId: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -24,16 +26,32 @@ export default function ApplyPage() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    async function fetchClasses() {
+    async function fetchCampuses() {
       try {
-        const data = await academicsApi.getPublicClasses();
+        const data = await academicsApi.getPublicCampuses();
+        setCampuses(data);
+      } catch (err) {
+        console.error('Failed to load campuses', err);
+      }
+    }
+    fetchCampuses();
+  }, []);
+
+  useEffect(() => {
+    async function fetchClasses() {
+      if (!formData.campusId) {
+        setClasses([]);
+        return;
+      }
+      try {
+        const data = await academicsApi.getPublicClasses(formData.campusId);
         setClasses(data);
       } catch (err) {
         console.error('Failed to load classes', err);
       }
     }
     fetchClasses();
-  }, []);
+  }, [formData.campusId]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -43,6 +61,7 @@ export default function ApplyPage() {
     if (!formData.fatherName.trim()) newErrors.fatherName = "Father's name is required.";
     if (!formData.fatherCnic.trim()) newErrors.fatherCnic = 'CNIC is required.';
     if (!formData.phone.trim()) newErrors.phone = 'WhatsApp/Phone number is required.';
+    if (!formData.campusId) newErrors.campusId = 'Please select a campus.';
     if (!formData.desiredClassId) newErrors.desiredClassId = 'Please select a class.';
     return newErrors;
   };
@@ -203,8 +222,19 @@ export default function ApplyPage() {
                     {/* Academic Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-divider">
                       <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Campus *</label>
+                        <select name="campusId" value={formData.campusId} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors appearance-none cursor-pointer ${errors.campusId ? 'border-error' : 'border-divider'}`}>
+                          <option value="" disabled>Select a campus...</option>
+                          {campuses.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                        {errors.campusId && <p className="text-xs text-error">{errors.campusId}</p>}
+                      </div>
+                      <div className="space-y-1">
                         <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Desired Class *</label>
-                        <select name="desiredClassId" value={formData.desiredClassId} onChange={handleChange}
+                        <select name="desiredClassId" value={formData.desiredClassId} onChange={handleChange} disabled={!formData.campusId}
                           className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors appearance-none cursor-pointer ${errors.desiredClassId ? 'border-error' : 'border-divider'}`}>
                           <option value="" disabled>Select a class...</option>
                           {classes.map(c => (
@@ -213,6 +243,9 @@ export default function ApplyPage() {
                         </select>
                         {errors.desiredClassId && <p className="text-xs text-error">{errors.desiredClassId}</p>}
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-5">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Previous School (Optional)</label>
                         <input name="previousSchool" type="text" value={formData.previousSchool} onChange={handleChange}
