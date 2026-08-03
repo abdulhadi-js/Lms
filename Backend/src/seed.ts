@@ -11,6 +11,8 @@ async function seed() {
   const campusesService = app.get(CampusesService);
   const rolesService = app.get(RolesService);
 
+  const superAdminUser = { isSuperAdmin: true };
+
   try {
     console.log('Seeding SUPER ADMIN user...');
     try {
@@ -20,7 +22,7 @@ async function seed() {
         isSuperAdmin: true,
         firstName: 'Super',
         lastName: 'Admin',
-      } as any);
+      } as any, superAdminUser);
       console.log('✅ Super Admin seed complete!');
     } catch (e) {
       console.log('Super Admin already exists or error:', e.message);
@@ -34,11 +36,11 @@ async function seed() {
         code: 'MAIN-01',
         address: '123 EduCore Street',
         contactPhone: '1234567890',
-      });
+      }, superAdminUser);
       console.log('✅ Campus created:', campus.name);
     } catch (e) {
       console.log('Campus may already exist, fetching it...');
-      const allCampuses = await campusesService.findAll();
+      const allCampuses = await campusesService.findAll(superAdminUser);
       campus = allCampuses[0]; // Just grab the first one
     }
 
@@ -88,7 +90,7 @@ async function seed() {
           canDelete: false,
         },
       ],
-    });
+    }, superAdminUser);
     await usersService
       .create({
         email: 'principal@educore.com',
@@ -97,7 +99,7 @@ async function seed() {
         lastName: 'Skinner',
         roleId: principalRole.id,
         campusId: campus.id,
-      } as any)
+      } as any, superAdminUser)
       .catch(() => console.log('Principal user already exists'));
 
     // 2. Teacher
@@ -128,7 +130,7 @@ async function seed() {
           canDelete: false,
         },
       ],
-    });
+    }, superAdminUser);
     await usersService
       .create({
         email: 'teacher@educore.com',
@@ -137,7 +139,7 @@ async function seed() {
         lastName: 'Smith',
         roleId: teacherRole.id,
         campusId: campus.id,
-      } as any)
+      } as any, superAdminUser)
       .catch(() => console.log('Teacher user already exists'));
 
     // 3. Student
@@ -168,7 +170,7 @@ async function seed() {
           canDelete: false,
         },
       ],
-    });
+    }, superAdminUser);
     await usersService
       .create({
         email: 'student@educore.com',
@@ -177,7 +179,7 @@ async function seed() {
         lastName: 'Doe',
         roleId: studentRole.id,
         campusId: campus.id,
-      } as any)
+      } as any, superAdminUser)
       .catch(() => console.log('Student user already exists'));
 
     console.log('\n✅ All roles and standard test users created!');

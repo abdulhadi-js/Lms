@@ -153,7 +153,7 @@ export class MarksService {
       throw new ForbiddenException('Cannot view other student transcripts');
     }
 
-    const student = await this.usersService.findOne(studentId);
+    const student = await this.usersService.findOne(studentId, currentUser);
     if (!student) throw new NotFoundException('Student not found');
 
     const whereClause: any = { studentId };

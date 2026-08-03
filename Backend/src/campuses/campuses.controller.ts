@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CampusesService } from './campuses.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

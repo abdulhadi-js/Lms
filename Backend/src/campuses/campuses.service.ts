@@ -26,7 +26,7 @@ export class CampusesService {
   }
 
   async findPublic(): Promise<Campus[]> {
-    return this.repo.find({ select: ['id', 'name', 'code', 'address'] });
+    return this.repo.find({ select: { id: true, name: true, code: true, address: true } });
   }
 
   async findOne(id: string, currentUser: any): Promise<Campus> {

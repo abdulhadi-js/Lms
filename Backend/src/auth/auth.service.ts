@@ -122,7 +122,7 @@ export class AuthService {
   }
 
   async refresh(userId: string) {
-    const user = await this.usersService.findOne(userId);
+    const user = await this.usersService.findOne(userId, { isSuperAdmin: true });
     if (!user || user.status !== 'ACTIVE') {
       throw new UnauthorizedException('Invalid user status');
     }
@@ -138,7 +138,7 @@ export class AuthService {
   }
 
   async getMe(userId: string) {
-    return this.usersService.findOne(userId);
+    return this.usersService.findOne(userId, { isSuperAdmin: true });
   }
 
   async logout(_userId: string) {
@@ -199,7 +199,7 @@ export class AuthService {
         throw new BadRequestException('Invalid token type');
       }
 
-      await this.usersService.resetPassword(payload.sub, newPassword);
+      await this.usersService.resetPassword(payload.sub, newPassword, { isSuperAdmin: true });
       return { success: true, message: 'Password reset successfully' };
     } catch (e) {
       throw new BadRequestException('Invalid or expired password reset token');
