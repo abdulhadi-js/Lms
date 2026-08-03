@@ -28,8 +28,14 @@ export class EnrollmentsController {
 
   @Post()
   @RequirePermission(ModuleId.ADMISSIONS, 'ADD')
-  directEnroll(@Body() dto: CreateEnrollmentDto, @Request() req: any) {
+  directEnroll(@Body() dto: any, @Request() req: any) {
     return this.enrollmentsService.directEnroll(dto, req.user);
+  }
+
+  @Post('bulk')
+  @RequirePermission(ModuleId.ADMISSIONS, 'ADD')
+  bulkEnroll(@Body() dto: { courseId?: string; sectionId?: string; studentIds: string[] }, @Request() req: any) {
+    return this.enrollmentsService.bulkEnroll(dto, req.user);
   }
 
   @Get()

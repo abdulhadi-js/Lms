@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AcademicsModule } from './academics/academics.module';
+import { CoursesModule } from './courses/courses.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { MarksModule } from './marks/marks.module';
@@ -55,6 +56,7 @@ import { ExamsModule } from './exams/exams.module';
     AuthModule,
     UsersModule,
     AcademicsModule,
+    CoursesModule,
     EnrollmentsModule,
     AssignmentsModule,
     MarksModule,

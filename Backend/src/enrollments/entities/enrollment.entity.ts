@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity('enrollments')
 export class Enrollment {
@@ -32,6 +33,14 @@ export class Enrollment {
   @ManyToOne(() => Section, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'sectionId' })
   section: Section;
+
+  @Index()
+  @Column({ nullable: true })
+  courseId: string;
+
+  @ManyToOne(() => Course, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'courseId' })
+  course: Course;
 
   @Column({ default: 'ACTIVE' }) // ACTIVE, DROPPED, GRADUATED
   status: string;

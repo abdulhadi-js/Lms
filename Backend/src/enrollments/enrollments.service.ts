@@ -96,13 +96,26 @@ export class EnrollmentsService {
     return this.appRepo.find({ where: whereClause });
   }
 
-  async directEnroll(dto: CreateEnrollmentDto, currentUser: any) {
+  async directEnroll(dto: any, currentUser: any) {
     const enrollment = this.enrollmentRepo.create({
       status: 'ACTIVE',
       ...dto,
       campusId: currentUser.campusId,
     });
     return this.enrollmentRepo.save(enrollment);
+  }
+
+  async bulkEnroll(dto: { courseId?: string; sectionId?: string; studentIds: string[] }, currentUser: any) {
+    const enrollments = dto.studentIds.map(studentId => {
+      return this.enrollmentRepo.create({
+        status: 'ACTIVE',
+        studentId,
+        courseId: dto.courseId,
+        sectionId: dto.sectionId,
+        campusId: currentUser.campusId,
+      });
+    });
+    return this.enrollmentRepo.save(enrollments);
   }
 
   async requestDrop(currentUser: any, dto: RequestDropDto) {
@@ -173,7 +186,7 @@ export class EnrollmentsService {
     const skip = (page - 1) * limit;
     const findOptions: any = {
       where: whereClause,
-      relations: { student: true, section: { academicClass: true } },
+      relations: { student: true, section: { academicClass: true }, course: true },
     };
 
     if (limit > 0) {
