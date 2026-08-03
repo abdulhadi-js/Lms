@@ -94,9 +94,9 @@ export default function FamilySiblingReportPage() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : filteredFamilies.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredFamilies.map((fam) => (
-              <div key={fam.id} className="bg-surface rounded-xl border border-divider brand-shadow p-6 space-y-4 hover:border-primary/50 transition-colors">
+              <div key={fam.id} className="bg-surface rounded-xl border border-divider brand-shadow p-5 space-y-4 hover:border-primary/50 transition-colors">
                 
                 {/* Header */}
                 <div className="flex justify-between items-start border-b border-border-light pb-4">

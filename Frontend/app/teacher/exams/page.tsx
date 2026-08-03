@@ -267,7 +267,7 @@ export default function ExamsManagement() {
               {questions.length === 0 ? (
                 <tr><td colSpan={6} className="py-8 text-center text-body-secondary">Question bank is empty for this course.</td></tr>
               ) : questions.map((q, i) => (
-                <tr key={q.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
+                <tr key={q.id} className="border-b border-border-light  hover:bg-surface transition-colors">
                   <td className="py-3 px-6 text-body-secondary">{i+1}</td>
                   <td className="py-3 px-6 font-medium text-on-surface">
                     {q.text}

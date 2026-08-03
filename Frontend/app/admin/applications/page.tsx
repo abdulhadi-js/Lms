@@ -108,13 +108,13 @@ export default function ApplicationsManagement() {
           ) : (
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
-                <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                  <th className="py-4 px-6 font-semibold">Student & Guardian</th>
-                  <th className="py-4 px-6 font-semibold">Contact Info</th>
-                  <th className="py-4 px-6 font-semibold">Desired Class</th>
-                  <th className="py-4 px-6 font-semibold">Applied Date</th>
-                  <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                  <th className="py-3 px-4 font-semibold">Student & Guardian</th>
+                  <th className="py-3 px-4 font-semibold">Contact Info</th>
+                  <th className="py-3 px-4 font-semibold">Desired Class</th>
+                  <th className="py-3 px-4 font-semibold">Applied Date</th>
+                  <th className="py-3 px-4 font-semibold">Status</th>
+                  <th className="py-3 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -125,29 +125,29 @@ export default function ApplicationsManagement() {
                     return searchString.includes(searchQuery.toLowerCase());
                   })
                   .map((app, i) => (
-                  <tr key={app.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
-                    <td className="py-4 px-6">
+                  <tr key={app.id || i} className="border-b border-border-light  hover:bg-surface transition-colors">
+                    <td className="py-3 px-4">
                       <div className="font-medium text-on-surface">{app.studentFirstName} {app.studentLastName}</div>
                       <div className="text-xs text-body-secondary">D/O, S/O: {app.fatherName}</div>
                       <div className="text-xs text-body-secondary mt-1 tracking-widest text-primary/70">{app.fatherCnic}</div>
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       <div className="text-body-secondary font-medium">{app.phone}</div>
                       {app.email && <div className="text-xs text-body-secondary">{app.email}</div>}
                     </td>
-                    <td className="py-4 px-6 text-on-surface">
+                    <td className="py-3 px-4 text-on-surface">
                       <div className="font-medium">{classes.find(c => c.id === app.desiredClassId)?.name || 'Class Not Found'}</div>
                       {app.previousSchool && <div className="text-xs text-body-secondary mt-1">Prev: {app.previousSchool}</div>}
                     </td>
-                    <td className="py-4 px-6 text-body-secondary">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4 text-body-secondary">{new Date(app.createdAt || '2024-01-01').toLocaleDateString()}</td>
+                    <td className="py-3 px-4">
                       {app.status === 'ENROLLED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Enrolled</span>}
                       {app.status === 'APPROVED_WAITING_FEE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">Fee Pending</span>}
                       {app.status === 'TEST_SCHEDULED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-info-bg text-info border border-info/20">Test Scheduled</span>}
                       {app.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
                       {app.status === 'REJECTED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Rejected</span>}
                     </td>
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {app.status === 'PENDING' && (
                           <button onClick={() => updateStatus(app.id, 'TEST_SCHEDULED')} className="p-1.5 bg-info-bg text-info hover:bg-info hover:text-white rounded transition-colors" title="Schedule Test">
@@ -185,7 +185,7 @@ export default function ApplicationsManagement() {
 
       {rejectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Reject Application</h3>
             <p className="text-sm text-body-secondary mb-4">Please provide a reason for rejecting this application.</p>
             <textarea

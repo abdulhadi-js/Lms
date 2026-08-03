@@ -215,7 +215,7 @@ export default function TeacherAnalytics() {
                     </thead>
                     <tbody className="text-sm">
                       {atRisk.map((student, i) => (
-                        <tr key={i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
+                        <tr key={i} className="border-b border-border-light  hover:bg-surface transition-colors">
                           <td className="py-3 px-4 font-medium text-on-surface">{student.firstName} {student.lastName}</td>
                           <td className="py-3 px-4 text-error font-medium">{student.riskReason}</td>
                           <td className="py-3 px-4">

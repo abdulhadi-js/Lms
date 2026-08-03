@@ -91,14 +91,14 @@ export default function AcademicGroupsPage() {
 
       {error && <div className="bg-error-bg text-error p-4 rounded-lg mb-6 border border-error/20">{error}</div>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {groups.length === 0 ? (
           <div className="col-span-full text-center p-12 bg-surface brand-shadow rounded-xl text-body-secondary">
             No academic groups found. Create your first one above!
           </div>
         ) : (
           groups.map(group => (
-            <div key={group.id} className="bg-surface brand-shadow rounded-xl p-6 hover:shadow-md transition-shadow">
+            <div key={group.id} className="bg-surface brand-shadow rounded-xl p-5 hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold text-on-surface mb-4">{group.name}</h3>
               <div className="flex justify-end gap-2 mt-4 border-t border-divider pt-4">
                 <button 
@@ -124,19 +124,19 @@ export default function AcademicGroupsPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-surface rounded-xl max-w-md w-full brand-shadow overflow-hidden">
-            <div className="p-6 border-b border-divider">
+            <div className="p-5 border-b border-divider">
               <h2 className="text-2xl font-bold text-on-surface">
                 {editingGroup ? 'Edit Group' : 'New Academic Group'}
               </h2>
             </div>
-            <form onSubmit={handleSubmit} className="p-6">
+            <form onSubmit={handleSubmit} className="p-5">
               <div className="mb-4">
                 <label className="block text-sm font-medium text-on-surface mb-2">Group/Stream Name</label>
                 <input 
                   type="text" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                  className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
                   placeholder="e.g. Pre-Engineering"
                   required
                 />
@@ -145,13 +145,13 @@ export default function AcademicGroupsPage() {
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 text-body-secondary hover:bg-surface-container rounded-lg font-medium transition-colors"
+                  className="px-5 py-2 text-body-secondary hover:bg-surface-container rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                  className="px-5 py-2 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary/90 transition-colors"
                 >
                   Save
                 </button>

@@ -354,7 +354,7 @@ export default function TeacherAttendance() {
                   const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
                   
                   return (
-                  <tr key={student.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
+                  <tr key={student.id} className="border-b border-border-light  hover:bg-surface transition-colors">
                     <td className="py-3 px-6 text-body-secondary">{i + 1}</td>
                     <td className="py-3 px-6">
                       <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>

@@ -50,7 +50,7 @@ export default function CampusesManagement() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
+          className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add New Campus
         </button>
@@ -66,7 +66,7 @@ export default function CampusesManagement() {
           <button onClick={() => setIsModalOpen(true)} className="text-primary font-medium text-sm hover:underline">Create Campus</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {campuses.map(campus => (
             <div key={campus.id} onClick={() => router.push('/admin')} className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
               <div className="h-2 bg-gradient-to-r from-primary to-secondary" />
@@ -112,7 +112,7 @@ export default function CampusesManagement() {
               <h3 className="text-lg font-bold text-heading-on-light">Register New Campus</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Campus Name *</label>
                 <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}

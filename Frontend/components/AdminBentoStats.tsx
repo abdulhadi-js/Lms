@@ -64,7 +64,7 @@ export function AdminBentoStats({ className = '' }: BentoStatsProps) {
     return (
       <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 ${className}`}>
         {Array(4).fill(0).map((_, i) => (
-          <div key={i} className="bg-surface rounded-2xl border border-divider p-6 animate-pulse">
+          <div key={i} className="bg-surface rounded-xl border border-divider p-5 animate-pulse">
             <div className="h-3 w-24 bg-surface-container rounded mb-4" />
             <div className="h-10 w-16 bg-surface-container rounded" />
           </div>
@@ -152,7 +152,7 @@ export function AdminBentoStats({ className = '' }: BentoStatsProps) {
         return (
           <div
             key={i}
-            className={`relative bg-surface rounded-2xl border border-divider brand-shadow overflow-hidden group hover:-translate-y-1 transition-all duration-300`}
+            className={`relative overflow-hidden bg-surface rounded-xl border border-divider p-4 brand-shadow group hover:shadow-md transition-shadow`}
           >
             {/* Gradient background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} pointer-events-none`} />

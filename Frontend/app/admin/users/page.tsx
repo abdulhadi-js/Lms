@@ -274,7 +274,7 @@ export default function UserManagement() {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+          className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
         >
           <Plus className="h-4 w-4" />
           Add User
@@ -291,7 +291,7 @@ export default function UserManagement() {
                 placeholder="Search by name or email..." 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
+                className="w-full pl-9 pr-4 py-2 bg-surface border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" 
               />
             </div>
           </div>
@@ -300,7 +300,7 @@ export default function UserManagement() {
               value={roleFilter}
               disabled={isLoading}
               onChange={e => setRoleFilter(e.target.value)}
-              className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+              className="bg-surface border border-border-light rounded-lg px-4 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             >
               <option value="ALL">{isLoading ? 'Loading Roles...' : 'All Roles'}</option>
               {roles.map(r => (
@@ -313,19 +313,19 @@ export default function UserManagement() {
         <div className="overflow-x-auto min-h-[400px]">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                <th className="py-4 px-6 font-semibold">User</th>
-                <th className="py-4 px-6 font-semibold">Role</th>
-                <th className="py-4 px-6 font-semibold">Campus</th>
-                <th className="py-4 px-6 font-semibold">Status</th>
-                <th className="py-4 px-6 font-semibold text-right">Actions</th>
+              <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                <th className="py-3 px-4 font-semibold">User</th>
+                <th className="py-3 px-4 font-semibold">Role</th>
+                <th className="py-3 px-4 font-semibold">Campus</th>
+                <th className="py-3 px-4 font-semibold">Status</th>
+                <th className="py-3 px-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="border-b border-border-light animate-pulse">
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-divider"></div>
                         <div className="space-y-2">
@@ -334,10 +334,10 @@ export default function UserManagement() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6"><div className="h-4 w-24 bg-divider rounded"></div></td>
-                    <td className="py-4 px-6"><div className="h-4 w-20 bg-divider rounded"></div></td>
-                    <td className="py-4 px-6"><div className="h-6 w-16 bg-divider rounded-full"></div></td>
-                    <td className="py-4 px-6 text-right"><div className="h-8 w-8 bg-divider rounded ml-auto"></div></td>
+                    <td className="py-3 px-4"><div className="h-4 w-24 bg-divider rounded"></div></td>
+                    <td className="py-3 px-4"><div className="h-4 w-20 bg-divider rounded"></div></td>
+                    <td className="py-3 px-4"><div className="h-6 w-16 bg-divider rounded-full"></div></td>
+                    <td className="py-3 px-4 text-right"><div className="h-8 w-8 bg-divider rounded ml-auto"></div></td>
                   </tr>
                 ))
               ) : filteredUsers.length === 0 ? (
@@ -351,8 +351,8 @@ export default function UserManagement() {
                 </tr>
               ) : (
                 filteredUsers.map((row) => (
-                  <tr key={row.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors group relative">
-                    <td className="py-4 px-6">
+                  <tr key={row.id} className="border-b border-border-light  hover:bg-surface transition-colors group relative">
+                    <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold text-sm">
                           {row.firstName?.[0]}{row.lastName?.[0]}
@@ -360,7 +360,7 @@ export default function UserManagement() {
                         <div>
                           <div className="font-medium text-on-surface flex items-center gap-2">
                             {row.role?.name === 'STUDENT' ? (
-                              <Link href={`/admin/students/${row.id}`} className="hover:text-primary hover:underline">
+                              <Link href={`/admin/users/${row.id}`} className="hover:text-primary hover:underline">
                                 {row.firstName} {row.lastName}
                               </Link>
                             ) : (
@@ -372,14 +372,14 @@ export default function UserManagement() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-medium">
+                    <td className="py-3 px-4 font-medium">
                       {row.isSuperAdmin ? (
                         <span className="text-primary font-bold text-xs uppercase tracking-wider">Super Admin</span>
                       ) : (
                         <span className="text-body-secondary">{row.role?.name || 'No Role Assigned'}</span>
                       )}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       {row.campus ? (
                         <span className="bg-surface-container px-2 py-1 rounded text-xs text-body-secondary border border-border-light">
                           {row.campus.name}
@@ -388,12 +388,12 @@ export default function UserManagement() {
                         <span className="text-body-secondary text-xs italic">Global / Not Assigned</span>
                       )}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       {row.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20"><UserCheck className="w-3 h-3 mr-1" /> Active</span>}
                       {row.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
                       {row.status === 'INACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20"><UserX className="w-3 h-3 mr-1" /> Inactive</span>}
                     </td>
-                    <td className="py-4 px-6 text-right relative actions-dropdown">
+                    <td className="py-3 px-4 text-right relative actions-dropdown">
                       <button 
                         onClick={() => setOpenDropdown(openDropdown === row.id ? null : row.id)}
                         className="text-icon-inactive hover:text-primary transition-colors p-1.5 rounded-md hover:bg-surface-container"
@@ -439,7 +439,7 @@ export default function UserManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
                 {isEditMode ? 'Edit User' : 'Add New User'}
               </h3>
@@ -448,7 +448,7 @@ export default function UserManagement() {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">First Name</label>
@@ -646,13 +646,13 @@ export default function UserManagement() {
       {isHrModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-primary" /> Staff HR Profile
               </h3>
               <button onClick={() => setIsHrModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
             </div>
-            <form onSubmit={handleHrSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <form onSubmit={handleHrSubmit} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Qualifications</label>
                 <input 

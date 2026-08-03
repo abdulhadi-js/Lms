@@ -99,7 +99,7 @@ export default function AdminDashboard() {
       <AdminBentoStats className="mb-2" />
 
       {/* Stat Cards (kept for quick at-a-glance detail) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {stats.map((stat, i) => (
           <div key={i} className="bg-surface rounded-xl border border-divider brand-shadow relative overflow-hidden group transition-all hover:-translate-y-0.5 hover:shadow-md">
             <div className="absolute top-0 left-0 w-full h-1 card-accent-top" />
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-8">
         {/* Pending Applications Table */}
         <RequireAccess module="USERS_STUDENTS" action="canView" fallback={<div className="lg:col-span-7 bg-surface rounded-xl border border-divider p-8 text-center text-body-secondary flex items-center justify-center">You do not have permission to view pending enrollments.</div>}>
           <div className="lg:col-span-7 space-y-6">
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
                     </tr>
                   ) : (
                     applications.map((row, i) => (
-                      <tr key={row.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
+                      <tr key={row.id || i} className="border-b border-border-light  hover:bg-surface transition-colors">
                         <td className="py-3 px-4 flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                             {row.firstName?.[0] || 'U'}{row.lastName?.[0] || ''}

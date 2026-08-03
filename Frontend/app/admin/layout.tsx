@@ -163,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
         </div>
         
-        <ul className={`flex flex-col gap-4 ${isSidebarCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'} flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
+        <ul className={`flex flex-col gap-1.5 ${isSidebarCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-3'} flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-2`}>
           {allowedSections.map((sectionGroup) => (
             <div key={sectionGroup.section} className="flex flex-col gap-1">
               {(!isSidebarCollapsed || isMobileMenuOpen) && (
@@ -179,7 +179,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       href={link.path}
                       onClick={() => setIsMobileMenuOpen(false)}
                       data-testid={`nav-${link.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${active ? 'bg-primary-container text-on-primary-container' : 'text-body-secondary hover:bg-surface-container hover:text-on-surface'} ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group ${active ? 'bg-primary-container text-on-primary-container' : 'text-body-secondary hover:bg-surface-container hover:text-on-surface'} ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
                       title={isSidebarCollapsed && !isMobileMenuOpen ? link.name : undefined}
                     >
                       <link.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-icon-inactive group-hover:text-primary'}`} />
@@ -222,7 +222,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           
           <button 
             onClick={logout}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-body-secondary hover:bg-error-bg hover:text-error ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-body-secondary hover:bg-error-bg hover:text-error ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
             title={isSidebarCollapsed && !isMobileMenuOpen ? "Logout" : undefined}
           >
             <LogOut className="w-5 h-5 shrink-0" />

@@ -50,7 +50,7 @@ export default function PnLReport() {
         </button>
       </div>
 
-      <div className="bg-surface rounded-xl border border-divider brand-shadow p-6 mb-6 print:hidden">
+      <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 mb-6 print:hidden">
         <h3 className="text-sm font-bold text-on-surface mb-4 uppercase tracking-wider flex items-center gap-2">
           <Calendar className="w-4 h-4 text-primary" /> Select Period
         </h3>

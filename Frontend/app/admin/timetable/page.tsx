@@ -182,7 +182,7 @@ export default function AdminTimetable() {
         </div>
         <a 
           href="/admin/courses"
-          className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+          className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
         >
           <Edit className="h-4 w-4" />
           Manage Courses

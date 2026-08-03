@@ -234,13 +234,13 @@ export default function FeesManagement() {
         <div className="flex gap-2">
           <button 
             onClick={() => setBulkModalOpen(true)}
-            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
           >
             Bulk Generate
           </button>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+            className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
           >
             <Plus className="h-4 w-4" />
             Create Invoice
@@ -248,8 +248,8 @@ export default function FeesManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex items-start gap-4">
           <div className="p-3 bg-primary-container/20 text-primary-fixed rounded-lg">
             <TrendingUp className="w-6 h-6" />
           </div>
@@ -258,7 +258,7 @@ export default function FeesManagement() {
             <h3 className="text-2xl font-bold text-on-surface mt-1">${totalCollected.toFixed(2)}</h3>
           </div>
         </div>
-        <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+        <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex items-start gap-4">
           <div className="p-3 bg-warning-bg text-warning rounded-lg">
             <DollarSign className="w-6 h-6" />
           </div>
@@ -267,7 +267,7 @@ export default function FeesManagement() {
             <h3 className="text-2xl font-bold text-on-surface mt-1">${totalOutstanding.toFixed(2)}</h3>
           </div>
         </div>
-        <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex items-start gap-4">
+        <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex items-start gap-4">
           <div className="p-3 bg-error-bg text-error rounded-lg">
             <AlertCircle className="w-6 h-6" />
           </div>
@@ -401,35 +401,35 @@ export default function FeesManagement() {
               {/* Desktop Table View */}
               <table className="hidden md:table w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                  <th className="py-4 px-6 font-semibold">Student / Course</th>
-                  <th className="py-4 px-6 font-semibold">Description</th>
-                  <th className="py-4 px-6 font-semibold">Amount</th>
-                  <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold">Due Date</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                  <th className="py-3 px-4 font-semibold">Student / Course</th>
+                  <th className="py-3 px-4 font-semibold">Description</th>
+                  <th className="py-3 px-4 font-semibold">Amount</th>
+                  <th className="py-3 px-4 font-semibold">Status</th>
+                  <th className="py-3 px-4 font-semibold">Due Date</th>
+                  <th className="py-3 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
                 {filteredFees.map((fee, i) => (
-                  <tr key={fee.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors relative">
-                    <td className="py-4 px-6">
+                  <tr key={fee.id || i} className="border-b border-border-light  hover:bg-surface transition-colors relative">
+                    <td className="py-3 px-4">
                       <div className="font-medium text-on-surface">{fee.student?.firstName} {fee.student?.lastName}</div>
                       {fee.course && <div className="text-xs text-body-secondary">{fee.course?.title}</div>}
                     </td>
-                    <td className="py-4 px-6 text-on-surface">{fee.description || 'General Fee'}</td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4 text-on-surface">{fee.description || 'General Fee'}</td>
+                    <td className="py-3 px-4">
                       <div className="font-bold text-on-surface">${Number(fee.amount).toFixed(2)}</div>
                       {fee.paidAmount > 0 && <div className="text-xs text-success">Paid: ${Number(fee.paidAmount).toFixed(2)}</div>}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       {fee.status === 'PAID' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Paid</span>}
                       {fee.status === 'PENDING' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/20">Pending</span>}
                       {fee.status === 'OVERDUE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Overdue</span>}
                       {fee.status === 'REFUNDED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface-container-high text-body-secondary border border-border-light">Refunded</span>}
                     </td>
-                    <td className="py-4 px-6 text-body-secondary">{fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : 'N/A'}</td>
-                    <td className="py-4 px-6 text-right relative actions-dropdown">
+                    <td className="py-3 px-4 text-body-secondary">{fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : 'N/A'}</td>
+                    <td className="py-3 px-4 text-right relative actions-dropdown">
                       <button
                         onClick={(e) => {
                           if (openDropdown === fee.id) {
@@ -505,7 +505,7 @@ export default function FeesManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">
                 {isEditMode ? 'Edit Fee Record' : 'Create New Invoice'}
               </h3>
@@ -513,7 +513,7 @@ export default function FeesManagement() {
                 &times;
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Select Student</label>
                 <input 
@@ -636,7 +636,7 @@ export default function FeesManagement() {
       {/* Pay Modal */}
       {payModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Record Payment</h3>
             <div className="space-y-4 mb-6">
               <div>
@@ -675,13 +675,13 @@ export default function FeesManagement() {
       {bulkModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">Bulk Generate Fees</h3>
               <button onClick={() => setBulkModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">
                 &times;
               </button>
             </div>
-            <form onSubmit={handleBulkSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleBulkSubmit} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Target Course</label>
                 <select 
@@ -742,7 +742,7 @@ export default function FeesManagement() {
       {/* Audit Log Modal */}
       {auditReasonModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200 border-2 border-error/50">
+          <div className="bg-surface rounded-xl shadow-2xl p-5 w-full max-w-sm animate-in zoom-in-95 duration-200 border-2 border-error/50">
             <h3 className="text-xl font-bold text-heading-on-light mb-2 text-error flex items-center gap-2">
               <AlertCircle className="w-5 h-5" /> Requires Audit Log
             </h3>

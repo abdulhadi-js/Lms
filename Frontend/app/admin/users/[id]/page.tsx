@@ -47,9 +47,9 @@ export default function UserDetailsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left Column: Profile Card */}
-        <div className="bg-surface brand-shadow rounded-xl p-6 lg:col-span-1 h-fit">
+        <div className="bg-surface brand-shadow rounded-xl p-5 lg:col-span-1 h-fit">
           <div className="flex flex-col items-center text-center">
             <div className="w-24 h-24 rounded-full bg-primary-fixed-dim text-evergreen flex items-center justify-center text-3xl font-bold mb-4">
               {profile.profilePicture ? (

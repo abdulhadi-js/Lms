@@ -22,7 +22,7 @@ export default function AnnualAggregation() {
         </div>
       </div>
 
-      <div className="bg-surface p-6 rounded-xl border border-divider shadow-sm">
+      <div className="bg-surface p-5 rounded-xl border border-divider shadow-sm">
         <p className="text-body-secondary mb-4">Click the button below to generate aggregated results for the current academic session.</p>
         <button 
           onClick={handleGenerate}

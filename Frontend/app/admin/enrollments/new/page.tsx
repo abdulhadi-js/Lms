@@ -96,7 +96,7 @@ export default function NewAdmissionWizard() {
       </div>
 
       {/* Stepper */}
-      <div className="bg-surface brand-shadow rounded-xl p-6 mb-6">
+      <div className="bg-surface brand-shadow rounded-xl p-5 mb-6">
         <div className="flex items-center justify-between relative">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-surface-container-high -z-10 rounded-full" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary -z-10 rounded-full transition-all duration-300" style={{ width: `${((step - 1) / 2) * 100}%` }} />
@@ -117,18 +117,18 @@ export default function NewAdmissionWizard() {
         {step === 1 && (
           <div className="space-y-6 animate-fade-in-up">
             <h2 className="text-xl font-bold text-on-surface mb-4 border-b border-divider pb-2">Student Personal Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">First Name <span className="text-error">*</span></label>
-                <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="First Name" />
+                <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="First Name" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Last Name <span className="text-error">*</span></label>
-                <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Last Name" />
+                <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Last Name" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Gender</label>
-                <select value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary">
+                <select value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary">
                   <option>Male</option>
                   <option>Female</option>
                   <option>Other</option>
@@ -136,15 +136,15 @@ export default function NewAdmissionWizard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Date of Birth</label>
-                <input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" />
+                <input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Email Address (Optional)</label>
-                <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="student@example.com" />
+                <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="student@example.com" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Student Phone (Optional)</label>
-                <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="03xx-xxxxxxx" />
+                <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="03xx-xxxxxxx" />
               </div>
             </div>
           </div>
@@ -153,32 +153,32 @@ export default function NewAdmissionWizard() {
         {step === 2 && (
           <div className="space-y-6 animate-fade-in-up">
             <h2 className="text-xl font-bold text-on-surface mb-4 border-b border-divider pb-2">Guardian & Additional Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Father's Name <span className="text-error">*</span></label>
-                <input type="text" value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Father Name" />
+                <input type="text" value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Father Name" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Father's CNIC (Optional)</label>
-                <input type="text" value={formData.fatherCnic} onChange={e => setFormData({...formData, fatherCnic: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="xxxxx-xxxxxxx-x" />
+                <input type="text" value={formData.fatherCnic} onChange={e => setFormData({...formData, fatherCnic: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="xxxxx-xxxxxxx-x" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Mother's Name (Optional)</label>
-                <input type="text" value={formData.motherName} onChange={e => setFormData({...formData, motherName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" />
+                <input type="text" value={formData.motherName} onChange={e => setFormData({...formData, motherName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Guardian's Name (If not parents)</label>
-                <input type="text" value={formData.guardianName} onChange={e => setFormData({...formData, guardianName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" />
+                <input type="text" value={formData.guardianName} onChange={e => setFormData({...formData, guardianName: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-on-surface mb-2">Previous School</label>
-                <input type="text" value={formData.previousSchool} onChange={e => setFormData({...formData, previousSchool: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Previous Institution Name" />
+                <input type="text" value={formData.previousSchool} onChange={e => setFormData({...formData, previousSchool: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="Previous Institution Name" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-on-surface mb-2">Discount Amount (Flat Off)</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-body-secondary font-medium">Rs.</span>
-                  <input type="number" min="0" value={formData.discountAmount} onChange={e => setFormData({...formData, discountAmount: parseFloat(e.target.value) || 0})} className="w-full border border-divider rounded-lg pl-10 pr-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="0" />
+                  <input type="number" min="0" value={formData.discountAmount} onChange={e => setFormData({...formData, discountAmount: parseFloat(e.target.value) || 0})} className="w-full border border-divider rounded-lg pl-10 pr-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary" placeholder="0" />
                 </div>
                 <p className="text-xs text-body-secondary mt-2">Any special discount applied for siblings or scholarship.</p>
               </div>
@@ -189,17 +189,17 @@ export default function NewAdmissionWizard() {
         {step === 3 && (
           <div className="space-y-6 animate-fade-in-up">
             <h2 className="text-xl font-bold text-on-surface mb-4 border-b border-divider pb-2">Academic Placement</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Academic Group / Stream</label>
-                <select value={formData.academicGroupId} onChange={e => setFormData({...formData, academicGroupId: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary">
+                <select value={formData.academicGroupId} onChange={e => setFormData({...formData, academicGroupId: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary">
                   <option value="">Select Stream...</option>
                   {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Class / Course <span className="text-error">*</span></label>
-                <select value={formData.courseId} onChange={e => setFormData({...formData, courseId: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary">
+                <select value={formData.courseId} onChange={e => setFormData({...formData, courseId: e.target.value})} className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary">
                   <option value="">Select Class...</option>
                   {courses.map(c => <option key={c.id} value={c.id}>{c.title || c.name} ({c.code})</option>)}
                 </select>
@@ -213,7 +213,7 @@ export default function NewAdmissionWizard() {
           <button 
             onClick={handleBack} 
             disabled={step === 1}
-            className={`px-5 py-2.5 rounded-lg font-medium transition-colors ${step === 1 ? 'opacity-50 cursor-not-allowed bg-surface-container text-body-secondary' : 'bg-surface-container hover:bg-surface-container-high text-on-surface border border-divider'}`}
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${step === 1 ? 'opacity-50 cursor-not-allowed bg-surface-container text-body-secondary' : 'bg-surface-container hover:bg-surface-container-high text-on-surface border border-divider'}`}
           >
             Back
           </button>
@@ -221,7 +221,7 @@ export default function NewAdmissionWizard() {
           {step < 3 ? (
             <button 
               onClick={handleNext}
-              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               Next Step
               <ChevronRight className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function NewAdmissionWizard() {
             <button 
               onClick={handleSubmit}
               disabled={loading}
-              className={`flex items-center gap-2 px-6 py-2.5 primary-gradient text-white rounded-lg font-semibold hover:shadow-md transition-shadow ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`flex items-center gap-2 px-6 py-2 primary-gradient text-white rounded-lg font-semibold hover:shadow-md transition-shadow ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {loading ? 'Processing...' : 'Complete Admission'}
               <Check className="w-4 h-4" />

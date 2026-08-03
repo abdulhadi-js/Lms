@@ -79,8 +79,8 @@ export default function ReportsAnalytics() {
         <div className="p-12 text-center text-body-secondary">Loading analytics data...</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Students</p>
@@ -92,7 +92,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
             
-            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Active Courses</p>
@@ -104,7 +104,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
 
-            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Revenue</p>
@@ -116,7 +116,7 @@ export default function ReportsAnalytics() {
               </div>
             </div>
 
-            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">At-Risk Students</p>
@@ -129,8 +129,8 @@ export default function ReportsAnalytics() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-surface p-6 rounded-xl border border-divider brand-shadow">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 bg-surface p-5 rounded-xl border border-divider brand-shadow">
               <h3 className="text-lg font-bold text-heading-on-light mb-1">Performance Overview</h3>
               <p className="text-xs text-body-secondary mb-4">Average grade percentage per course</p>
               {performanceData.length === 0 ? (
@@ -151,7 +151,7 @@ export default function ReportsAnalytics() {
               <p className="text-sm text-body-secondary mt-4 text-center">Average Course Grade: {avgGrade.toFixed(1)}%</p>
             </div>
 
-            <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow flex flex-col">
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex flex-col">
               <h3 className="text-lg font-bold text-heading-on-light mb-4">Attendance Stats</h3>
               <div className="flex-1 flex flex-col items-center justify-center">
                 <div className="relative w-48 h-48 -mt-4">
@@ -234,12 +234,12 @@ export default function ReportsAnalytics() {
               {/* Desktop Table View */}
               <table className="hidden md:table w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                    <th className="py-4 px-6 font-semibold">Student</th>
-                    <th className="py-4 px-6 font-semibold">Course</th>
-                    <th className="py-4 px-6 font-semibold">Average Grade</th>
-                    <th className="py-4 px-6 font-semibold">Attendance</th>
-                    <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                  <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                    <th className="py-3 px-4 font-semibold">Student</th>
+                    <th className="py-3 px-4 font-semibold">Course</th>
+                    <th className="py-3 px-4 font-semibold">Average Grade</th>
+                    <th className="py-3 px-4 font-semibold">Attendance</th>
+                    <th className="py-3 px-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -249,16 +249,16 @@ export default function ReportsAnalytics() {
                     </tr>
                   ) : (
                     atRisk.map((student, i) => (
-                      <tr key={i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
-                        <td className="py-4 px-6 font-medium text-on-surface text-xs">{student.studentId}</td>
-                        <td className="py-4 px-6 text-body-secondary">{student.riskReason || 'N/A'}</td>
-                        <td className="py-4 px-6">
+                      <tr key={i} className="border-b border-border-light  hover:bg-surface transition-colors">
+                        <td className="py-3 px-4 font-medium text-on-surface text-xs">{student.studentId}</td>
+                        <td className="py-3 px-4 text-body-secondary">{student.riskReason || 'N/A'}</td>
+                        <td className="py-3 px-4">
                           <span className={`font-medium ${student.avgMark < 50 ? 'text-error' : 'text-warning'}`}>{student.avgMark ? Number(student.avgMark).toFixed(1) + '%' : 'N/A'}</span>
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-3 px-4">
                           <span className="font-medium text-warning">{student.avgAttendance ? Number(student.avgAttendance).toFixed(1) + '%' : 'N/A'}</span>
                         </td>
-                        <td className="py-4 px-6 text-right">
+                        <td className="py-3 px-4 text-right">
                           <button className="px-3 py-1.5 border border-border-light rounded-lg text-xs font-medium hover:bg-surface-container">
                             View Profile
                           </button>

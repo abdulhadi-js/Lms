@@ -199,19 +199,19 @@ export default function EnrollmentsManagement() {
           <p className="text-sm text-body-secondary mt-1">Manage student course enrollments and drops.</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/admin/enrollments/new" className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow">
+          <Link href="/admin/enrollments/new" className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow">
             <Plus className="h-4 w-4" />
             New Admission
           </Link>
           <button 
             onClick={() => setRolloverModalOpen(true)}
-            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors hidden md:flex"
+            className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors hidden md:flex"
           >
             Session Rollover
           </button>
           <button 
             onClick={() => setEnrollModalOpen(true)}
-            className="flex items-center gap-2 border border-border-light bg-surface text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-low transition-colors"
+            className="flex items-center gap-2 border border-border-light bg-surface text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-low transition-colors"
           >
             Direct Enroll
           </button>
@@ -222,7 +222,7 @@ export default function EnrollmentsManagement() {
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <select 
-              className="bg-surface border border-border-light rounded-lg px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              className="bg-surface border border-border-light rounded-lg px-4 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -239,7 +239,7 @@ export default function EnrollmentsManagement() {
               placeholder="Search by name, email, or course..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border-light rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
         </div>
@@ -347,31 +347,31 @@ export default function EnrollmentsManagement() {
               {/* Desktop Table View */}
               <table className="hidden md:table w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                  <th className="py-4 px-6 font-semibold">Student</th>
-                  <th className="py-4 px-6 font-semibold">Course</th>
-                  <th className="py-4 px-6 font-semibold">Status</th>
-                  <th className="py-4 px-6 font-semibold">Enrolled At</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                  <th className="py-3 px-4 font-semibold">Student</th>
+                  <th className="py-3 px-4 font-semibold">Course</th>
+                  <th className="py-3 px-4 font-semibold">Status</th>
+                  <th className="py-3 px-4 font-semibold">Enrolled At</th>
+                  <th className="py-3 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
                 {filteredEnrollments.map((enr, i) => (
-                  <tr key={enr.id || i} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors relative">
-                    <td className="py-4 px-6">
+                  <tr key={enr.id || i} className="border-b border-border-light  hover:bg-surface transition-colors relative">
+                    <td className="py-3 px-4">
                       <Link href={`/admin/users/${enr.student?.id}`} className="font-medium text-on-surface hover:text-primary hover:underline block">
                         {enr.student?.firstName} {enr.student?.lastName}
                       </Link>
                       <div className="text-xs text-body-secondary">{enr.student?.email}</div>
                     </td>
-                    <td className="py-4 px-6 text-on-surface">{enr.course?.title} <span className="text-xs text-body-secondary ml-1">({enr.course?.code})</span></td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4 text-on-surface">{enr.course?.title} <span className="text-xs text-body-secondary ml-1">({enr.course?.code})</span></td>
+                    <td className="py-3 px-4">
                       {enr.status === 'ENROLLED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Enrolled</span>}
                       {enr.status === 'DROPPED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Dropped</span>}
                       {enr.status === 'COMPLETED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container/20 text-primary border border-primary/20">Completed</span>}
                     </td>
-                    <td className="py-4 px-6 text-body-secondary">{new Date(enr.createdAt).toLocaleDateString()}</td>
-                    <td className="py-4 px-6 text-right relative actions-dropdown">
+                    <td className="py-3 px-4 text-body-secondary">{new Date(enr.createdAt).toLocaleDateString()}</td>
+                    <td className="py-3 px-4 text-right relative actions-dropdown">
                       <button
                         onClick={(e) => {
                           if (openDropdown === enr.id) {
@@ -455,7 +455,7 @@ export default function EnrollmentsManagement() {
       {/* Direct Enroll Modal */}
       {enrollModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Direct Enroll Student</h3>
             
             <div className="space-y-4 mb-6">
@@ -531,7 +531,7 @@ export default function EnrollmentsManagement() {
       {/* Session Rollover Modal */}
       {rolloverModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-2">Session Rollover</h3>
             <p className="text-sm text-body-secondary mb-6">Promote active students from a previous academic session to a new course. Existing enrollments will be marked as Completed.</p>
             
@@ -588,7 +588,7 @@ export default function EnrollmentsManagement() {
       {/* Edit Status Modal */}
       {editModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Edit Enrollment Status</h3>
             <div className="mb-6">
               <label className="block text-sm font-medium text-on-surface mb-1">Status</label>
@@ -624,7 +624,7 @@ export default function EnrollmentsManagement() {
       {/* Drop Modal */}
       {dropModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface rounded-xl shadow-xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Drop Enrollment</h3>
             <p className="text-sm text-body-secondary mb-4">Provide a reason for dropping this student.</p>
             

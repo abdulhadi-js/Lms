@@ -165,7 +165,7 @@ export default function RolesManagement() {
         </div>
         <button 
           onClick={() => { setFormData({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
-          className="bg-primary text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
+          className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Build Custom Matrix
         </button>
@@ -197,11 +197,11 @@ export default function RolesManagement() {
           ) : (
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                  <th className="py-4 px-6 font-semibold">Role Name</th>
-                  <th className="py-4 px-6 font-semibold">Campus Assignment</th>
-                  <th className="py-4 px-6 font-semibold">Configured Modules</th>
-                  <th className="py-4 px-6 font-semibold text-right">Actions</th>
+                <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                  <th className="py-3 px-4 font-semibold">Role Name</th>
+                  <th className="py-3 px-4 font-semibold">Campus Assignment</th>
+                  <th className="py-3 px-4 font-semibold">Configured Modules</th>
+                  <th className="py-3 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -214,15 +214,15 @@ export default function RolesManagement() {
                   const activeModules = matrix.map((m: any) => m.moduleId);
                   
                   return (
-                  <tr key={role.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
-                    <td className="py-4 px-6 font-medium text-on-surface">
+                  <tr key={role.id} className="border-b border-border-light  hover:bg-surface transition-colors">
+                    <td className="py-3 px-4 font-medium text-on-surface">
                       <div className="flex items-center gap-2">
                         <Shield className="w-4 h-4 text-primary/70" />
                         {role.name}
                         {role.isSystem && <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase ml-2">System</span>}
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-body-secondary">
+                    <td className="py-3 px-4 text-body-secondary">
                       {role.campusId ? (
                         <span className="bg-surface-container px-2 py-1 rounded text-xs">
                           {campuses.find(c => c.id === role.campusId)?.name || 'Unknown Campus'}
@@ -231,7 +231,7 @@ export default function RolesManagement() {
                         <span className="bg-success/10 text-success px-2 py-1 rounded text-xs">Global Role</span>
                       )}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4">
                       <div className="flex flex-wrap gap-1">
                         {activeModules.length === 0 ? (
                           <span className="text-[10px] text-body-secondary italic">No permissions set</span>
@@ -247,7 +247,7 @@ export default function RolesManagement() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-3 px-4 text-right">
                       {!role.isSystem && (
                         <div className="flex justify-end gap-2">
                           <button onClick={() => handleEditClick(role)} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="Edit Role">
@@ -278,7 +278,7 @@ export default function RolesManagement() {
             </div>
             
             <form onSubmit={handleSubmit} className="flex flex-col flex-grow overflow-hidden">
-              <div className="p-6 overflow-y-auto flex-grow space-y-6">
+              <div className="p-5 overflow-y-auto flex-grow space-y-6">
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 bg-surface-container-lowest border border-divider rounded-xl">
                   <div>
@@ -306,7 +306,7 @@ export default function RolesManagement() {
                   <div className="border border-divider rounded-xl overflow-hidden bg-surface shadow-sm">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
+                        <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
                           <th className="py-3 px-4 font-semibold w-1/3 border-r border-divider">Module</th>
                           <th className="py-3 px-4 font-semibold text-center border-r border-divider">View</th>
                           <th className="py-3 px-4 font-semibold text-center border-r border-divider">Add</th>
@@ -358,8 +358,8 @@ export default function RolesManagement() {
               </div>
               
               <div className="p-4 flex justify-end gap-3 border-t border-divider sticky bottom-0 bg-surface shrink-0">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-medium border border-border-light rounded-lg hover:bg-surface-container-lowest">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 text-sm font-medium bg-primary text-on-primary rounded-lg shadow-sm hover:bg-primary/90">Save Matrix</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2 text-sm font-medium border border-border-light rounded-lg hover:bg-surface-container-lowest">Cancel</button>
+                <button type="submit" className="px-5 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg shadow-sm hover:bg-primary/90">Save Matrix</button>
               </div>
             </form>
           </div>

@@ -10,10 +10,10 @@
   --color-palm-leaf: #90a955;
   --color-lime-cream: #ecf39e;
   
-  --color-page-bg: #fefef9;
+  --color-page-bg: #fafafa;
   --color-neutral-bg: #f4f4f4;
-  --color-border-light: #e4e4e4;
-  --color-divider: #c6c6c6;
+  --color-border-light: #eaeaea;
+  --color-divider: #e0e0e0;
   --color-placeholder: #a4a4a4;
   --color-icon-inactive: #818181;
   --color-body-secondary: #5f5f5f;
@@ -29,12 +29,12 @@
   --color-info-bg: #e2ebf0;
 
   --color-surface: #ffffff;
-  --color-on-surface: #444444;
+  --color-on-surface: #333333;
   --color-surface-container: #f4f4f4;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #fcfdf1;
-  --color-surface-container-high: #eae8e7;
-  --color-surface-container-highest: #e4e2e2;
+  --color-surface-container-low: #fafafa;
+  --color-surface-container-high: #f0f0f0;
+  --color-surface-container-highest: #e8e8e8;
 
   --color-primary: #31572c;
   --color-primary-container: #31572c;
@@ -127,6 +127,10 @@ body {
   box-shadow: 0 4px 12px rgba(19, 42, 19, 0.04); /* Softer shadow */
   border: 1px solid rgba(198, 198, 198, 0.3); /* Softer border instead of full divider */
   border-radius: 12px;
+}
+
+.brand-shadow {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .dark .brand-shadow {

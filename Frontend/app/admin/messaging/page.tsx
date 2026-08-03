@@ -70,7 +70,7 @@ export default function MessagingOutbox() {
         {activeTab === 'TEMPLATES' && (
           <button 
             onClick={() => setIsTemplateModalOpen(true)}
-            className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+            className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
           >
             <Plus className="h-4 w-4" />
             New Template
@@ -109,22 +109,22 @@ export default function MessagingOutbox() {
         <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                <th className="py-4 px-6 font-semibold">Recipient</th>
-                <th className="py-4 px-6 font-semibold w-1/2">Message Content</th>
-                <th className="py-4 px-6 font-semibold">Queued At</th>
-                <th className="py-4 px-6 font-semibold">Status</th>
+              <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                <th className="py-3 px-4 font-semibold">Recipient</th>
+                <th className="py-3 px-4 font-semibold w-1/2">Message Content</th>
+                <th className="py-3 px-4 font-semibold">Queued At</th>
+                <th className="py-3 px-4 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {outbox.length === 0 ? (
                 <tr><td colSpan={4} className="py-8 text-center text-body-secondary">Outbox is empty.</td></tr>
               ) : outbox.map((msg: any) => (
-                <tr key={msg.id} className="border-b border-border-light even:bg-surface-container-low hover:bg-surface transition-colors">
-                  <td className="py-4 px-6 font-medium text-on-surface">{msg.recipientPhone || msg.recipientEmail}</td>
-                  <td className="py-4 px-6 text-body-secondary text-xs">{msg.content}</td>
-                  <td className="py-4 px-6 text-body-secondary">{new Date(msg.createdAt).toLocaleString()}</td>
-                  <td className="py-4 px-6">
+                <tr key={msg.id} className="border-b border-border-light  hover:bg-surface transition-colors">
+                  <td className="py-3 px-4 font-medium text-on-surface">{msg.recipientPhone || msg.recipientEmail}</td>
+                  <td className="py-3 px-4 text-body-secondary text-xs">{msg.content}</td>
+                  <td className="py-3 px-4 text-body-secondary">{new Date(msg.createdAt).toLocaleString()}</td>
+                  <td className="py-3 px-4">
                     {msg.status === 'PENDING' && <span className="inline-flex items-center text-warning bg-warning-bg px-2.5 py-1 rounded-full text-xs font-semibold"><Clock className="w-3 h-3 mr-1" /> Pending</span>}
                     {msg.status === 'SENT' && <span className="inline-flex items-center text-success bg-success-bg px-2.5 py-1 rounded-full text-xs font-semibold"><CheckCircle2 className="w-3 h-3 mr-1" /> Sent</span>}
                     {msg.status === 'FAILED' && <span className="inline-flex items-center text-error bg-error-bg px-2.5 py-1 rounded-full text-xs font-semibold"><XCircle className="w-3 h-3 mr-1" /> Failed</span>}
@@ -135,7 +135,7 @@ export default function MessagingOutbox() {
           </table>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {templates.length === 0 ? (
             <div className="col-span-full py-12 text-center text-body-secondary border border-dashed border-divider rounded-xl">
               No templates created yet.
@@ -167,14 +167,14 @@ export default function MessagingOutbox() {
       {isTemplateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-primary" /> {templateForm.id ? 'Edit Template' : 'Create Template'}
               </h3>
               <button onClick={() => { setIsTemplateModalOpen(false); setTemplateForm({ name: '', type: 'SMS', content: '' }); }} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
             </div>
             
-            <form onSubmit={handleSaveTemplate} className="p-6 space-y-4">
+            <form onSubmit={handleSaveTemplate} className="p-5 space-y-4">
               <div className="bg-primary/10 text-primary-fixed border border-primary/20 rounded-lg p-3 text-sm flex gap-2">
                 <AlertCircle className="w-5 h-5 shrink-0" />
                 <p>Use variables like <code>{`{{studentName}}`}</code>, <code>{`{{course}}`}</code>, or <code>{`{{date}}`}</code> to parameterize the message.</p>
@@ -193,7 +193,7 @@ export default function MessagingOutbox() {
                 <label className="block text-sm font-medium text-on-surface mb-1">Channel</label>
                 <select 
                   value={templateForm.type} onChange={e => setTemplateForm({...templateForm, type: e.target.value})}
-                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full bg-white border border-border-light rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="SMS">SMS</option>
                   <option value="WHATSAPP">WhatsApp</option>

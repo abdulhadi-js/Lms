@@ -100,13 +100,13 @@ export default function AccountsManagement() {
             <RequireAccess module="ACCOUNTS" action="canAdd">
               <button 
                 onClick={handleRunPayroll}
-                className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
+                className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors"
               >
                 Run Payroll Engine
               </button>
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 primary-gradient text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+                className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
               >
                 <Plus className="h-4 w-4" />
                 Log Transaction
@@ -116,7 +116,7 @@ export default function AccountsManagement() {
         </div>
 
         {/* Top KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 flex items-start gap-4">
             <div className="p-3 bg-success-bg text-success rounded-lg">
               <TrendingUp className="w-6 h-6" />
@@ -201,29 +201,29 @@ export default function AccountsManagement() {
             ) : (
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                    <th className="py-4 px-6 font-semibold">Date</th>
-                    <th className="py-4 px-6 font-semibold">Type</th>
-                    <th className="py-4 px-6 font-semibold">Category</th>
-                    <th className="py-4 px-6 font-semibold">Description</th>
-                    <th className="py-4 px-6 font-semibold text-right">Amount</th>
+                  <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                    <th className="py-3 px-4 font-semibold">Date</th>
+                    <th className="py-3 px-4 font-semibold">Type</th>
+                    <th className="py-3 px-4 font-semibold">Category</th>
+                    <th className="py-3 px-4 font-semibold">Description</th>
+                    <th className="py-3 px-4 font-semibold text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(t => (
                     <tr key={t.id} className="border-b border-border-light hover:bg-surface-container-low transition-colors">
-                      <td className="py-4 px-6">{new Date(t.date).toLocaleDateString()}</td>
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-4">{new Date(t.date).toLocaleDateString()}</td>
+                      <td className="py-3 px-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${t.type === 'INCOME' ? 'bg-success-bg text-success' : 'bg-error-bg text-error'}`}>
                           {t.type}
                         </span>
                       </td>
-                      <td className="py-4 px-6 font-medium text-body-secondary">{t.category}</td>
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-4 font-medium text-body-secondary">{t.category}</td>
+                      <td className="py-3 px-4">
                         <div className="text-on-surface">{t.description}</div>
                         {t.referenceNumber && <div className="text-xs text-body-secondary mt-0.5">Ref: {t.referenceNumber}</div>}
                       </td>
-                      <td className={`py-4 px-6 text-right font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-error'}`}>
+                      <td className={`py-3 px-4 text-right font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-error'}`}>
                         {t.type === 'INCOME' ? '+' : '-'}${Number(t.amount).toLocaleString()}
                       </td>
                     </tr>
@@ -239,11 +239,11 @@ export default function AccountsManagement() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-divider flex justify-between items-center">
+            <div className="p-5 border-b border-divider flex justify-between items-center">
               <h3 className="text-xl font-bold text-heading-on-light">Log Transaction</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-icon-inactive hover:text-error transition-colors">&times;</button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Type</label>

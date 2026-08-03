@@ -91,7 +91,7 @@ export default function UnifiedStudentProfile() {
         </div>
 
         {/* Top Header - Student Info */}
-        <div className="bg-surface rounded-xl border border-divider brand-shadow p-6 flex flex-col md:flex-row gap-6 items-start md:items-center relative overflow-hidden">
+        <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 flex flex-col md:flex-row gap-5 items-start md:items-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
           <div className="w-24 h-24 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold text-3xl border-4 border-surface shrink-0">
             {student.profilePicture ? (
@@ -119,7 +119,7 @@ export default function UnifiedStudentProfile() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           
           {/* Left Column - Family & Contacts */}
           <div className="space-y-6">
@@ -248,7 +248,7 @@ export default function UnifiedStudentProfile() {
                 <div className="p-0 overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider">
+                      <tr className="text-body-secondary text-[11px] uppercase tracking-wider">
                         <th className="py-3 px-5 font-semibold">Title</th>
                         <th className="py-3 px-5 font-semibold">Amount</th>
                         <th className="py-3 px-5 font-semibold">Paid</th>
@@ -296,7 +296,7 @@ export default function UnifiedStudentProfile() {
                 <div className="p-0 overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider">
+                      <tr className="text-body-secondary text-[11px] uppercase tracking-wider">
                         <th className="py-3 px-5 font-semibold">Assessment</th>
                         <th className="py-3 px-5 font-semibold text-right">Score</th>
                         <th className="py-3 px-5 font-semibold text-center">Grade</th>
@@ -347,7 +347,7 @@ export default function UnifiedStudentProfile() {
                 <div className="p-0 overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider">
+                      <tr className="text-body-secondary text-[11px] uppercase tracking-wider">
                         <th className="py-3 px-5 font-semibold">Date</th>
                         <th className="py-3 px-5 font-semibold">Status</th>
                         <th className="py-3 px-5 font-semibold">Notes</th>

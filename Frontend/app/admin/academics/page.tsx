@@ -179,7 +179,7 @@ export default function AcademicsManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Classes List */}
         <div className="lg:col-span-1 bg-surface rounded-xl border border-divider shadow-sm overflow-hidden flex flex-col h-[600px]">
           <div className="p-4 border-b border-divider bg-surface-container-low flex items-center gap-2">
@@ -317,7 +317,7 @@ export default function AcademicsManagement() {
                   ) : (
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
+                        <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
                           <th className="py-3 px-4 font-semibold">Subject Name</th>
                           <th className="py-3 px-4 font-semibold">Code</th>
                           <th className="py-3 px-4 font-semibold text-right">Actions</th>
@@ -368,7 +368,7 @@ export default function AcademicsManagement() {
               <h3 className="text-lg font-bold text-heading-on-light">{editingClass ? 'Edit Class' : 'Create New Class'}</h3>
               <button onClick={() => setClassModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateOrUpdateClass} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateClass} className="p-5 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Class Name (e.g. Class 6)</label>
                 <input required type="text" value={classForm.name} onChange={e => setClassForm({ ...classForm, name: e.target.value })}
@@ -396,7 +396,7 @@ export default function AcademicsManagement() {
               <h3 className="text-lg font-bold text-heading-on-light">{editingSection ? 'Edit Section' : `Add Section to ${selectedClass?.name}`}</h3>
               <button onClick={() => setSectionModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateOrUpdateSection} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateSection} className="p-5 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Section Name (e.g. A, Blue)</label>
                 <input required type="text" value={sectionForm.name} onChange={e => setSectionForm({ name: e.target.value })}
@@ -419,7 +419,7 @@ export default function AcademicsManagement() {
               <h3 className="text-lg font-bold text-heading-on-light">{editingSubject ? 'Edit Subject' : `Add Subject to ${selectedClass?.name}`}</h3>
               <button onClick={() => setSubjectModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleCreateOrUpdateSubject} className="p-6 space-y-4">
+            <form onSubmit={handleCreateOrUpdateSubject} className="p-5 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Subject Name (e.g. Mathematics)</label>
                 <input required type="text" value={subjectForm.name} onChange={e => setSubjectForm({ ...subjectForm, name: e.target.value })}
