@@ -40,29 +40,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return false;
   };
 
-  const ALL_LINKS = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, moduleId: 'DASHBOARD' },
-    { name: 'Campuses', path: '/admin/campuses', icon: Building2, moduleId: 'CAMPUSES' },
-    { name: 'Roles & Permissions', path: '/admin/roles', icon: ShieldCheck, moduleId: 'ROLES' },
-    { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
-    { name: 'Staff HR', path: '/admin/users', icon: Users, moduleId: 'USERS_STAFF' },
-    { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
-    { name: 'Enrollments', path: '/admin/enrollments', icon: Users, moduleId: 'USERS_STUDENTS' },
-    { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
-    { name: 'Families & Siblings', path: '/admin/families', icon: Users, moduleId: 'USERS_STUDENTS' },
-    { name: 'Fees', path: '/admin/fees', icon: BarChart3, moduleId: 'FEES' },
-    { name: 'Accounts (Ledger)', path: '/admin/accounts', icon: BarChart3, moduleId: 'ACCOUNTS' },
-    { name: 'Messaging', path: '/admin/messaging', icon: Bell, moduleId: 'MESSAGING' },
-    { name: 'Reports', path: '/admin/reports', icon: BarChart3, moduleId: 'REPORTS' },
-    { name: 'Profile Settings', path: '/admin/profile', icon: Settings, moduleId: null },
+  const LINK_SECTIONS = [
+    {
+      section: 'Core Management',
+      links: [
+        { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, moduleId: 'DASHBOARD' },
+        { name: 'Campuses', path: '/admin/campuses', icon: Building2, moduleId: 'CAMPUSES' },
+        { name: 'Roles & Permissions', path: '/admin/roles', icon: ShieldCheck, moduleId: 'ROLES' },
+      ]
+    },
+    {
+      section: 'Academics',
+      links: [
+        { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
+        { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
+      ]
+    },
+    {
+      section: 'People',
+      links: [
+        { name: 'Enrollments', path: '/admin/enrollments', icon: Users, moduleId: 'USERS_STUDENTS' },
+        { name: 'Applications', path: '/admin/applications', icon: BookOpen, moduleId: 'USERS_STUDENTS' },
+        { name: 'Families & Siblings', path: '/admin/families', icon: Users, moduleId: 'USERS_STUDENTS' },
+        { name: 'Staff HR', path: '/admin/users', icon: Users, moduleId: 'USERS_STAFF' },
+      ]
+    },
+    {
+      section: 'Finance & Comms',
+      links: [
+        { name: 'Fees', path: '/admin/fees', icon: BarChart3, moduleId: 'FEES' },
+        { name: 'Accounts (Ledger)', path: '/admin/accounts', icon: BarChart3, moduleId: 'ACCOUNTS' },
+        { name: 'Messaging', path: '/admin/messaging', icon: Bell, moduleId: 'MESSAGING' },
+        { name: 'Reports', path: '/admin/reports', icon: BarChart3, moduleId: 'REPORTS' },
+      ]
+    },
+    {
+      section: 'Settings',
+      links: [
+        { name: 'Profile Settings', path: '/admin/profile', icon: Settings, moduleId: null },
+      ]
+    }
   ];
 
-  const navLinks = user.isSuperAdmin 
-    ? ALL_LINKS 
-    : ALL_LINKS.filter(link => 
-        !link.moduleId || 
-        user.matrix?.some(m => m.moduleId === link.moduleId && m.canView)
-      );
+  const allowedSections = LINK_SECTIONS.map(section => ({
+    section: section.section,
+    links: user.isSuperAdmin 
+      ? section.links 
+      : section.links.filter(link => 
+          !link.moduleId || 
+          user.matrix?.some((m: any) => m.moduleId === link.moduleId && m.canView)
+        )
+  })).filter(section => section.links.length > 0);
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-page-bg font-sans text-on-surface overflow-hidden">
@@ -133,24 +161,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
         </div>
         
-        <ul className={`flex flex-col gap-0.5 ${isSidebarCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'} flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
-          {navLinks.map((link) => {
-            const active = isActive(link.path);
-            return (
-              <li key={link.path}>
-                <Link 
-                  href={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  data-testid={`nav-${link.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${active ? 'bg-primary-container text-on-primary-container' : 'text-body-secondary hover:bg-surface-container hover:text-on-surface'} ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
-                  title={isSidebarCollapsed && !isMobileMenuOpen ? link.name : undefined}
-                >
-                  <link.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-icon-inactive group-hover:text-primary'}`} />
-                  {(!isSidebarCollapsed || isMobileMenuOpen) && <span className="font-medium whitespace-nowrap">{link.name}</span>}
-                </Link>
-              </li>
-            );
-          })}
+        <ul className={`flex flex-col gap-4 ${isSidebarCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'} flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
+          {allowedSections.map((sectionGroup) => (
+            <div key={sectionGroup.section} className="flex flex-col gap-1">
+              {(!isSidebarCollapsed || isMobileMenuOpen) && (
+                <div className="text-[10px] font-bold text-icon-inactive uppercase tracking-wider px-3 mb-1">
+                  {sectionGroup.section}
+                </div>
+              )}
+              {sectionGroup.links.map((link) => {
+                const active = isActive(link.path);
+                return (
+                  <li key={link.path}>
+                    <Link 
+                      href={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      data-testid={`nav-${link.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${active ? 'bg-primary-container text-on-primary-container' : 'text-body-secondary hover:bg-surface-container hover:text-on-surface'} ${isSidebarCollapsed && !isMobileMenuOpen ? 'justify-center' : ''}`}
+                      title={isSidebarCollapsed && !isMobileMenuOpen ? link.name : undefined}
+                    >
+                      <link.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-icon-inactive group-hover:text-primary'}`} />
+                      {(!isSidebarCollapsed || isMobileMenuOpen) && <span className="font-medium whitespace-nowrap">{link.name}</span>}
+                    </Link>
+                  </li>
+                );
+              })}
+            </div>
+          ))}
         </ul>
 
         <div className={`mt-2 shrink-0 flex flex-col gap-2 ${isSidebarCollapsed && !isMobileMenuOpen ? 'px-2 items-center' : 'px-4'}`}>
