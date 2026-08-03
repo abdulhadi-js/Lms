@@ -110,7 +110,7 @@ export default function CourseContent() {
       {/* Left Panel: Navigator */}
       <aside className="hidden lg:flex flex-col w-[300px] bg-neutral-bg border-r border-divider shrink-0 overflow-y-auto custom-scrollbar sticky top-0">
         <div className="px-6 py-4 border-b border-divider/50 bg-neutral-bg/80 backdrop-blur sticky top-0 z-10">
-          -heading-on-light text-[16px] font-bold flex items-center gap-2">
+          <h3 className="text-heading-on-light text-[16px] font-bold flex items-center gap-2">
             <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
             {course.title}
           </h3>
@@ -194,7 +194,7 @@ export default function CourseContent() {
               ) : (
                 <div className="flex-1 p-8 flex flex-col items-center justify-center text-center bg-slate-50 min-h-[400px]">
                   <span className="material-symbols-outlined text-6xl text-icon-inactive mb-4">description</span>
-                  -heading-on-light mb-2">Document Resource</h3>
+                  <h3 className="text-xl font-medium text-heading-on-light mb-2">Document Resource</h3>
                   {activeLesson.contentUrl ? (
                     <a href={activeLesson.contentUrl} target="_blank" rel="noreferrer" className="text-primary-container hover:underline font-medium flex items-center gap-1">
                       <span className="material-symbols-outlined text-[18px]">open_in_new</span> Open Document
@@ -213,7 +213,7 @@ export default function CourseContent() {
                   {activeLesson.contentType}
                 </span>
               </div>
-              -heading-on-light mb-4 leading-[1.2]">{activeLesson.title}</h1>
+              <h1 className="text-[32px] md:text-[40px] font-bold text-heading-on-light mb-4 leading-[1.2]">{activeLesson.title}</h1>
               <p className="text-[16px] text-[#444444] max-w-3xl leading-relaxed whitespace-pre-wrap">
                 {activeLesson.description || "No description provided for this lesson."}
               </p>
