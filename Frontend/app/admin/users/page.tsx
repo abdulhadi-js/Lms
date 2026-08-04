@@ -15,6 +15,10 @@ export default function UserManagement() {
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
+  
+  // Pagination
+  const [page, setPage] = useState(1);
+  const limit = 50;
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,9 +58,13 @@ export default function UserManagement() {
   });
 
   const { data: usersData, isLoading: isUsersLoading } = useQuery<any[]>({
-    queryKey: ['users', roleFilter],
+    queryKey: ['users', roleFilter, page],
     queryFn: async () => {
-      const res = await usersApi.list(roleFilter !== 'ALL' ? roleFilter : undefined);
+      const res = await usersApi.list(
+        roleFilter !== 'ALL' ? roleFilter : undefined,
+        limit,
+        (page - 1) * limit
+      );
       return res.data || res || [];
     }
   });
@@ -299,7 +307,7 @@ export default function UserManagement() {
             <select 
               value={roleFilter}
               disabled={isLoading}
-              onChange={e => setRoleFilter(e.target.value)}
+              onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
               className="bg-surface border border-border-light rounded-lg px-4 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             >
               <option value="ALL">{isLoading ? 'Loading Roles...' : 'All Roles'}</option>
@@ -428,6 +436,29 @@ export default function UserManagement() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination Controls */}
+        <div className="p-4 border-t border-divider flex items-center justify-between bg-surface">
+          <div className="text-sm text-body-secondary">
+            Showing page {page}
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1 || isLoading}
+              className="px-3 py-1 text-sm bg-surface-container rounded-md hover:bg-surface-container-high disabled:opacity-50 transition-colors"
+            >
+              Previous
+            </button>
+            <button 
+              onClick={() => setPage(p => p + 1)}
+              disabled={users.length < limit || isLoading}
+              className="px-3 py-1 text-sm bg-surface-container rounded-md hover:bg-surface-container-high disabled:opacity-50 transition-colors"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 

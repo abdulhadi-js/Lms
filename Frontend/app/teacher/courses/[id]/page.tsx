@@ -40,7 +40,6 @@ export default function CourseDetail() {
 
   useEffect(() => {
     if (courseId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchCourseData();
     }
   }, [courseId]);

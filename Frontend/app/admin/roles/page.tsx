@@ -40,8 +40,7 @@ export default function RolesManagement() {
 
   const { user } = useAuth();
   const isSuperAdmin = user?.isSuperAdmin === true || 
-    user?.role?.name?.toUpperCase() === 'SUPERADMIN' || 
-    (typeof user?.role === 'string' && user.role.toUpperCase() === 'SUPERADMIN');
+    (typeof user?.role === 'object' ? (user.role as any)?.name?.toUpperCase() === 'SUPERADMIN' : user?.role?.toUpperCase() === 'SUPERADMIN');
 
   const fetchData = async () => {
     setLoading(true);

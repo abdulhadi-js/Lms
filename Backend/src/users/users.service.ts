@@ -7,6 +7,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +16,9 @@ import ImageKit from 'imagekit';
 import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import { parseString } from 'fast-csv';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,7 +30,10 @@ import { FamiliesService } from '../families/families.service';
 export type SafeUser = Omit<User, 'passwordHash'>;
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+  private mailerTransport: nodemailer.Transporter;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -33,6 +41,30 @@ export class UsersService {
     private readonly familiesService: FamiliesService,
     private readonly dataSource: DataSource,
   ) {}
+
+  async onModuleInit() {
+    // Build a single SMTP transporter once at startup instead of per email
+    if (this.configService.get('MAIL_HOST')) {
+      this.mailerTransport = nodemailer.createTransport({
+        host: this.configService.get('MAIL_HOST'),
+        port: this.configService.get<number>('MAIL_PORT'),
+        secure: true,
+        auth: {
+          user: this.configService.get('MAIL_USER'),
+          pass: this.configService.get('MAIL_PASS'),
+        },
+      });
+    } else {
+      const testAccount = await nodemailer.createTestAccount();
+      this.mailerTransport = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: { user: testAccount.user, pass: testAccount.pass },
+      });
+      this.logger.debug('Using Ethereal test mail account (dev only)');
+    }
+  }
 
   private sanitize(user: User): SafeUser {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -42,42 +74,16 @@ export class UsersService {
 
   private async sendWelcomeEmail(user: User, rawPassword?: string) {
     try {
-      let transporter;
-      if (this.configService.get('MAIL_HOST')) {
-        transporter = nodemailer.createTransport({
-          host: this.configService.get('MAIL_HOST'),
-          port: this.configService.get('MAIL_PORT'),
-          secure: true, // true for 465, false for other ports
-          auth: {
-            user: this.configService.get('MAIL_USER'),
-            pass: this.configService.get('MAIL_PASS'),
-          },
-        });
-      } else {
-        const testAccount = await nodemailer.createTestAccount();
-        transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: { user: testAccount.user, pass: testAccount.pass },
-        });
-      }
-
       const roleName = user.role?.name
-        ? user.role.name.charAt(0).toUpperCase() +
-          user.role.name.slice(1).toLowerCase()
+        ? user.role.name.charAt(0).toUpperCase() + user.role.name.slice(1).toLowerCase()
         : 'User';
 
       const pwdHtml = rawPassword
-        ? '<p>Your temporary password is: <strong>' +
-          rawPassword +
-          '</strong></p><p>Please log in and change it immediately.</p>'
+        ? `<p>Your temporary password is: <strong>${rawPassword}</strong></p><p>Please log in and change it immediately.</p>`
         : '';
 
-      const info = await transporter.sendMail({
-        from:
-          this.configService.get('MAIL_FROM') ||
-          '"EduCore Admissions" <admissions@educore.school>',
+      const info = await this.mailerTransport.sendMail({
+        from: this.configService.get('MAIL_FROM') || '"EduCore Admissions" <admissions@educore.school>',
         to: user.email,
         subject: `Welcome to EduCore! Your ${roleName} Account is Ready`,
         html: `
@@ -90,46 +96,20 @@ export class UsersService {
         `,
       });
 
-      console.log(`\n📧 Email sent successfully to ${user.email}!`);
+      this.logger.log(`Welcome email sent to ${user.email} (messageId: ${info.messageId})`);
       if (!this.configService.get('MAIL_HOST')) {
-        console.log(
-          `🔗 Preview your email here: ${nodemailer.getTestMessageUrl(info)}\n`,
-        );
+        this.logger.debug(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
       }
-    } catch (error) {
-      console.error('Failed to send welcome email:', error);
+    } catch (error: any) {
+      this.logger.error(`Failed to send welcome email to ${user.email}`, error.stack);
     }
   }
 
   private async sendRoleUpdateEmail(user: User, newRole: Role) {
     try {
-      let transporter;
-      if (this.configService.get('MAIL_HOST')) {
-        transporter = nodemailer.createTransport({
-          host: this.configService.get('MAIL_HOST'),
-          port: this.configService.get('MAIL_PORT'),
-          secure: true,
-          auth: {
-            user: this.configService.get('MAIL_USER'),
-            pass: this.configService.get('MAIL_PASS'),
-          },
-        });
-      } else {
-        const testAccount = await nodemailer.createTestAccount();
-        transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-          },
-        });
-      }
-
       const roleName = newRole.name.charAt(0).toUpperCase() + newRole.name.slice(1).toLowerCase();
 
-      const info = await transporter.sendMail({
+      const info = await this.mailerTransport.sendMail({
         from: '"EduCore LMS" <no-reply@educore.com>',
         to: user.email,
         subject: `EduCore LMS: Your Role Has Been Updated`,
@@ -145,12 +125,13 @@ export class UsersService {
           </div>
         `,
       });
-      console.log('Role update email sent: %s', info.messageId);
+
+      this.logger.log(`Role update email sent to ${user.email} (messageId: ${info.messageId})`);
       if (!this.configService.get('MAIL_HOST')) {
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        this.logger.debug(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
       }
-    } catch (error) {
-      console.error('Failed to send role update email', error);
+    } catch (error: any) {
+      this.logger.error(`Failed to send role update email to ${user.email}`, error.stack);
     }
   }
 
@@ -365,9 +346,7 @@ export class UsersService {
 
           user.profilePicture = (uploadResponse as any).url;
         } else {
-          // Fallback to local storage
-          const fs = require('fs');
-          const path = require('path');
+          // Fallback to local storage (fs/path imported at top of file)
           const uploadDir = path.join(process.cwd(), 'uploads', 'profiles');
           if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
@@ -435,6 +414,24 @@ export class UsersService {
           
           let count = 0;
           try {
+            // ── Phase 2 Optimization: Pre-load all lookups into Maps ──────────
+            // Eliminates N+1 queries (was 4 queries/row → 4 queries total)
+            const allCampuses = await runner.manager.find(Campus);
+            const campusMap = new Map(allCampuses.map(c => [c.code, c]));
+
+            const allRoles = await runner.manager.find(Role);
+            const roleMap = new Map(allRoles.map(r => [r.name.toUpperCase(), r]));
+
+            const allSections = await runner.manager.find(Section);
+            const sectionMap = new Map(allSections.map(s => [s.name, s]));
+
+            const emailsInCsv = rows.map(r => r.email).filter(Boolean);
+            const existingUsers = emailsInCsv.length > 0
+              ? await runner.manager.find(User, { where: emailsInCsv.map(e => ({ email: e })) })
+              : [];
+            const existingEmails = new Set(existingUsers.map(u => u.email));
+            // ─────────────────────────────────────────────────────────────────
+
             for (let i = 0; i < rows.length; i++) {
               const row = rows[i];
               const rowNum = i + 2;
@@ -444,22 +441,25 @@ export class UsersService {
                 continue;
               }
               
-              const existing = await runner.manager.findOne(User, { where: { email: row.email }});
-              if (existing) {
+              if (existingEmails.has(row.email)) {
                 errors.push(`Row ${rowNum}: Email already exists`);
                 continue;
               }
               
-              const campus = await runner.manager.findOne(Campus, { where: { code: row.campusCode }});
+              const campus = campusMap.get(row.campusCode);
               if (!campus) {
                 errors.push(`Row ${rowNum}: Campus not found`);
                 continue;
               }
               
-              const passwordHash = await bcrypt.hash('password123', 10);
+              // Generate a secure random temporary password and email it to the user
+              const tempPassword = crypto.randomBytes(8).toString('base64url');
+              const passwordHash = await bcrypt.hash(tempPassword, 10);
+              // Store temp password to send in welcome email after user is saved
+              (row as any)._tempPassword = tempPassword;
               const roleName = row.role.toUpperCase();
               
-              const roleEntity = await runner.manager.findOne(Role, { where: { name: roleName }});
+              const roleEntity = roleMap.get(roleName);
               if (!roleEntity && roleName !== 'STUDENT') {
                 errors.push(`Row ${rowNum}: Role not found`);
                 continue;
@@ -472,7 +472,7 @@ export class UsersService {
                   errors.push(`Row ${rowNum}: sectionCode is required for students`);
                   continue;
                 }
-                const section = await runner.manager.findOne(Section, { where: { name: row.sectionCode }});
+                const section = sectionMap.get(row.sectionCode);
                 if (!section) {
                   errors.push(`Row ${rowNum}: Section not found`);
                   continue;

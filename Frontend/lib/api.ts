@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 export const BASE_URL = API_BASE.replace('/api/v1', '');
@@ -48,6 +49,8 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
       } catch {
         // ignore parse errors
       }
+      // Log toast before throwing so components with empty catch blocks still show feedback
+      if (typeof window !== 'undefined') toast.error(message);
       throw new Error(message);
     }
 
@@ -55,11 +58,20 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
     return await res.json();
   } catch (error: any) {
     clearTimeout(timeoutId);
+    let errMsg = error.message;
     if (error.name === 'AbortError') {
-      throw new Error('Request timed out. Please check your internet connection.');
+      errMsg = 'Request timed out. Please check your internet connection.';
+    } else if (error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('Network'))) {
+      errMsg = 'Network error. Unable to connect to the server.';
     }
-    if (error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('Network'))) {
-      throw new Error('Network error. Unable to connect to the server.');
+    
+    // Global toast for network/abort errors
+    if (typeof window !== 'undefined' && errMsg !== error.message || error.name === 'AbortError' || error instanceof TypeError) {
+      toast.error(errMsg);
+    }
+    
+    if (error.message !== errMsg) {
+      throw new Error(errMsg);
     }
     throw error;
   }
@@ -137,7 +149,14 @@ export const authApi = {
 };
 
 export const usersApi = {
-  list: (role?: string) => fetchAuthApi(role ? `/users?role=${role}` : '/users'),
+  list: (roleId?: string, limit?: number, offset?: number) => {
+    const qs = new URLSearchParams();
+    if (roleId) qs.append('roleId', roleId);
+    if (limit) qs.append('limit', String(limit));
+    if (offset !== undefined) qs.append('offset', String(offset));
+    const query = qs.toString();
+    return fetchAuthApi(query ? `/users?${query}` : '/users');
+  },
   get: (id: string) => fetchAuthApi(`/users/${id}`),
   getUnifiedProfile: (id: string) => fetchAuthApi(`/users/students/${id}/unified`),
   create: (data: any) => fetchAuthApi('/users', { method: 'POST', body: JSON.stringify(data) }),

@@ -32,12 +32,20 @@ import { ExamsModule } from './exams/exams.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { AcademicGroupsModule } from './academic-groups/academic-groups.module';
 
+import * as Joi from 'joi';
+
 @Module({
   imports: [
     // ── Global env config ────────────────────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      validationSchema: Joi.object({
+        JWT_SECRET: Joi.string().optional(),
+        DATABASE_URL: Joi.string().optional(),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+      }),
+      validationOptions: { allowUnknown: true },
     }),
 
     // ── PostgreSQL via TypeORM (Neon cloud, with SSL) ──────────────────────

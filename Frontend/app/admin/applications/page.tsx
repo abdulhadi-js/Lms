@@ -35,7 +35,6 @@ export default function ApplicationsManagement() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchApplications();
   }, [statusFilter]);
 

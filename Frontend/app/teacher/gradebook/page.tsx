@@ -278,6 +278,7 @@ export default function TeacherGradebook() {
     return [...baseCols, ...assignmentCols, ...endCols];
   }, [assignments, marks, pendingChanges]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filteredStudents,
     columns,
