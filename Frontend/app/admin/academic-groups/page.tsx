@@ -14,7 +14,7 @@ export default function AcademicGroupsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user?.campusId) {
+    if (user) {
       loadGroups();
     }
   }, [user]);
@@ -22,7 +22,8 @@ export default function AcademicGroupsPage() {
   const loadGroups = async () => {
     try {
       setLoading(true);
-      const data = await fetchApi(`/academic-groups?campusId=${user?.campusId}`);
+      const endpoint = user?.campusId ? `/academic-groups?campusId=${user.campusId}` : `/academic-groups`;
+      const data = await fetchApi(endpoint);
       setGroups(data);
     } catch (err: any) {
       setError(err.message);
@@ -42,7 +43,7 @@ export default function AcademicGroupsPage() {
       } else {
         await fetchApi('/academic-groups', {
           method: 'POST',
-          body: JSON.stringify({ ...formData, campusId: user?.campusId }),
+          body: JSON.stringify({ ...formData, campusId: user?.campusId || null }),
         });
       }
       setIsModalOpen(false);

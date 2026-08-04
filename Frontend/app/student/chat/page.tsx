@@ -274,22 +274,22 @@ export default function StudentChat() {
   return (
     <div className="p-4 md:p-8 max-w-[1280px] mx-auto h-[calc(100vh-80px)] flex flex-col">
       <div className="mb-6">
-        <h1 className="text-[28px] font-bold text-[#132a13]">Messages</h1>
-        <p className="text-[#5f5f5f]">Communicate with your teachers and peers.</p>
+        <h1 className="text-[28px] font-bold text-heading-on-light">Messages</h1>
+        <p className="text-body-secondary">Communicate with your teachers and peers.</p>
       </div>
 
-      <div className="flex-1 bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden flex" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="flex-1 bg-surface rounded-[12px] border border-divider overflow-hidden flex" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         
         {/* Sidebar Contacts list */}
-        <div className="w-full md:w-1/3 border-r border-[#c6c6c6] flex flex-col bg-[#fefef9]">
-          <div className="p-4 border-b border-[#c6c6c6]">
+        <div className="w-full md:w-1/3 border-r border-divider flex flex-col bg-surface-container-lowest">
+          <div className="p-4 border-b border-divider">
             <div className="relative">
               <input 
                 type="text" 
                 placeholder="Search messages..." 
-                className="w-full pl-10 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-surface text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c]"
+                className="w-full pl-10 pr-4 py-2 border border-divider rounded-lg bg-surface text-on-surface placeholder-placeholder focus:outline-none focus:border-primary"
               />
-              <Search className="w-5 h-5 text-[#a4a4a4] absolute left-3 top-2.5" />
+              <Search className="w-5 h-5 text-icon-inactive absolute left-3 top-2.5" />
             </div>
           </div>
           
@@ -301,15 +301,15 @@ export default function StudentChat() {
                 <div 
                   key={contact.id} 
                   onClick={() => setActiveContact(contact)}
-                  className={`p-4 border-b border-[#e4e4e4] cursor-pointer hover:bg-[#eff3e7] transition-colors flex justify-between items-center ${activeContact?.id === contact.id ? 'bg-[#fcfdf1] border-l-4 border-l-[#31572c]' : 'border-l-4 border-l-transparent'}`}
+                  className={`p-4 border-b border-[#e4e4e4] cursor-pointer hover:bg-surface-container transition-colors flex justify-between items-center ${activeContact?.id === contact.id ? 'bg-surface-container-lowest border-l-4 border-l-[#31572c]' : 'border-l-4 border-l-transparent'}`}
                 >
                   <div className="overflow-hidden">
-                    <h3 className={`text-[15px] font-bold truncate ${contact.unread ? 'text-[#132a13]' : 'text-[#444444]'}`}>{contact.name}</h3>
-                    <p className="text-sm text-[#5f5f5f] truncate mt-1">{contact.lastMessage}</p>
+                    <h3 className={`text-[15px] font-bold truncate ${contact.unread ? 'text-heading-on-light' : 'text-on-surface'}`}>{contact.name}</h3>
+                    <p className="text-sm text-body-secondary truncate mt-1">{contact.lastMessage}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 ml-2 shrink-0">
-                    <span className="text-xs text-[#818181]">{contact.time}</span>
-                    {contact.unread && <Circle className="w-3 h-3 fill-[#90a955] text-[#90a955]" />}
+                    <span className="text-xs text-icon-inactive">{contact.time}</span>
+                    {contact.unread && <Circle className="w-3 h-3 fill-primary-fixed-dim text-primary-fixed-dim" />}
                   </div>
                 </div>
               ))
@@ -320,12 +320,12 @@ export default function StudentChat() {
         </div>
 
         {/* Chat Area */}
-        <div className="hidden md:flex flex-col w-2/3 bg-[#fefef9]">
+        <div className="hidden md:flex flex-col w-2/3 bg-surface-container-lowest">
           {activeContact ? (
             <>
-              <div className="p-4 border-b border-[#c6c6c6] bg-surface flex justify-between items-center">
-                <h2 className="text-lg font-bold text-[#132a13]">{activeContact.name}</h2>
-                <button className="text-[#5f5f5f] hover:text-[#31572c] transition-colors">
+              <div className="p-4 border-b border-divider bg-surface flex justify-between items-center">
+                <h2 className="text-lg font-bold text-heading-on-light">{activeContact.name}</h2>
+                <button className="text-body-secondary hover:text-primary transition-colors">
                   <MoreVertical className="w-5 h-5" />
                 </button>
               </div>
@@ -345,15 +345,15 @@ export default function StudentChat() {
                             </div>
                           )}
                           <div 
-                            className={`p-3 rounded-2xl ${isMe ? 'bg-[#31572c] text-white rounded-br-none' : 'bg-[#e4e4e4] text-[#323232] rounded-bl-none'}`}
+                            className={`p-3 rounded-2xl ${isMe ? 'bg-primary text-white rounded-br-none' : 'bg-surface-container-highest text-on-surface rounded-bl-none'}`}
                           >
                             {!isMe && activeContact.courseId && (
-                              <div className="text-xs font-bold text-[#31572c] mb-1">{msg.sender?.firstName} {msg.sender?.lastName}</div>
+                              <div className="text-xs font-bold text-primary mb-1">{msg.sender?.firstName} {msg.sender?.lastName}</div>
                             )}
                             <p className="text-[15px] whitespace-pre-wrap">{msg.body}</p>
                           </div>
                         </div>
-                        <span className="text-xs text-[#818181] mt-1 mx-10">
+                        <span className="text-xs text-icon-inactive mt-1 mx-10">
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -367,9 +367,9 @@ export default function StudentChat() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="p-4 border-t border-[#c6c6c6] bg-surface">
+              <div className="p-4 border-t border-divider bg-surface">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                  <button type="button" className="p-2 text-[#5f5f5f] hover:bg-[#f4f4f4] rounded-full transition-colors">
+                  <button type="button" className="p-2 text-body-secondary hover:bg-surface-container rounded-full transition-colors">
                     <Paperclip className="w-5 h-5" />
                   </button>
                   <input 
@@ -378,12 +378,12 @@ export default function StudentChat() {
                     onChange={(e) => setMessageInput(e.target.value)}
                     placeholder="Type a message..." 
                     disabled={sending}
-                    className="flex-1 bg-[#f4f4f4] border border-[#c6c6c6] rounded-full px-4 py-2 text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c] focus:ring-1 focus:ring-[#31572c] disabled:opacity-70"
+                    className="flex-1 bg-surface-container border border-divider rounded-full px-4 py-2 text-on-surface placeholder-placeholder focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-70"
                   />
                   <button 
                     type="submit"
                     disabled={!messageInput.trim() || sending}
-                    className="p-2 bg-[#31572c] text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50" 
+                    className="p-2 bg-primary text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50" 
                     style={{ background: 'linear-gradient(180deg, #3a6633 0%, #31572c 100%)' }}
                   >
                     <Send className="w-5 h-5" />

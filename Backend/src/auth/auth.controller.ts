@@ -38,8 +38,12 @@ export class AuthController {
 
   @Post('test-bypass')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Bypass login for automated testing' })
+  @ApiOperation({ summary: 'Bypass login for automated testing (TEST ENV ONLY)' })
   async testBypass(@Body('email') email?: string) {
+    if (process.env.NODE_ENV === 'production') {
+      const { ForbiddenException } = await import('@nestjs/common');
+      throw new ForbiddenException('This endpoint is disabled in production');
+    }
     return this.authService.testBypassLogin(email);
   }
 

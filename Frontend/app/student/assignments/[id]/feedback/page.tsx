@@ -26,7 +26,7 @@ export default function AssignmentFeedback() {
               <span className="text-[40px] font-bold text-evergreen leading-none">
                 78<span className="text-2xl text-on-surface-variant">/100</span>
               </span>
-              <span className="px-4 py-1 bg-[#eff3e7] text-[#4f5d2f] font-bold text-lg rounded-full">B</span>
+              <span className="px-4 py-1 bg-surface-container text-[#4f5d2f] font-bold text-lg rounded-full">B</span>
             </div>
             
             <p className="text-[14px] text-body-secondary mb-6">Graded on Oct 24, 2026</p>

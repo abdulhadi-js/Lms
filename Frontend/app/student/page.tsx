@@ -101,6 +101,7 @@ export default function StudentDashboard() {
       icon: Award,
       color: 'text-warning',
       bg: 'bg-warning-bg',
+      href: '/student/transcript',
     },
     {
       title: 'Enrolled Courses',
@@ -109,6 +110,7 @@ export default function StudentDashboard() {
       icon: BookOpen,
       color: 'text-primary-container',
       bg: 'bg-surface-container-low',
+      href: '/student/courses',
     },
     {
       title: 'Outstanding Fees',
@@ -117,6 +119,7 @@ export default function StudentDashboard() {
       icon: CheckCircle,
       color: outstandingFees > 0 ? 'text-error' : 'text-success',
       bg: outstandingFees > 0 ? 'bg-error-bg' : 'bg-success-bg',
+      href: '/student/fees',
     },
     {
       title: 'Assignments Due',
@@ -125,6 +128,7 @@ export default function StudentDashboard() {
       icon: FileText,
       color: upcomingAssignments.length > 0 ? 'text-error' : 'text-success',
       bg: upcomingAssignments.length > 0 ? 'bg-error-bg' : 'bg-success-bg',
+      href: '/student/assignments',
     },
   ];
 
@@ -156,7 +160,7 @@ export default function StudentDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-surface rounded-xl border border-divider shadow-sm relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
+          <Link href={stat.href} key={i} className="bg-surface rounded-xl border border-divider shadow-sm relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30 cursor-pointer block">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-container" />
             <div className="p-5">
               <div className="flex justify-between items-start">
@@ -172,7 +176,7 @@ export default function StudentDashboard() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

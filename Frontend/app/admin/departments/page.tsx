@@ -14,7 +14,7 @@ export default function DepartmentsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user?.campusId) {
+    if (user) {
       loadDepartments();
     }
   }, [user]);
@@ -22,7 +22,8 @@ export default function DepartmentsPage() {
   const loadDepartments = async () => {
     try {
       setLoading(true);
-      const data = await fetchApi(`/departments?campusId=${user?.campusId}`);
+      const endpoint = user?.campusId ? `/departments?campusId=${user.campusId}` : `/departments`;
+      const data = await fetchApi(endpoint);
       setDepartments(data);
     } catch (err: any) {
       setError(err.message);
@@ -42,7 +43,7 @@ export default function DepartmentsPage() {
       } else {
         await fetchApi('/departments', {
           method: 'POST',
-          body: JSON.stringify({ ...formData, campusId: user?.campusId }),
+          body: JSON.stringify({ ...formData, campusId: user?.campusId || null }),
         });
       }
       setIsModalOpen(false);

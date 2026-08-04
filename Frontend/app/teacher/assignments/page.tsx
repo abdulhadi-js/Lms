@@ -121,12 +121,12 @@ export default function TeacherAssignments() {
     <div className="p-8 max-w-[1280px] mx-auto">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-[28px] font-bold text-[#132a13] mb-2">Assignment Management</h1>
-          <p className="text-[#5f5f5f]">Create, track, and grade student assignments.</p>
+          <h1 className="text-[28px] font-bold text-heading-on-light mb-2">Assignment Management</h1>
+          <p className="text-body-secondary">Create, track, and grade student assignments.</p>
         </div>
         <button 
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-[#31572c] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity" 
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity" 
           style={{ background: 'linear-gradient(180deg, #3a6633 0%, #31572c 100%)' }}
         >
           <Plus className="w-5 h-5" />
@@ -140,20 +140,20 @@ export default function TeacherAssignments() {
           { title: 'Needs Grading (Past Due)', value: gradingCount },
           { title: 'Total Created', value: assignments.length }
         ].map((stat, i) => (
-          <div key={i} className="bg-surface rounded-[12px] border border-[#c6c6c6] p-5 relative overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+          <div key={i} className="bg-surface rounded-[12px] border border-divider p-5 relative overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
             <div className="absolute top-0 left-0 w-full h-1" style={{ background: 'linear-gradient(90deg, #90a955 0%, #ecf39e 100%)' }}></div>
-            <p className="text-sm font-bold text-[#5f5f5f] mb-2">{stat.title}</p>
-            <h3 className="text-3xl font-bold text-[#132a13]">{loading ? '-' : stat.value}</h3>
+            <p className="text-sm font-bold text-body-secondary mb-2">{stat.title}</p>
+            <h3 className="text-3xl font-bold text-heading-on-light">{loading ? '-' : stat.value}</h3>
           </div>
         ))}
       </div>
 
-      <div className="bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="bg-surface rounded-[12px] border border-divider overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="p-8 text-center text-[#5f5f5f]">Loading assignments...</div>
+            <div className="p-8 text-center text-body-secondary">Loading assignments...</div>
           ) : assignments.length === 0 ? (
-            <div className="p-8 text-center text-[#5f5f5f]">No assignments created yet.</div>
+            <div className="p-8 text-center text-body-secondary">No assignments created yet.</div>
           ) : (
             <>
               {/* Mobile Card View */}
@@ -161,26 +161,26 @@ export default function TeacherAssignments() {
                 {assignments.map((assignment) => {
                   const isPastDue = new Date(assignment.dueDate) <= new Date();
                   return (
-                    <div key={assignment.id} className="bg-surface p-4 rounded-xl border border-[#c6c6c6] shadow-sm relative">
+                    <div key={assignment.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <div className="font-bold text-[#132a13] flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-[#4f772d]" />
+                          <div className="font-bold text-heading-on-light flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-secondary" />
                             {assignment.title}
                           </div>
-                          <div className="text-xs text-[#5f5f5f] mt-1">{assignment.course?.title || 'Unknown Course'}</div>
+                          <div className="text-xs text-body-secondary mt-1">{assignment.course?.title || 'Unknown Course'}</div>
                         </div>
                         <div className="flex gap-2">
                           <button 
                             onClick={() => openEditModal(assignment)}
-                            className="p-1.5 text-[#5f5f5f] hover:text-info hover:bg-info/10 rounded transition-colors"
+                            className="p-1.5 text-body-secondary hover:text-info hover:bg-info/10 rounded transition-colors"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleDelete(assignment.id)}
-                            className="p-1.5 text-[#5f5f5f] hover:text-error hover:bg-error-bg rounded transition-colors"
+                            className="p-1.5 text-body-secondary hover:text-error hover:bg-error-bg rounded transition-colors"
                             title="Delete"
                           >
                             <Trash className="w-4 h-4" />
@@ -188,15 +188,15 @@ export default function TeacherAssignments() {
                         </div>
                       </div>
                       
-                      <div className="text-xs text-[#5f5f5f] mb-3 line-clamp-2">{assignment.description}</div>
+                      <div className="text-xs text-body-secondary mb-3 line-clamp-2">{assignment.description}</div>
                       
-                      <div className="grid grid-cols-2 gap-2 text-sm pt-3 border-t border-[#c6c6c6]">
-                        <div className="text-[#5f5f5f] flex items-center gap-1"><Clock className="w-4 h-4" /> Due:</div>
-                        <div className={`text-right font-medium ${isPastDue ? 'text-error' : 'text-[#31572c]'}`}>
+                      <div className="grid grid-cols-2 gap-2 text-sm pt-3 border-t border-divider">
+                        <div className="text-body-secondary flex items-center gap-1"><Clock className="w-4 h-4" /> Due:</div>
+                        <div className={`text-right font-medium ${isPastDue ? 'text-error' : 'text-primary'}`}>
                           {new Date(assignment.dueDate).toLocaleDateString()}
                         </div>
                         
-                        <div className="text-[#5f5f5f]">Marks:</div>
+                        <div className="text-body-secondary">Marks:</div>
                         <div className="text-right">{assignment.maxMarks} ({assignment.weightPercent}%)</div>
                       </div>
                     </div>
@@ -207,7 +207,7 @@ export default function TeacherAssignments() {
               {/* Desktop Table View */}
               <table className="hidden md:table w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#31572c] text-white text-sm">
+              <tr className="bg-primary text-white text-sm">
                 <th className="p-4 font-semibold">Assignment Details</th>
                 <th className="p-4 font-semibold">Course</th>
                 <th className="p-4 font-semibold">Due Date</th>
@@ -215,41 +215,41 @@ export default function TeacherAssignments() {
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-[#444444]">
+            <tbody className="text-on-surface">
                 {assignments.map((assignment, index) => {
                   const isPastDue = new Date(assignment.dueDate) <= new Date();
                   
                   return (
-                  <tr key={assignment.id} className={`border-b border-[#c6c6c6] hover:bg-[#eff3e7] transition-colors ${index % 2 === 0 ? 'bg-surface' : 'bg-[#fcfdf1]'}`}>
+                  <tr key={assignment.id} className={`border-b border-divider hover:bg-surface-container transition-colors ${index % 2 === 0 ? 'bg-surface' : 'bg-surface-container-lowest'}`}>
                     <td className="p-4">
-                      <div className="font-bold text-[#132a13] flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-[#4f772d]" />
+                      <div className="font-bold text-heading-on-light flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-secondary" />
                         {assignment.title}
                       </div>
-                      <div className="text-xs text-[#5f5f5f] mt-1 line-clamp-1">{assignment.description}</div>
+                      <div className="text-xs text-body-secondary mt-1 line-clamp-1">{assignment.description}</div>
                     </td>
-                    <td className="p-4 text-sm text-[#5f5f5f]">{assignment.course?.title || 'Unknown Course'}</td>
+                    <td className="p-4 text-sm text-body-secondary">{assignment.course?.title || 'Unknown Course'}</td>
                     <td className="p-4 text-sm font-medium flex items-center gap-1">
-                      <Clock className="w-4 h-4 text-[#31572c]" /> 
-                      <span className={isPastDue ? 'text-error' : 'text-[#31572c]'}>
+                      <Clock className="w-4 h-4 text-primary" /> 
+                      <span className={isPastDue ? 'text-error' : 'text-primary'}>
                         {new Date(assignment.dueDate).toLocaleDateString()}
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="text-sm font-medium text-[#5f5f5f]">{assignment.maxMarks} marks ({assignment.weightPercent}%)</span>
+                      <span className="text-sm font-medium text-body-secondary">{assignment.maxMarks} marks ({assignment.weightPercent}%)</span>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => openEditModal(assignment)}
-                          className="p-1.5 text-[#5f5f5f] hover:text-info transition-colors"
+                          className="p-1.5 text-body-secondary hover:text-info transition-colors"
                           title="Edit"
                         >
                           <Edit className="w-5 h-5" />
                         </button>
                         <button 
                           onClick={() => handleDelete(assignment.id)}
-                          className="p-1.5 text-[#5f5f5f] hover:text-error transition-colors"
+                          className="p-1.5 text-body-secondary hover:text-error transition-colors"
                           title="Delete"
                         >
                           <Trash className="w-5 h-5" />

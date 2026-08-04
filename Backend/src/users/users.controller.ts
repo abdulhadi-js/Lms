@@ -78,7 +78,8 @@ export class UsersController {
     try {
       return this.usersService.updateProfile(user.id, body, file);
     } catch (e: any) {
-      throw new BadRequestException('Controller error: ' + e.message);
+      console.error('[updateProfile] Error:', e.message);
+      throw new BadRequestException('Failed to update profile. Please try again.');
     }
   }
 

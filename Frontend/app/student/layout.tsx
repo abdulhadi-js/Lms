@@ -118,6 +118,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </Link>
           </li>
           <li>
+            <Link href="/student/exams" title={isCollapsed ? "Exams" : undefined} data-testid="nav-exams" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/exams') ? `text-primary-fixed font-bold bg-white/10 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-white/70 hover:bg-white/5 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
+              <Edit className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="truncate">Exams</span>}
+            </Link>
+          </li>
+          <li>
             <Link href="/student/transcript" title={isCollapsed ? "Grades & Transcripts" : undefined} data-testid="nav-grades-transcripts" className={`flex items-center py-3 rounded-lg font-medium transition-all ${isCollapsed ? 'justify-center' : 'gap-3'} ${pathname.startsWith('/student/transcript') ? `text-primary-fixed font-bold bg-white/10 ${isCollapsed ? 'border-l-4 border-primary-fixed' : 'border-l-4 border-primary-fixed pl-4'}` : `text-white/70 hover:bg-white/5 hover:text-white ${isCollapsed ? '' : 'pl-5'}`}`}>
               <Award className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="truncate">Grades & Transcripts</span>}

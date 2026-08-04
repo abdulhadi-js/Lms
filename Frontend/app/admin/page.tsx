@@ -98,28 +98,7 @@ export default function AdminDashboard() {
       {/* Animated Bento Stats Grid — Sprint 2 */}
       <AdminBentoStats className="mb-2" />
 
-      {/* Stat Cards (kept for quick at-a-glance detail) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-surface rounded-xl border border-divider brand-shadow relative overflow-hidden group transition-all hover:-translate-y-0.5 hover:shadow-md">
-            <div className="absolute top-0 left-0 w-full h-1 card-accent-top" />
-            <div className="p-5">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-xs font-medium text-body-secondary mb-1 uppercase tracking-wider">{stat.title}</p>
-                  <h3 className={`text-2xl font-bold mb-2 ${stat.title === 'Pending Applications' && (overview?.pendingApplications || 0) > 0 ? 'text-warning' : 'text-heading-on-light'}`}>
-                    {loading ? <span className="inline-block w-12 h-7 bg-surface-container rounded animate-pulse" /> : stat.val}
-                  </h3>
-                  <p className="text-xs text-body-secondary">{stat.sub}</p>
-                </div>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.bg} ${stat.color}`}>
-                  <stat.icon className="h-5 w-5" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-8">
         {/* Pending Applications Table */}

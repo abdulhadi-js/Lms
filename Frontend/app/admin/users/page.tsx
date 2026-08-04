@@ -359,13 +359,9 @@ export default function UserManagement() {
                         </div>
                         <div>
                           <div className="font-medium text-on-surface flex items-center gap-2">
-                            {row.role?.name === 'STUDENT' ? (
-                              <Link href={`/admin/users/${row.id}`} className="hover:text-primary hover:underline">
-                                {row.firstName} {row.lastName}
-                              </Link>
-                            ) : (
-                              <span>{row.firstName} {row.lastName}</span>
-                            )}
+                            <Link href={`/admin/users/${row.id}`} className="hover:text-primary hover:underline">
+                              {row.firstName} {row.lastName}
+                            </Link>
                             {row.isSuperAdmin && <Shield className="w-3.5 h-3.5 text-primary" aria-label="Super Admin" />}
                           </div>
                           <div className="text-xs text-body-secondary">{row.email}</div>

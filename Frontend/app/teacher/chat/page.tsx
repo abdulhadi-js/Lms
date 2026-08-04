@@ -239,16 +239,16 @@ export default function TeacherChat() {
     <div className="p-4 md:p-8 max-w-[1280px] mx-auto h-[calc(100vh-80px)] flex flex-col relative">
       <div className="mb-6 shrink-0 flex justify-between items-end">
         <div>
-          <h1 className="text-[28px] font-bold text-[#132a13]">Messages</h1>
-          <p className="text-[#5f5f5f]">Communicate with your students and colleagues.</p>
+          <h1 className="text-[28px] font-bold text-heading-on-light">Messages</h1>
+          <p className="text-body-secondary">Communicate with your students and colleagues.</p>
         </div>
       </div>
 
-      <div className="flex-1 bg-surface rounded-[12px] border border-[#c6c6c6] overflow-hidden flex min-h-0 relative" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
+      <div className="flex-1 bg-surface rounded-[12px] border border-divider overflow-hidden flex min-h-0 relative" style={{ boxShadow: '0 4px 12px rgba(19, 42, 19, 0.08)' }}>
         
         {/* Sidebar Contacts list */}
-        <div className="w-full md:w-1/3 border-r border-[#c6c6c6] flex flex-col bg-[#fefef9]">
-          <div className="p-4 border-b border-[#c6c6c6]">
+        <div className="w-full md:w-1/3 border-r border-divider flex flex-col bg-surface-container-lowest">
+          <div className="p-4 border-b border-divider">
             <div className="flex gap-2 mb-3">
               <div className="relative flex-1">
                 <input 
@@ -256,13 +256,13 @@ export default function TeacherChat() {
                   placeholder="Search messages..." 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-surface text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c] text-sm"
+                  className="w-full pl-9 pr-4 py-2 border border-divider rounded-lg bg-surface text-on-surface placeholder-placeholder focus:outline-none focus:border-primary text-sm"
                 />
-                <Search className="w-4 h-4 text-[#a4a4a4] absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-icon-inactive absolute left-3 top-2.5" />
               </div>
               <button 
                 onClick={loadAvailableContacts}
-                className="w-9 h-9 flex items-center justify-center bg-[#31572c] text-white rounded-lg hover:opacity-90 shrink-0 shadow-sm"
+                className="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-lg hover:opacity-90 shrink-0 shadow-sm"
                 title="New Chat"
               >
                 <Plus className="w-5 h-5" />
@@ -272,9 +272,9 @@ export default function TeacherChat() {
           
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-[#818181]">Loading...</div>
+              <div className="p-4 text-center text-icon-inactive">Loading...</div>
             ) : filteredConversations.length === 0 ? (
-              <div className="p-8 text-center text-[#818181]">
+              <div className="p-8 text-center text-icon-inactive">
                 <p className="mb-4">No conversations yet.</p>
                 <button onClick={loadAvailableContacts} className="px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition-colors">Start a Chat</button>
               </div>
@@ -287,17 +287,17 @@ export default function TeacherChat() {
                 <div 
                   key={contact.id} 
                   onClick={() => setActiveContact(contact)}
-                  className={`p-4 border-b border-[#e4e4e4] cursor-pointer hover:bg-[#eff3e7] transition-colors flex justify-between items-center ${isActive ? 'bg-[#fcfdf1] border-l-4 border-l-[#31572c]' : 'border-l-4 border-l-transparent'}`}
+                  className={`p-4 border-b border-[#e4e4e4] cursor-pointer hover:bg-surface-container transition-colors flex justify-between items-center ${isActive ? 'bg-surface-container-lowest border-l-4 border-l-[#31572c]' : 'border-l-4 border-l-transparent'}`}
                 >
                   <div className="overflow-hidden flex-1 pr-2">
-                    <h3 className={`text-[15px] font-bold truncate text-[#132a13]`}>{name}</h3>
-                    <p className="text-sm text-[#5f5f5f] truncate mt-1">{contact.body}</p>
+                    <h3 className={`text-[15px] font-bold truncate text-heading-on-light`}>{name}</h3>
+                    <p className="text-sm text-body-secondary truncate mt-1">{contact.body}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs text-[#818181]">
+                    <span className="text-xs text-icon-inactive">
                       {contact.createdAt ? new Date(contact.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'New'}
                     </span>
-                    {contact.isRead === false && contact.receiverId === user?.id && <Circle className="w-3 h-3 fill-[#90a955] text-[#90a955]" />}
+                    {contact.isRead === false && contact.receiverId === user?.id && <Circle className="w-3 h-3 fill-primary-fixed-dim text-primary-fixed-dim" />}
                   </div>
                 </div>
               )})
@@ -307,10 +307,10 @@ export default function TeacherChat() {
 
         {/* Chat Area */}
         {activeContact ? (
-          <div className="hidden md:flex flex-col w-2/3 bg-[#fefef9]">
-            <div className="p-4 border-b border-[#c6c6c6] bg-surface flex justify-between items-center shadow-sm z-10">
-              <h2 className="text-lg font-bold text-[#132a13]">{getContactName(activeContact)}</h2>
-              <button className="text-[#5f5f5f] hover:text-[#31572c] transition-colors">
+          <div className="hidden md:flex flex-col w-2/3 bg-surface-container-lowest">
+            <div className="p-4 border-b border-divider bg-surface flex justify-between items-center shadow-sm z-10">
+              <h2 className="text-lg font-bold text-heading-on-light">{getContactName(activeContact)}</h2>
+              <button className="text-body-secondary hover:text-primary transition-colors">
                 <MoreVertical className="w-5 h-5" />
               </button>
             </div>
@@ -330,20 +330,20 @@ export default function TeacherChat() {
                   <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className="flex items-end gap-2 max-w-[75%]">
                       {!isMe && (
-                        <div className="w-8 h-8 rounded-full bg-[#e4e4e4] shrink-0 mb-1 flex items-center justify-center text-[#5f5f5f]">
+                        <div className="w-8 h-8 rounded-full bg-surface-container-highest shrink-0 mb-1 flex items-center justify-center text-body-secondary">
                           <User className="w-5 h-5" />
                         </div>
                       )}
                       <div 
-                        className={`p-3 rounded-2xl ${isMe ? 'bg-[#31572c] text-white rounded-br-none' : 'bg-surface border border-[#c6c6c6] text-[#323232] rounded-bl-none shadow-sm'}`}
+                        className={`p-3 rounded-2xl ${isMe ? 'bg-primary text-white rounded-br-none' : 'bg-surface border border-divider text-on-surface rounded-bl-none shadow-sm'}`}
                       >
                         {!isMe && msg.courseId && msg.sender && (
-                          <p className="text-xs font-bold text-[#4f772d] mb-1">{msg.sender.firstName} {msg.sender.lastName}</p>
+                          <p className="text-xs font-bold text-secondary mb-1">{msg.sender.firstName} {msg.sender.lastName}</p>
                         )}
                         <p className="text-[15px] whitespace-pre-wrap">{msg.body}</p>
                       </div>
                     </div>
-                    <span className="text-xs text-[#818181] mt-1 mx-10">
+                    <span className="text-xs text-icon-inactive mt-1 mx-10">
                       {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
                     </span>
                   </div>
@@ -353,9 +353,9 @@ export default function TeacherChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-[#c6c6c6] bg-surface">
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-divider bg-surface">
               <div className="flex items-center gap-2">
-                <button type="button" className="p-2 text-[#5f5f5f] hover:bg-[#f4f4f4] rounded-full transition-colors">
+                <button type="button" className="p-2 text-body-secondary hover:bg-surface-container rounded-full transition-colors">
                   <Paperclip className="w-5 h-5" />
                 </button>
                 <input 
@@ -363,12 +363,12 @@ export default function TeacherChat() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..." 
-                  className="flex-1 bg-[#f4f4f4] border border-[#c6c6c6] rounded-full px-4 py-2 text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c] focus:ring-1 focus:ring-[#31572c]"
+                  className="flex-1 bg-surface-container border border-divider rounded-full px-4 py-2 text-on-surface placeholder-placeholder focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 />
                 <button 
                   type="submit"
                   disabled={!newMessage.trim()}
-                  className="p-2 bg-[#31572c] text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50" 
+                  className="p-2 bg-primary text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50" 
                   style={{ background: 'linear-gradient(180deg, #3a6633 0%, #31572c 100%)' }}
                 >
                   <Send className="w-5 h-5" />
@@ -377,8 +377,8 @@ export default function TeacherChat() {
             </form>
           </div>
         ) : (
-          <div className="hidden md:flex flex-col w-2/3 items-center justify-center bg-[#fefef9] text-[#818181]">
-            <Circle className="w-16 h-16 mb-4 text-[#e4e4e4]" />
+          <div className="hidden md:flex flex-col w-2/3 items-center justify-center bg-surface-container-lowest text-icon-inactive">
+            <Circle className="w-16 h-16 mb-4 text-divider" />
             <p>Select a conversation to start messaging</p>
           </div>
         )}
@@ -386,9 +386,9 @@ export default function TeacherChat() {
         {/* New Chat Modal Overlap */}
         {showNewChatModal && (
           <div className="absolute inset-0 bg-surface z-50 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <div className="p-4 border-b border-[#c6c6c6] flex justify-between items-center bg-[#fefef9]">
-              <h2 className="text-lg font-bold text-[#132a13]">New Conversation</h2>
-              <button onClick={() => setShowNewChatModal(false)} className="p-2 hover:bg-[#e4e4e4] rounded-full transition-colors">
+            <div className="p-4 border-b border-divider flex justify-between items-center bg-surface-container-lowest">
+              <h2 className="text-lg font-bold text-heading-on-light">New Conversation</h2>
+              <button onClick={() => setShowNewChatModal(false)} className="p-2 hover:bg-surface-container-highest rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -400,31 +400,31 @@ export default function TeacherChat() {
                   placeholder="Search for a name or role..." 
                   value={contactSearch}
                   onChange={(e) => setContactSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#c6c6c6] rounded-lg bg-[#f4f4f4] text-[#444444] placeholder-[#a4a4a4] focus:outline-none focus:border-[#31572c]"
+                  className="w-full pl-10 pr-4 py-2 border border-divider rounded-lg bg-surface-container text-on-surface placeholder-placeholder focus:outline-none focus:border-primary"
                 />
-                <Search className="w-5 h-5 text-[#a4a4a4] absolute left-3 top-2.5" />
+                <Search className="w-5 h-5 text-icon-inactive absolute left-3 top-2.5" />
               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 bg-surface-container-lowest">
               {loadingContacts ? (
-                <div className="text-center text-[#818181] mt-10">Loading your directory...</div>
+                <div className="text-center text-icon-inactive mt-10">Loading your directory...</div>
               ) : filteredNewContacts.length === 0 ? (
-                <div className="text-center text-[#818181] mt-10">No matches found for "{contactSearch}".</div>
+                <div className="text-center text-icon-inactive mt-10">No matches found for "{contactSearch}".</div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredNewContacts.map((contact: any) => (
                     <button 
                       key={contact.id}
                       onClick={() => startNewChat(contact)}
-                      className="flex items-center gap-4 p-4 border border-[#e4e4e4] rounded-xl hover:bg-[#eff3e7] hover:border-[#31572c] transition-all text-left bg-surface brand-shadow"
+                      className="flex items-center gap-4 p-4 border border-[#e4e4e4] rounded-xl hover:bg-surface-container hover:border-[#31572c] transition-all text-left bg-surface brand-shadow"
                     >
                       <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         {contact.isGroup ? <Users className="w-5 h-5" /> : <User className="w-5 h-5" />}
                       </div>
                       <div className="overflow-hidden">
-                        <h4 className="font-bold text-[#132a13] truncate">{contact.name}</h4>
-                        <p className="text-xs text-[#5f5f5f] mt-0.5 capitalize">{contact.subtext.toLowerCase()}</p>
+                        <h4 className="font-bold text-heading-on-light truncate">{contact.name}</h4>
+                        <p className="text-xs text-body-secondary mt-0.5 capitalize">{contact.subtext.toLowerCase()}</p>
                       </div>
                     </button>
                   ))}

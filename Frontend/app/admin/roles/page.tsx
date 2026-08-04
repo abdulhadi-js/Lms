@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { ShieldCheck, Plus, Settings2, Shield, Search, X, Check, CheckSquare, Square } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { rolesApi, campusesApi } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 
 const MODULES = [
   'DASHBOARD', 'CAMPUSES', 'ROLES', 'ACADEMICS', 
@@ -36,6 +37,11 @@ export default function RolesManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() });
   const [searchQuery, setSearchQuery] = useState('');
+
+  const { user } = useAuth();
+  const isSuperAdmin = user?.isSuperAdmin === true || 
+    user?.role?.name?.toUpperCase() === 'SUPERADMIN' || 
+    (typeof user?.role === 'string' && user.role.toUpperCase() === 'SUPERADMIN');
 
   const fetchData = async () => {
     setLoading(true);
@@ -163,12 +169,14 @@ export default function RolesManagement() {
           <h2 className="text-3xl font-bold text-heading-on-light">Roles & Matrix</h2>
           <p className="text-sm text-body-secondary mt-1">Design highly granular RBAC matrices and assign them to specific campuses.</p>
         </div>
-        <button 
-          onClick={() => { setFormData({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
-          className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> Build Custom Matrix
-        </button>
+        {isSuperAdmin && (
+          <button 
+            onClick={() => { setFormData({ id: '', name: '', campusId: '', matrix: getEmptyMatrix() }); setIsModalOpen(true); }}
+            className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Build Custom Matrix
+          </button>
+        )}
       </div>
 
       <div className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden">
@@ -248,7 +256,7 @@ export default function RolesManagement() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      {!role.isSystem && (
+                      {!role.isSystem && isSuperAdmin && (
                         <div className="flex justify-end gap-2">
                           <button onClick={() => handleEditClick(role)} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="Edit Role">
                             <Settings2 className="w-4 h-4" />

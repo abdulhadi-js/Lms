@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Bell, Settings, ArrowRight, Edit, ClipboardCheck, MessageSquare, Upload, MapPin, Users, MoreHorizontal, Download, BookOpen, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { coursesApi, assignmentsApi, timetableApi } from '@/lib/api';
+import { coursesApi, assignmentsApi, timetableApi, BASE_URL } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 
 export default function TeacherDashboard() {
@@ -81,11 +81,17 @@ export default function TeacherDashboard() {
           <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-icon-inactive hover:bg-surface-container-high transition-colors">
             <Settings className="w-5 h-5" />
           </button>
-          <img 
-            className="w-10 h-10 rounded-full object-cover border border-outline/20" 
-            alt="Teacher" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO7dmwjn-l4_7xWNcToQXUvJ-GsbAuvf0HCd9PFcvsfHBl-rhqbLXU8PRw2mlbuhQvKVzMksCQ4IPW9lH_xAaEiT0Scw_OqVyd5tZvBr61eP53u9mduSYzlhv_BRauJ2v6TKYqaAwdWtfrNq3ZGjXOLNyr4CaobhpcsAQnzc228BvCqQ6iIFuMlGHrOSkErKZ_eP0p0uBXrrZ3ZMOAx_xgiEQZoKsSsJ4sWm4B_aveQz7Y11UBhdag"
-          />
+          {user?.profilePicture ? (
+            <img 
+              className="w-10 h-10 rounded-full object-cover border border-outline/20" 
+              alt="Teacher" 
+              src={user.profilePicture.startsWith('http') ? user.profilePicture : `${BASE_URL}${user.profilePicture}`}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-primary-fixed-dim flex items-center justify-center text-evergreen font-bold text-lg border border-outline/20">
+              {user?.firstName ? user.firstName[0].toUpperCase() : 'T'}
+            </div>
+          )}
         </div>
       </div>
 
@@ -178,32 +184,38 @@ export default function TeacherDashboard() {
                </div>
             ) : (
               <ul className="space-y-4">
-                <li className="flex items-center gap-4 p-3 rounded-lg border border-error-bg bg-error-bg/10 hover:bg-error-bg/30 transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error border border-error/20">
-                    <Edit className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-[16px] text-on-surface">Assignments</p>
-                    <p className="font-normal text-[14px] text-body-secondary text-sm">{assignments.length > 0 ? `${assignments.length} assignments to manage` : 'No assignments currently'}</p>
-                  </div>
+                <li>
+                  <Link href="/teacher/assignments" className="flex items-center gap-4 p-3 rounded-lg border border-error-bg bg-error-bg/10 hover:bg-error-bg/30 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error border border-error/20">
+                      <Edit className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-[16px] text-on-surface">Assignments</p>
+                      <p className="font-normal text-[14px] text-body-secondary text-sm">{assignments.length > 0 ? `${assignments.length} assignments to manage` : 'No assignments currently'}</p>
+                    </div>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-4 p-3 rounded-lg border border-warning-bg bg-warning-bg/10 hover:bg-warning-bg/30 transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning border border-warning/20">
-                    <BookOpen className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-[16px] text-on-surface">Active Courses</p>
-                    <p className="font-normal text-[14px] text-body-secondary text-sm">{activeCourses > 0 ? `${activeCourses} courses running` : 'No active courses'}</p>
-                  </div>
+                <li>
+                  <Link href="/teacher/courses" className="flex items-center gap-4 p-3 rounded-lg border border-warning-bg bg-warning-bg/10 hover:bg-warning-bg/30 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning border border-warning/20">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-[16px] text-on-surface">Active Courses</p>
+                      <p className="font-normal text-[14px] text-body-secondary text-sm">{activeCourses > 0 ? `${activeCourses} courses running` : 'No active courses'}</p>
+                    </div>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-4 p-3 rounded-lg border border-success-bg bg-success-bg/30 hover:bg-success-bg/60 transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success border border-success/20">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-[16px] text-on-surface">Student Check-in</p>
-                    <p className="font-normal text-[14px] text-body-secondary text-sm">{totalStudents > 0 ? `${totalStudents} students to monitor` : 'No students enrolled yet'}</p>
-                  </div>
+                <li>
+                  <Link href="/teacher/attendance" className="flex items-center gap-4 p-3 rounded-lg border border-success-bg bg-success-bg/30 hover:bg-success-bg/60 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success border border-success/20">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-[16px] text-on-surface">Student Check-in</p>
+                      <p className="font-normal text-[14px] text-body-secondary text-sm">{totalStudents > 0 ? `${totalStudents} students to monitor` : 'No students enrolled yet'}</p>
+                    </div>
+                  </Link>
                 </li>
               </ul>
             )}

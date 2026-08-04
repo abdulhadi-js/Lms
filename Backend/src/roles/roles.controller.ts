@@ -23,6 +23,10 @@ export class RolesController {
   @Post()
   @RequirePermission(ModuleId.ROLES, 'ADD')
   create(@Body() data: any, @Request() req: any) {
+    if (req.user.role?.name?.toUpperCase() !== 'SUPERADMIN') {
+      const { ForbiddenException } = require('@nestjs/common');
+      throw new ForbiddenException('Only SUPERADMIN can create new roles');
+    }
     return this.rolesService.create(data, req.user);
   }
 

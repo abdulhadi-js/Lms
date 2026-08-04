@@ -146,7 +146,7 @@ export default function CourseContent() {
                           onClick={() => setActiveLesson(lesson)}
                           className={`px-8 py-3 text-sm flex items-center gap-3 border-l-4 cursor-pointer transition-colors ${
                             activeLesson?.id === lesson.id 
-                              ? 'text-evergreen font-semibold bg-[#eff3e7] border-primary-container shadow-sm relative overflow-hidden' 
+                              ? 'text-evergreen font-semibold bg-surface-container border-primary-container shadow-sm relative overflow-hidden' 
                               : 'text-on-surface hover:bg-white/50 border-transparent'
                           }`}
                         >
@@ -214,7 +214,7 @@ export default function CourseContent() {
                 </span>
               </div>
               <h1 className="text-[32px] md:text-[40px] font-bold text-heading-on-light mb-4 leading-[1.2]">{activeLesson.title}</h1>
-              <p className="text-[16px] text-[#444444] max-w-3xl leading-relaxed whitespace-pre-wrap">
+              <p className="text-[16px] text-on-surface max-w-3xl leading-relaxed whitespace-pre-wrap">
                 {activeLesson.description || "No description provided for this lesson."}
               </p>
             </div>
