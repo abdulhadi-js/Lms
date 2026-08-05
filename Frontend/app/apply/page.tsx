@@ -86,7 +86,18 @@ export default function ApplyPage() {
     if (!payload.email) delete payload.email;
     if (!payload.previousSchool) delete payload.previousSchool;
     if (!payload.gender) delete payload.gender;
-    if (!payload.dob) delete payload.dob;
+    
+    // Convert date to full ISO string format for strict backend validation
+    if (!payload.dob) {
+      delete payload.dob;
+    } else {
+      try {
+        payload.dob = new Date(payload.dob).toISOString();
+      } catch (e) {
+        // Fallback to simple string append if Date parsing fails somehow
+        payload.dob = payload.dob + "T00:00:00.000Z";
+      }
+    }
 
     try {
       await enrollmentsApi.apply(payload);
