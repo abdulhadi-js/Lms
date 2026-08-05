@@ -7,7 +7,7 @@ import { enrollmentsApi, academicsApi, coursesApi } from '@/lib/api';
 
 export default function ApplyPage() {
   const [campuses, setCampuses] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     studentFirstName: '',
     studentLastName: '',
@@ -38,21 +38,19 @@ export default function ApplyPage() {
   }, []);
 
   useEffect(() => {
-    async function fetchCourses() {
+    async function fetchClasses() {
       if (!formData.campusId) {
-        setCourses([]);
+        setClasses([]);
         return;
       }
       try {
-        const data = await coursesApi.getPublic();
-        // Filter by campusId since the public endpoint currently returns all courses
-        const filtered = Array.isArray(data) ? data.filter((c: any) => c.campusId === formData.campusId || !c.campusId) : [];
-        setCourses(filtered);
+        const data = await academicsApi.getPublicClasses(formData.campusId);
+        setClasses(data);
       } catch (err) {
-        console.error('Failed to load courses', err);
+        console.error('Failed to load classes', err);
       }
     }
-    fetchCourses();
+    fetchClasses();
   }, [formData.campusId]);
 
   const validate = () => {
@@ -123,7 +121,7 @@ export default function ApplyPage() {
                     <BookOpen className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{courses.length}+</div>
+                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{classes.length}+</div>
                     <div className="text-sm font-semibold text-body-secondary uppercase tracking-wider mt-1">Open Classes</div>
                   </div>
                 </div>
@@ -251,9 +249,9 @@ export default function ApplyPage() {
                           disabled={!formData.campusId}
                           className={`w-full border rounded-lg px-4 py-3 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.desiredClassId ? 'border-error' : 'border-divider'}`}
                         >
-                          <option value="">Select a Course...</option>
-                          {courses.map(c => (
-                            <option key={c.id} value={c.id}>{c.title || c.name} {c.code ? `(${c.code})` : ''}</option>
+                          <option value="">Select a Class...</option>
+                          {classes.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
                           ))}
                         </select>
                         {errors.desiredClassId && <p className="text-xs text-error">{errors.desiredClassId}</p>}
