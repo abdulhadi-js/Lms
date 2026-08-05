@@ -13,11 +13,11 @@ import { ModuleId } from '../src/roles/entities/module-permission.entity';
 @UseGuards(JwtAuthGuard, MatrixGuard)
 class TestAuthController {
   @Get('view')
-  @RequirePermission(ModuleId.CAMPUS, 'VIEW')
+  @RequirePermission(ModuleId.CAMPUSES, 'VIEW')
   view() { return { ok: true }; }
 
   @Post('add')
-  @RequirePermission(ModuleId.CAMPUS, 'ADD')
+  @RequirePermission(ModuleId.CAMPUSES, 'ADD')
   add() { return { ok: true }; }
 }
 
@@ -30,21 +30,21 @@ describe('Authorization & RBAC (e2e)', () => {
         return Promise.resolve({
           id: 'role-teacher',
           name: 'Teacher',
-          matrix: [{ moduleId: ModuleId.CAMPUS, canView: true, canAdd: false, canEdit: false, canDelete: false }]
+          matrix: [{ moduleId: ModuleId.CAMPUSES, canView: true, canAdd: false, canEdit: false, canDelete: false }]
         });
       }
       if (roleId === 'role-admin') {
         return Promise.resolve({
           id: 'role-admin',
           name: 'Admin',
-          matrix: [{ moduleId: ModuleId.CAMPUS, canView: true, canAdd: true, canEdit: true, canDelete: true }]
+          matrix: [{ moduleId: ModuleId.CAMPUSES, canView: true, canAdd: true, canEdit: true, canDelete: true }]
         });
       }
       if (roleId === 'role-student') {
         return Promise.resolve({
           id: 'role-student',
           name: 'Student',
-          matrix: [{ moduleId: ModuleId.CAMPUS, canView: false, canAdd: false, canEdit: false, canDelete: false }]
+          matrix: [{ moduleId: ModuleId.CAMPUSES, canView: false, canAdd: false, canEdit: false, canDelete: false }]
         });
       }
       return Promise.resolve(null);
@@ -64,12 +64,12 @@ describe('Authorization & RBAC (e2e)', () => {
     // We mock JwtAuthGuard to extract roleId from a fake header for easy testing
     .overrideGuard(JwtAuthGuard)
     .useValue({
-      canActivate: (context) => {
+      canActivate: (context: any) => {
         const req = context.switchToHttp().getRequest();
         const roleToken = req.headers['x-role-token'];
-        
+
         if (!roleToken) return false;
-        
+
         if (roleToken === 'superadmin') {
           req.user = { id: 'u1', isSuperAdmin: true };
         } else {
@@ -104,7 +104,7 @@ describe('Authorization & RBAC (e2e)', () => {
         .set('x-role-token', 'role-admin')
         .expect(200);
     });
-    
+
     it('should allow ADD based on matrix', () => {
       return request(app.getHttpServer())
         .post('/test-auth/add')
@@ -120,7 +120,7 @@ describe('Authorization & RBAC (e2e)', () => {
         .set('x-role-token', 'role-teacher')
         .expect(200);
     });
-    
+
     it('should FORBID ADD because canAdd is false', () => {
       return request(app.getHttpServer())
         .post('/test-auth/add')
@@ -137,7 +137,7 @@ describe('Authorization & RBAC (e2e)', () => {
         .expect(403);
     });
   });
-  
+
   describe('Unauthenticated User', () => {
     it('should reject when JwtAuthGuard fails', () => {
       return request(app.getHttpServer())

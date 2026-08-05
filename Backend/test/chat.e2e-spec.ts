@@ -23,7 +23,7 @@ describe('ChatController (e2e)', () => {
     .overrideProvider(ChatService)
     .useValue(mockChatService)
     .overrideGuard(JwtAuthGuard)
-    .useValue({ canActivate: (context) => {
+    .useValue({ canActivate: (context: any) => {
         // Mocking user object in request for chat endpoints
         const req = context.switchToHttp().getRequest();
         req.user = { id: 'user-1' };

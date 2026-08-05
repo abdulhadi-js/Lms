@@ -24,7 +24,13 @@ describe('RolesController (e2e)', () => {
     .overrideProvider(RolesService)
     .useValue(mockRolesService)
     .overrideGuard(JwtAuthGuard)
-    .useValue({ canActivate: () => true })
+    .useValue({
+      canActivate: (context: any) => {
+        const req = context.switchToHttp().getRequest();
+        req.user = { id: 'u1', isSuperAdmin: true, role: { name: 'SUPERADMIN' } };
+        return true;
+      }
+    })
     .overrideGuard(MatrixGuard)
     .useValue({ canActivate: () => true })
     .compile();
