@@ -35,6 +35,7 @@ export default function AssignmentSubmissionPage() {
   const id = params?.id as string;
 
   const [assignment, setAssignment] = useState<any>(null);
+  const [existingSubmission, setExistingSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,8 +51,17 @@ export default function AssignmentSubmissionPage() {
 
   useEffect(() => {
     if (!id) return;
-    assignmentsApi.get(id)
-      .then(data => setAssignment(data))
+    Promise.all([
+      assignmentsApi.get(id),
+      assignmentsApi.getSubmissions(id).catch(() => [])
+    ])
+      .then(([assignmentData, submissionsData]) => {
+        setAssignment(assignmentData);
+        if (Array.isArray(submissionsData) && submissionsData.length > 0) {
+          setExistingSubmission(submissionsData[0]);
+          setSubmitted(true);
+        }
+      })
       .catch(err => setError(err?.message || 'Failed to load assignment'))
       .finally(() => setLoading(false));
   }, [id]);
@@ -234,7 +244,50 @@ export default function AssignmentSubmissionPage() {
       </div>
 
       {/* Submission Section */}
-      {submitted ? (
+      {submitted && existingSubmission ? (
+        <div className="bg-surface rounded-2xl border border-success/30 brand-shadow p-10 text-center">
+          <div className="w-20 h-20 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-5">
+            <CheckCircle className="w-10 h-10 text-success" />
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface mb-2">Already Submitted</h2>
+          <p className="text-body-secondary mb-6">
+            Your assignment was submitted on {new Date(existingSubmission.submittedAt || new Date()).toLocaleString()}.
+          </p>
+          
+          {existingSubmission.fileUrl && (
+            <a href={existingSubmission.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-full max-w-sm mx-auto mb-6 gap-2 px-4 py-3 bg-surface-container-low rounded-xl text-primary hover:bg-surface-container transition-colors font-medium border border-divider">
+               <Paperclip className="w-5 h-5" /> View Submitted File
+            </a>
+          )}
+          {existingSubmission.grade !== null && existingSubmission.grade !== undefined && (
+             <div className="w-full max-w-md mx-auto mb-6 p-5 bg-primary/5 border border-primary/20 rounded-xl">
+               <p className="text-sm text-body-secondary font-semibold uppercase mb-1">Grade</p>
+               <p className="text-3xl font-bold text-primary mb-3">{existingSubmission.grade} <span className="text-lg text-primary/70">/ {assignment.maxMarks}</span></p>
+               {existingSubmission.feedback && (
+                 <div className="p-3 bg-white rounded-lg border border-divider text-left">
+                    <p className="text-xs text-body-secondary font-bold uppercase mb-1">Feedback</p>
+                    <p className="text-sm text-on-surface italic">"{existingSubmission.feedback}"</p>
+                 </div>
+               )}
+             </div>
+          )}
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <button 
+              onClick={() => { setSubmitted(false); setExistingSubmission(null); }} 
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Submit Again (Overwrite)
+            </button>
+            <Link
+              href="/student/assignments"
+              className="inline-flex items-center gap-2 primary-gradient text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Assignments
+            </Link>
+          </div>
+        </div>
+      ) : submitted ? (
         <div className="bg-surface rounded-2xl border border-success/30 brand-shadow p-10 text-center">
           <div className="w-20 h-20 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-5">
             <CheckCircle className="w-10 h-10 text-success" />

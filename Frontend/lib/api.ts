@@ -300,6 +300,7 @@ export const assignmentsApi = {
   list: () => fetchAuthApi('/assignments'),
   get: (id: string) => fetchAuthApi(`/assignments/${id}`),
   create: (courseId: string, data: any) => fetchAuthApi(`/assignments`, { method: 'POST', body: JSON.stringify(data) }),
+  getSubmissions: (id: string) => fetchAuthApi(`/assignments/${id}/submissions`),
   update: (id: string, data: any) => fetchAuthApi(`/assignments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/assignments/${id}`, { method: 'DELETE' }),
   submit: async (id: string, data: any, onUploadProgress?: (progressEvent: any) => void) => {
