@@ -123,7 +123,7 @@ export default function ApplyPage() {
                     <BookOpen className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{classes.length}+</div>
+                    <div className="text-3xl md:text-4xl font-heading font-bold text-heading-on-light tracking-tight">{courses.length}+</div>
                     <div className="text-sm font-semibold text-body-secondary uppercase tracking-wider mt-1">Open Classes</div>
                   </div>
                 </div>
