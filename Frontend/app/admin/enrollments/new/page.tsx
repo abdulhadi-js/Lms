@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
-import { fetchAuthApi as fetchApi, academicsApi } from '@/lib/api';
+import { fetchAuthApi as fetchApi, academicsApi, coursesApi } from '@/lib/api';
 import { Check, ChevronLeft, ChevronRight, User, Users, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
@@ -39,10 +39,10 @@ export default function NewAdmissionWizard() {
   useEffect(() => {
     if (user?.campusId) {
       Promise.all([
-        academicsApi.listClasses(),
+        coursesApi.list(),
         fetchApi(`/academic-groups?campusId=${user?.campusId}`)
-      ]).then(([classesData, groupsData]) => {
-        setCourses(classesData?.data || classesData || []);
+      ]).then(([coursesData, groupsData]) => {
+        setCourses(coursesData?.data || coursesData || []);
         setGroups(groupsData || []);
       }).catch(err => toast.error('Failed to load academic data'));
     }

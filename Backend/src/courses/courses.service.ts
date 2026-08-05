@@ -18,9 +18,10 @@ export class CoursesService {
   ) {}
 
   async create(dto: CreateCourseDto, user: any) {
+    const isInstructor = user.role === 'INSTRUCTOR' || user.role === 'TEACHER';
     const course = this.courseRepo.create({
       ...dto,
-      teacherId: user.id,
+      teacherId: isInstructor ? user.id : (dto.teacherId || null),
       campusId: user.campusId,
     });
     return this.courseRepo.save(course);
@@ -54,8 +55,12 @@ export class CoursesService {
 
   async update(id: string, dto: UpdateCourseDto, user: any) {
     const course = await this.findOne(id, user);
-    if (user.role === 'INSTRUCTOR' && course.teacherId !== user.id) {
-      throw new ForbiddenException('Not allowed');
+    if (user.role === 'INSTRUCTOR' || user.role === 'TEACHER') {
+      if (course.teacherId !== user.id) {
+        throw new ForbiddenException('Not allowed');
+      }
+      // instructors can't reassign the course to someone else
+      delete dto.teacherId; 
     }
     Object.assign(course, dto);
     return this.courseRepo.save(course);

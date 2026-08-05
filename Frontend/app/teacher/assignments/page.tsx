@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Plus, CheckCircle, Clock, MoreHorizontal, Trash, Edit, X } from 'lucide-react';
 import { assignmentsApi, coursesApi } from '@/lib/api';
 import RichTextEditor from '@/components/RichTextEditor';
+import Link from 'next/link';
 
 export default function TeacherAssignments() {
   const [assignments, setAssignments] = useState<any[]>([]);

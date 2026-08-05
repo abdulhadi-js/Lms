@@ -15,6 +15,10 @@ export class CreateCourseDto {
   @IsNumber()
   @IsOptional()
   credits?: number;
+
+  @IsString()
+  @IsOptional()
+  teacherId?: string;
 }
 
 export class UpdateCourseDto {
@@ -33,6 +37,10 @@ export class UpdateCourseDto {
   @IsNumber()
   @IsOptional()
   credits?: number;
+
+  @IsString()
+  @IsOptional()
+  teacherId?: string;
 }
 
 export class CreateCourseModuleDto {

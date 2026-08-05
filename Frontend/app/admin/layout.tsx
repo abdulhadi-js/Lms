@@ -53,6 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       section: 'Academics',
       links: [
+        { name: 'Courses', path: '/admin/courses', icon: BookOpen, moduleId: 'ACADEMICS' },
         { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
         { name: 'Streams & Groups', path: '/admin/academic-groups', icon: LibraryBig, moduleId: 'ACADEMICS' },
         { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
