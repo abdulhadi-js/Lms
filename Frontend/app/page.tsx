@@ -251,7 +251,7 @@ export default function LandingPage() {
           <p className="text-lg text-on-primary/80 mb-10 max-w-2xl mx-auto">Deploy a unified ERP system that faculty, staff, and students actually want to use. Request a technical demonstration today.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link href="/apply" className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-primary bg-on-primary rounded-md hover:bg-surface-container transition-colors shadow-sm">
-              Request Deployment
+              Apply Admission
             </Link>
             <Link href="#contact" className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-on-primary bg-transparent border border-on-primary/20 rounded-md hover:bg-on-primary/10 transition-colors">
               Contact Sales

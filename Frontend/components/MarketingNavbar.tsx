@@ -28,7 +28,7 @@ export function MarketingNavbar() {
         <div className="flex space-x-2 md:space-x-4 items-center shrink-0">
           <ThemeToggle />
           <Link href="/login" className="hidden sm:inline-flex px-3 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-semibold text-primary bg-primary/10 border border-primary/20 rounded-md hover:bg-primary/20 transition-colors whitespace-nowrap">Portal Login</Link>
-          <Link href="/apply" className="hidden md:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-on-primary bg-primary rounded-md hover:opacity-90 transition-opacity shadow-sm">Request Deployment</Link>
+          <Link href="/apply" className="hidden md:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-on-primary bg-primary rounded-md hover:opacity-90 transition-opacity shadow-sm">Apply Admission</Link>
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
             className="md:hidden p-2 -mr-2 text-body-secondary hover:text-primary transition-colors focus:outline-none"
@@ -48,7 +48,7 @@ export function MarketingNavbar() {
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="font-semibold text-on-surface hover:text-primary text-lg">Contact</Link>
             <div className="border-t border-divider pt-5 flex flex-col gap-3">
               <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full text-center px-4 py-3 font-semibold text-primary bg-primary/10 rounded-md">Portal Login</Link>
-              <Link href="/apply" onClick={() => setIsMobileMenuOpen(false)} className="w-full text-center px-4 py-3 font-semibold text-on-primary bg-primary rounded-md shadow-sm">Request Deployment</Link>
+              <Link href="/apply" onClick={() => setIsMobileMenuOpen(false)} className="w-full text-center px-4 py-3 font-semibold text-on-primary bg-primary rounded-md shadow-sm">Apply Admission</Link>
             </div>
           </div>
         </div>

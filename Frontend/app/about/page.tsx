@@ -116,7 +116,7 @@ export default function AboutPage() {
             <div className="flex space-x-6">
               <Link href="/about" className="text-sm text-body-secondary hover:text-primary transition-colors">About Us</Link>
               <Link href="/contact" className="text-sm text-body-secondary hover:text-primary transition-colors">Contact</Link>
-              <Link href="/apply" className="text-sm text-body-secondary hover:text-primary transition-colors">Request Deployment</Link>
+              <Link href="/apply" className="text-sm text-body-secondary hover:text-primary transition-colors">Apply Admission</Link>
             </div>
           </div>
           <div className="border-t border-divider pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
