@@ -18,7 +18,7 @@ export default function StudentExams() {
         
         let allExams: any[] = [];
         for (const e of enrollments) {
-          if (e.status === 'ENROLLED' && e.course) {
+          if (e.status === 'ACTIVE' && e.course) {
              const res = await examsApi.getExams(e.course.id);
              allExams = [...allExams, ...(res.data || res || [])];
           }

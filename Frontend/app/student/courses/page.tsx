@@ -45,15 +45,16 @@ export default function StudentCoursesPage() {
 
   const getStatusIcon = (status: string) => {
     switch(status) {
-      case 'ENROLLED': return <Clock className="w-4 h-4 text-primary" />;
+      case 'ACTIVE': return <Clock className="w-4 h-4 text-primary" />;
       case 'COMPLETED': return <CheckCircle className="w-4 h-4 text-success" />;
-      default: return <Clock className="w-4 h-4 text-body-secondary" />;
+      case 'DROPPED': return <XCircle className="w-4 h-4 text-error" />;
+      default: return null;
     }
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'ENROLLED': return 'bg-primary-container/20 text-primary border-primary/20';
+    switch (status) {
+      case 'ACTIVE': return 'bg-primary-container/20 text-primary border-primary/20';
       case 'COMPLETED': return 'bg-success-bg/30 text-success border-success/20';
       case 'DROPPED': return 'bg-error-bg/30 text-error border-error/20';
       default: return 'bg-surface-container text-body-secondary border-outline/20';

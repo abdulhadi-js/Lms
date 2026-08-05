@@ -52,7 +52,7 @@ export default function StudentDashboard() {
   const loading = isLoadingEnrollments || isLoadingFees || isLoadingAssignments || isLoadingMarks;
   const error = enrollmentsError ? 'Failed to load some dashboard data.' : null;
 
-  const activeEnrollments = enrollments.filter((e: any) => e.status === 'ENROLLED');
+  const activeEnrollments = enrollments.filter((e: any) => e.status === 'ACTIVE');
   const outstandingFees = fees.filter((f: any) => f.status === 'PENDING' || f.status === 'OVERDUE').length;
 
   // Compute CGPA from marks is now partly handled by backend, but we'll use transcript.cumulativeGPA if available

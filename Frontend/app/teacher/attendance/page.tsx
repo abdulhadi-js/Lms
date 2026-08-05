@@ -59,7 +59,7 @@ export default function TeacherAttendance() {
       ]);
       
       const courseStudents = enrollData
-        .filter((e: any) => e.course?.id === courseId && e.status === 'ENROLLED' && e.student)
+        .filter((e: any) => e.course?.id === courseId && e.status === 'ACTIVE' && e.student)
         .map((e: any) => e.student);
         
       setStudents(courseStudents);

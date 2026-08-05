@@ -57,7 +57,7 @@ export default function TeacherGradebook() {
       ]);
 
       const courseStudents = (Array.isArray(enrollData) ? enrollData : [])
-        .filter((e: any) => e.course?.id === courseId && e.status === 'ENROLLED' && e.student)
+        .filter((e: any) => e.course?.id === courseId && e.status === 'ACTIVE' && e.student)
         .map((e: any) => e.student);
 
       const courseAssignments = (Array.isArray(assignData) ? assignData : [])

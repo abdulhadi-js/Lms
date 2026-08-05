@@ -14,11 +14,7 @@ export class Assignment {
 
   @Index()
   @Column('uuid')
-  sectionId: string;
-
-  @Index()
-  @Column('uuid')
-  subjectId: string;
+  courseId: string;
 
   @Column()
   title: string;

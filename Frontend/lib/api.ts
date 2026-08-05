@@ -299,7 +299,7 @@ export const feesApi = {
 export const assignmentsApi = {
   list: () => fetchAuthApi('/assignments'),
   get: (id: string) => fetchAuthApi(`/assignments/${id}`),
-  create: (courseId: string, data: any) => fetchAuthApi(`/courses/${courseId}/assignments`, { method: 'POST', body: JSON.stringify(data) }),
+  create: (courseId: string, data: any) => fetchAuthApi(`/assignments`, { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => fetchAuthApi(`/assignments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/assignments/${id}`, { method: 'DELETE' }),
   submit: async (id: string, data: any, onUploadProgress?: (progressEvent: any) => void) => {
@@ -307,9 +307,7 @@ export const assignmentsApi = {
     let payload = data;
     let headers: any = { Authorization: `Bearer ${token}` };
 
-    if (data instanceof FormData) {
-      headers['Content-Type'] = 'multipart/form-data';
-    } else {
+    if (!(data instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
     }
 

@@ -22,11 +22,7 @@ export class RubricDto {
 export class CreateAssignmentDto {
   @IsUUID()
   @IsNotEmpty()
-  sectionId: string;
-
-  @IsUUID()
-  @IsNotEmpty()
-  subjectId: string;
+  courseId: string;
 
   @IsString()
   @IsNotEmpty()

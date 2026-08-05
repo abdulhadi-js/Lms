@@ -227,7 +227,7 @@ export default function EnrollmentsManagement() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="ALL">All Statuses</option>
-              <option value="ENROLLED">Enrolled</option>
+              <option value="ACTIVE">Active</option>
               <option value="DROPPED">Dropped</option>
               <option value="COMPLETED">Completed</option>
             </select>
@@ -299,7 +299,7 @@ export default function EnrollmentsManagement() {
                       
                       {openDropdown === enr.id && (
                         <div className="absolute right-4 top-12 w-48 bg-surface rounded-lg shadow-xl border border-divider py-1 z-50">
-                          {enr.status === 'ENROLLED' && (
+                          {enr.status === 'ACTIVE' && (
                             <button 
                               onClick={() => { handleDropClick(enr.id); setOpenDropdown(null); }}
                               className="w-full text-left px-4 py-2 text-sm text-warning hover:bg-warning-bg flex items-center gap-2"
@@ -332,12 +332,12 @@ export default function EnrollmentsManagement() {
                       
                       <div className="text-body-secondary">Status:</div>
                       <div className="flex justify-end">
-                        {enr.status === 'ENROLLED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Enrolled</span>}
+                        {enr.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Active</span>}
                         {enr.status === 'DROPPED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Dropped</span>}
                         {enr.status === 'COMPLETED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container/20 text-primary border border-primary/20">Completed</span>}
                       </div>
                       
-                      <div className="text-body-secondary">Enrolled At:</div>
+                      <div className="text-body-secondary">Active At:</div>
                       <div className="text-right">{new Date(enr.createdAt).toLocaleDateString()}</div>
                     </div>
                   </div>
@@ -351,7 +351,7 @@ export default function EnrollmentsManagement() {
                   <th className="py-3 px-4 font-semibold">Student</th>
                   <th className="py-3 px-4 font-semibold">Course</th>
                   <th className="py-3 px-4 font-semibold">Status</th>
-                  <th className="py-3 px-4 font-semibold">Enrolled At</th>
+                  <th className="py-3 px-4 font-semibold">Active At</th>
                   <th className="py-3 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
@@ -366,7 +366,7 @@ export default function EnrollmentsManagement() {
                     </td>
                     <td className="py-3 px-4 text-on-surface">{enr.course?.title} <span className="text-xs text-body-secondary ml-1">({enr.course?.code})</span></td>
                     <td className="py-3 px-4">
-                      {enr.status === 'ENROLLED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Enrolled</span>}
+                      {enr.status === 'ACTIVE' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Active</span>}
                       {enr.status === 'DROPPED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-error-bg text-error border border-error/20">Dropped</span>}
                       {enr.status === 'COMPLETED' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container/20 text-primary border border-primary/20">Completed</span>}
                     </td>
@@ -394,7 +394,7 @@ export default function EnrollmentsManagement() {
                           style={{ position: 'fixed', top: dropdownPos.top, right: dropdownPos.right }}
                           className="w-48 bg-surface rounded-lg shadow-xl border border-divider py-1 z-[9999]"
                         >
-                          {enr.status === 'ENROLLED' && (
+                          {enr.status === 'ACTIVE' && (
                             <button 
                               onClick={() => handleDropClick(enr.id)}
                               className="w-full text-left px-4 py-2 text-sm text-warning hover:bg-warning-bg flex items-center gap-2"
@@ -597,7 +597,7 @@ export default function EnrollmentsManagement() {
                 value={editStatus}
                 onChange={(e) => setEditStatus(e.target.value)}
               >
-                <option value="ENROLLED">ENROLLED</option>
+                <option value="ACTIVE">ACTIVE</option>
                 <option value="COMPLETED">COMPLETED</option>
                 <option value="DROPPED">DROPPED</option>
               </select>

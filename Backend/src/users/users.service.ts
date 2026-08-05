@@ -507,7 +507,7 @@ export class UsersService implements OnModuleInit {
                 const enrollment = runner.manager.create(Enrollment, {
                   studentId: savedUser.id,
                   sectionId: section.id,
-                  status: 'ENROLLED',
+                  status: 'ACTIVE',
                   enrollmentDate: new Date(),
                   campusId: campus.id
                 });

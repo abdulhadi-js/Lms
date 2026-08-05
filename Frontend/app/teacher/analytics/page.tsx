@@ -58,7 +58,7 @@ export default function TeacherAnalytics() {
         // riskData is array of { studentId, avgMark, riskReason, avgAttendance }
         // Filter it down to only students enrolled in this course
         const courseStudents = enrollData
-          .filter((e: any) => e.course?.id === selectedCourseId && e.status === 'ENROLLED' && e.student)
+          .filter((e: any) => e.course?.id === selectedCourseId && e.status === 'ACTIVE' && e.student)
           .map((e: any) => e.student);
 
         const courseAtRisk = riskData

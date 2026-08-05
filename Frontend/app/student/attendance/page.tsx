@@ -40,7 +40,7 @@ export default function MyAttendance() {
         // B7 FIX: fetch only the student's enrolled courses, not all courses in the system
         const enrollments = await enrollmentsApi.list();
         const enrolledCourses: Course[] = (Array.isArray(enrollments) ? enrollments : [])
-          .filter((e: any) => e.status === 'ENROLLED' && e.course)
+          .filter((e: any) => e.status === 'ACTIVE' && e.course)
           .map((e: any) => e.course as Course);
 
         // For each enrolled course, fetch attendance summary

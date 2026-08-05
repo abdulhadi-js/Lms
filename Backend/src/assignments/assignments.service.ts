@@ -31,11 +31,10 @@ export class AssignmentsService {
     return this.assignmentRepo.save(assignment);
   }
 
-  async findAll(sectionId: string, subjectId: string, currentUser: any) {
+  async findAll(courseId: string, currentUser: any) {
     const whereClause: any = {};
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
-    if (sectionId) whereClause.sectionId = sectionId;
-    if (subjectId) whereClause.subjectId = subjectId;
+    if (courseId) whereClause.courseId = courseId;
     return this.assignmentRepo.find({
       where: whereClause,
       order: { dueDate: 'ASC' },
@@ -62,9 +61,9 @@ export class AssignmentsService {
       return this.assignmentRepo
         .createQueryBuilder('a')
         .innerJoin(
-          'teacher_assignments',
-          'ta',
-          'ta.sectionId = a.sectionId AND ta.subjectId = a.subjectId AND ta.teacherId = :tid',
+          'courses',
+          'c',
+          'c.id = a.courseId AND c.teacherId = :tid',
           { tid: currentUser.id },
         )
         .orderBy('a.dueDate', 'ASC')
@@ -76,7 +75,7 @@ export class AssignmentsService {
       .innerJoin(
         'enrollments',
         'e',
-        'e.sectionId = a.sectionId AND e.studentId = :sid AND e.status = :status',
+        'e.courseId = a.courseId AND e.studentId = :sid AND e.status = :status',
         {
           sid: currentUser.id,
           status: 'ACTIVE',
