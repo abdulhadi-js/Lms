@@ -48,12 +48,6 @@ export class EnrollmentsService {
     if (dto.reviewNotes) app.reviewNotes = dto.reviewNotes;
 
     if (dto.status === 'ENROLLED') {
-      if (!dto.sectionId) {
-        throw new BadRequestException(
-          'sectionId is required to enroll a student',
-        );
-      }
-
       console.log(
         `Audit: Admin ${currentUser.id} enrolling application ${id}. Creating user and enrollment.`,
       );
@@ -70,13 +64,29 @@ export class EnrollmentsService {
               `${app.studentFirstName.toLowerCase()}.${app.phone}@example.com`,
             phone: app.phone,
             password: 'Password123!',
+            fatherName: app.fatherName,
+            guardianName: app.guardianName,
+            previousSchool: app.previousSchool,
+            dateOfBirth: app.dob,
+            gender: app.gender,
           };
+          
+          // Look up Student Role
+          const studentRole = await this.dataSource.query(
+            `SELECT id FROM roles WHERE UPPER(name) = $1 LIMIT 1`,
+            ['STUDENT']
+          );
+          if (studentRole && studentRole.length > 0) {
+            payload.roleId = studentRole[0].id;
+          }
+
           student = (await this.usersService.create(payload, { campusId: app.campusId })) as any;
         }
 
         const enrollment = this.enrollmentRepo.create({
           status: 'ACTIVE',
           studentId: student!.id,
+          courseId: app.desiredClassId,
           sectionId: dto.sectionId,
           campusId: app.campusId,
         });

@@ -22,8 +22,12 @@ export class DepartmentsService {
     if (!currentUser.isSuperAdmin && currentUser.campusId !== campusId) {
       throw new ForbiddenException('Cannot view departments for another campus');
     }
+    const whereClause: any = {};
+    if (campusId) {
+      whereClause.campusId = campusId;
+    }
     return this.departmentRepo.find({
-      where: { campusId },
+      where: whereClause,
       order: { name: 'ASC' },
       relations: { staff: true },
     });

@@ -210,7 +210,13 @@ export class UsersService implements OnModuleInit {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('user.campus', 'campus');
-    if (roleId) qb.where('user.roleId = :roleId', { roleId });
+    if (roleId) {
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(roleId)) {
+        qb.where('user.roleId = :roleId', { roleId });
+      } else {
+        qb.where('role.name ILIKE :roleName', { roleName: roleId });
+      }
+    }
     if (!currentUser.isSuperAdmin && currentUser.campusId) {
       qb.andWhere('user.campusId = :campusId', { campusId: currentUser.campusId });
     }

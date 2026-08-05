@@ -37,10 +37,10 @@ export default function NewAdmissionWizard() {
   });
 
   useEffect(() => {
-    if (user?.campusId) {
+    if (user) {
       Promise.all([
         coursesApi.list(),
-        fetchApi(`/academic-groups?campusId=${user?.campusId}`)
+        fetchApi(`/academic-groups${user.campusId ? `?campusId=${user.campusId}` : ''}`)
       ]).then(([coursesData, groupsData]) => {
         setCourses(coursesData?.data || coursesData || []);
         setGroups(groupsData || []);

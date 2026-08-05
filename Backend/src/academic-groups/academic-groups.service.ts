@@ -22,8 +22,12 @@ export class AcademicGroupsService {
     if (!currentUser.isSuperAdmin && currentUser.campusId !== campusId) {
       throw new ForbiddenException('Cannot view academic groups for another campus');
     }
+    const whereClause: any = {};
+    if (campusId) {
+      whereClause.campusId = campusId;
+    }
     return this.groupRepo.find({
-      where: { campusId },
+      where: whereClause,
       order: { name: 'ASC' },
     });
   }
