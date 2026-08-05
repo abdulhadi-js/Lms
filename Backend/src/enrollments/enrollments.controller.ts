@@ -89,6 +89,12 @@ export class EnrollmentsController {
     return this.enrollmentsService.remove(id, req.user);
   }
 
+  @Patch(':id')
+  @RequirePermission(ModuleId.ADMISSIONS, 'EDIT')
+  update(@Param('id') id: string, @Body() dto: any, @Request() req: any) {
+    return this.enrollmentsService.update(id, dto, req.user);
+  }
+
   @Post('rollover')
   @RequirePermission(ModuleId.ACADEMICS, 'EDIT')
   async rollover(

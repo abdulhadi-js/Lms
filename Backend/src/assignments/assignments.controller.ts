@@ -30,11 +30,10 @@ export class AssignmentsController {
 
   @Get('assignments/query')
   findAll(
-    @Query('sectionId') sectionId: string,
-    @Query('subjectId') subjectId: string,
+    @Query('courseId') courseId: string,
     @Request() req: any,
   ) {
-    return this.assignmentsService.findAll(sectionId, subjectId, req.user);
+    return this.assignmentsService.findAll(courseId, req.user);
   }
 
   @Get('assignments')

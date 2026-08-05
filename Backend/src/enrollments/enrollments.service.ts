@@ -264,6 +264,18 @@ export class EnrollmentsService {
     return this.enrollmentRepo.find(findOptions);
   }
 
+  async update(id: string, dto: any, currentUser: any) {
+    const whereClause: any = { id };
+    if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: whereClause,
+    });
+    if (!enrollment) throw new NotFoundException();
+    
+    Object.assign(enrollment, dto);
+    return this.enrollmentRepo.save(enrollment);
+  }
+
   async remove(id: string, currentUser: any) {
     const whereClause: any = { id };
     if (!currentUser.isSuperAdmin) whereClause.campusId = currentUser.campusId;

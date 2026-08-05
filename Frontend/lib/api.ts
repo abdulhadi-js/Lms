@@ -228,6 +228,7 @@ export const enrollmentsApi = {
     body: JSON.stringify(data)
   }),
   remove: (id: string) => fetchAuthApi(`/enrollments/${id}`, { method: 'DELETE' }),
+  update: (id: string, data: any) => fetchAuthApi(`/enrollments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   rollover: (data: { fromCourseId: string; toCourseId: string; studentIds?: string[] }) => fetchAuthApi('/enrollments/rollover', { method: 'POST', body: JSON.stringify(data) }),
 };
 
