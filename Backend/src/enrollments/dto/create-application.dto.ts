@@ -4,7 +4,7 @@ import {
   IsOptional,
   IsEmail,
   IsUUID,
-  IsDateString,
+  IsDate,
 } from 'class-validator';
 
 export class CreateApplicationDto {
@@ -16,7 +16,7 @@ export class CreateApplicationDto {
   @IsNotEmpty()
   studentLastName: string;
 
-  @IsDateString()
+  @IsDate()
   @IsOptional()
   dob?: Date;
 
