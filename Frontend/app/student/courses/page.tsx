@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { enrollmentsApi, assignmentsApi, marksApi, authApi } from '@/lib/api';
 import Link from 'next/link';
-import { BookOpen, GraduationCap, ChevronRight, CheckCircle, Clock } from 'lucide-react';
+import { BookOpen, GraduationCap, ChevronRight, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 export default function StudentCoursesPage() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
