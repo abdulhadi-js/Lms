@@ -134,9 +134,25 @@ async function bootstrap() {
   // Apply Global Exception Filter to see what is crashing
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // CORS — Allow dynamic origin reflection so Vercel can talk to Render effortlessly
+  // CORS — Environment-aware trusted origin verification
+  const frontendUrl = configService.get<string>('FRONTEND_URL', '');
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://lms-theta-sooty.vercel.app',
+  ];
+  if (frontendUrl && !allowedOrigins.includes(frontendUrl)) {
+    allowedOrigins.push(frontendUrl);
+  }
+
   app.enableCors({
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin || process.env.NODE_ENV !== 'production' || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
   });
 

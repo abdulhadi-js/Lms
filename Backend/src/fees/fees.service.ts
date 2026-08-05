@@ -173,12 +173,18 @@ export class FeesService {
   }
 
   async bulkGenerate(dto: BulkGenerateDto, currentUser: any) {
-    // Assuming courseId refers to sectionId or classId. We'll search enrollments by sectionId or section.classId
+    const whereConditions: any[] = [
+      { sectionId: dto.courseId, status: 'ACTIVE' },
+      { section: { classId: dto.courseId }, status: 'ACTIVE' },
+    ];
+
+    if (!currentUser.isSuperAdmin && currentUser.campusId) {
+      whereConditions[0].campusId = currentUser.campusId;
+      whereConditions[1].campusId = currentUser.campusId;
+    }
+
     const enrollments = await this.enrollmentRepo.find({
-      where: [
-        { sectionId: dto.courseId, status: 'ACTIVE' },
-        { section: { classId: dto.courseId }, status: 'ACTIVE' },
-      ],
+      where: whereConditions,
       relations: { section: true },
     });
 
@@ -189,7 +195,7 @@ export class FeesService {
         amount: dto.amount,
         description: dto.title,
         dueDate: new Date(dto.dueDate),
-        campusId: enrollment.campusId,
+        campusId: enrollment.campusId || currentUser.campusId,
         status: FeeStatus.PENDING,
       });
     });

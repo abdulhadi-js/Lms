@@ -1,101 +1,142 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Question } from './entities/question.entity';
+import { Exam } from './entities/exam.entity';
+import { ExamQuestion } from './entities/exam-question.entity';
+import { ExamSubmission } from './entities/exam-submission.entity';
 
 @Injectable()
 export class ExamsService {
-  private prisma = new PrismaClient();
+  constructor(
+    @InjectRepository(Question)
+    private questionRepo: Repository<Question>,
+    @InjectRepository(Exam)
+    private examRepo: Repository<Exam>,
+    @InjectRepository(ExamQuestion)
+    private examQuestionRepo: Repository<ExamQuestion>,
+    @InjectRepository(ExamSubmission)
+    private examSubmissionRepo: Repository<ExamSubmission>,
+  ) {}
 
   // QUESTION BANK
-  async getQuestions() {
-    return this.prisma.question.findMany();
+  async getQuestions(courseId?: string, currentUser?: any) {
+    const where: any = {};
+    if (courseId) where.courseId = courseId;
+    if (currentUser && !currentUser.isSuperAdmin && currentUser.campusId) {
+      where.campusId = currentUser.campusId;
+    }
+    return this.questionRepo.find({ where, order: { createdAt: 'DESC' } });
   }
 
   async getQuestion(id: string) {
-    const q = await this.prisma.question.findUnique({ where: { id } });
+    const q = await this.questionRepo.findOne({ where: { id } });
     if (!q) throw new NotFoundException('Question not found');
     return q;
   }
 
-  async createQuestion(data: any) {
-    if (data.options && typeof data.options !== 'string') {
-      data.options = JSON.stringify(data.options);
+  async createQuestion(data: any, currentUser?: any) {
+    const questionData = { ...data };
+    if (currentUser && !currentUser.isSuperAdmin && currentUser.campusId) {
+      questionData.campusId = currentUser.campusId;
     }
-    return this.prisma.question.create({ data });
+    const q = this.questionRepo.create(questionData);
+    return this.questionRepo.save(q);
   }
 
   async updateQuestion(id: string, data: any) {
-    if (data.options && typeof data.options !== 'string') {
-      data.options = JSON.stringify(data.options);
-    }
-    return this.prisma.question.update({ where: { id }, data });
+    const q = await this.getQuestion(id);
+    Object.assign(q, data);
+    return this.questionRepo.save(q);
   }
 
   async deleteQuestion(id: string) {
-    return this.prisma.question.delete({ where: { id } });
+    const q = await this.getQuestion(id);
+    return this.questionRepo.remove(q);
   }
 
   // EXAMS
-  async getExams() {
-    return this.prisma.exam.findMany({ include: { ExamQuestion: true } });
+  async getExams(courseId?: string, currentUser?: any) {
+    const where: any = {};
+    if (courseId) where.courseId = courseId;
+    if (currentUser && !currentUser.isSuperAdmin && currentUser.campusId) {
+      where.campusId = currentUser.campusId;
+    }
+    return this.examRepo.find({
+      where,
+      relations: { examQuestions: { question: true } },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async getExam(id: string) {
-    const exam = await this.prisma.exam.findUnique({
+    const exam = await this.examRepo.findOne({
       where: { id },
-      include: { ExamQuestion: { include: { question: true } } },
+      relations: { examQuestions: { question: true } },
     });
     if (!exam) throw new NotFoundException('Exam not found');
     return exam;
   }
 
-  async createExam(data: any) {
-    return this.prisma.exam.create({ data });
+  async createExam(data: any, currentUser?: any) {
+    const examData = { ...data };
+    if (currentUser && !currentUser.isSuperAdmin && currentUser.campusId) {
+      examData.campusId = currentUser.campusId;
+    }
+    const exam = this.examRepo.create(examData);
+    return this.examRepo.save(exam);
   }
 
   async updateExam(id: string, data: any) {
-    return this.prisma.exam.update({ where: { id }, data });
+    const exam = await this.getExam(id);
+    Object.assign(exam, data);
+    return this.examRepo.save(exam);
   }
 
   async deleteExam(id: string) {
-    return this.prisma.exam.delete({ where: { id } });
+    const exam = await this.getExam(id);
+    return this.examRepo.remove(exam);
   }
 
   async assignQuestionsToExam(examId: string, questionIds: string[]) {
-    // Delete existing
-    await this.prisma.examQuestion.deleteMany({ where: { examId } });
-    
-    // Create new
-    const toCreate = questionIds.map(questionId => ({
-      examId,
-      questionId,
-    }));
-    return this.prisma.examQuestion.createMany({ data: toCreate });
+    await this.examQuestionRepo.delete({ examId });
+
+    const toCreate = questionIds.map((questionId) =>
+      this.examQuestionRepo.create({ examId, questionId }),
+    );
+    return this.examQuestionRepo.save(toCreate);
   }
 
-  async submitExam(examId: string, studentId: string, answers: Record<string, string>) {
-    const exam = await this.prisma.exam.findUnique({
-      where: { id: examId },
-      include: { ExamQuestion: { include: { question: true } } },
-    });
-    if (!exam) throw new NotFoundException('Exam not found');
+  async submitExam(
+    examId: string,
+    studentId: string,
+    answers: Record<string, string>,
+  ) {
+    const exam = await this.getExam(examId);
 
     let score = 0;
-    
-    exam.ExamQuestion.forEach((eq: any) => {
-      const q = eq.question;
-      const studentAnswer = answers[q.id];
-      if ((q.type === 'MCQ' || q.type === 'TRUE_FALSE') && studentAnswer === q.correctAnswer) {
-        score += q.marks;
-      }
-    });
 
-    return this.prisma.examSubmission.create({
-      data: {
-        examId,
-        studentId,
-        answers: JSON.stringify(answers),
-        score,
-      }
+    if (exam.examQuestions) {
+      exam.examQuestions.forEach((eq) => {
+        const q = eq.question;
+        if (q) {
+          const studentAnswer = answers[q.id];
+          if (
+            (q.type === 'MCQ' || q.type === 'TRUE_FALSE') &&
+            studentAnswer === q.correctAnswer
+          ) {
+            score += q.marks;
+          }
+        }
+      });
+    }
+
+    const submission = this.examSubmissionRepo.create({
+      examId,
+      studentId,
+      answers,
+      score,
     });
+    return this.examSubmissionRepo.save(submission);
   }
 }
