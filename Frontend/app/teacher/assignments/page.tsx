@@ -171,6 +171,13 @@ export default function TeacherAssignments() {
                           <div className="text-xs text-body-secondary mt-1">{assignment.course?.title || 'Unknown Course'}</div>
                         </div>
                         <div className="flex gap-2">
+                          <Link 
+                            href={`/teacher/assignments/${assignment.id}`}
+                            className="p-1.5 text-body-secondary hover:text-primary hover:bg-primary/10 rounded transition-colors flex items-center gap-1"
+                            title="View Submissions"
+                          >
+                            <span className="text-xs font-semibold mr-1">View</span>
+                          </Link>
                           <button 
                             onClick={() => openEditModal(assignment)}
                             className="p-1.5 text-body-secondary hover:text-info hover:bg-info/10 rounded transition-colors"
@@ -240,6 +247,13 @@ export default function TeacherAssignments() {
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Link 
+                          href={`/teacher/assignments/${assignment.id}`}
+                          className="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors border border-primary/20"
+                          title="View Submissions"
+                        >
+                          View Submissions
+                        </Link>
                         <button 
                           onClick={() => openEditModal(assignment)}
                           className="p-1.5 text-body-secondary hover:text-info transition-colors"
