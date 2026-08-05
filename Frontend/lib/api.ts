@@ -219,15 +219,14 @@ export const enrollmentsApi = {
     method: 'POST',
     body: JSON.stringify({ courseId, studentIds })
   }),
-  requestDrop: (enrollmentId: string, reason: string) => fetchAuthApi(`/enrollments/${enrollmentId}/drop`, {
+  requestDrop: (enrollmentId: string, reason: string) => fetchAuthApi('/enrollments/drop', {
     method: 'POST',
-    body: JSON.stringify({ reason })
+    body: JSON.stringify({ enrollmentId, reason })
   }),
   apply: (data: any) => fetchApi('/applications', {
     method: 'POST',
     body: JSON.stringify(data)
   }),
-  update: (id: string, data: any) => fetchAuthApi(`/enrollments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   remove: (id: string) => fetchAuthApi(`/enrollments/${id}`, { method: 'DELETE' }),
   rollover: (data: { fromCourseId: string; toCourseId: string; studentIds?: string[] }) => fetchAuthApi('/enrollments/rollover', { method: 'POST', body: JSON.stringify(data) }),
 };

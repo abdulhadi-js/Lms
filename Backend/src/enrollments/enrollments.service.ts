@@ -126,8 +126,8 @@ export class EnrollmentsService {
     
     // Look up Student Role
     const studentRole = await this.dataSource.query(
-      `SELECT id FROM roles WHERE name = $1 LIMIT 1`,
-      ['Student']
+      `SELECT id FROM roles WHERE UPPER(name) = $1 LIMIT 1`,
+      ['STUDENT']
     );
     if (studentRole && studentRole.length > 0) {
       payload.roleId = studentRole[0].id;
@@ -241,15 +241,22 @@ export class EnrollmentsService {
       findOptions.take = limit;
     }
 
-    if (currentUser.permissions?.includes('VIEW_ENROLLMENTS')) {
-      if (limit > 0) {
-        const [data, total] = await this.enrollmentRepo.findAndCount(findOptions);
-        return { data, total, page, limit };
+    let canViewAll = currentUser.isSuperAdmin;
+    if (!canViewAll && currentUser.roleId) {
+      const matrix = await this.dataSource.query(
+        `SELECT "canView" FROM module_permissions WHERE "roleId" = $1 AND "moduleId" = 'ADMISSIONS'`,
+        [currentUser.roleId]
+      );
+      if (matrix.length > 0 && matrix[0].canView) {
+        canViewAll = true;
       }
-      return this.enrollmentRepo.find(findOptions);
     }
-    // Assume student
-    findOptions.where.studentId = currentUser.id;
+
+    if (!canViewAll) {
+      // Assume student
+      findOptions.where.studentId = currentUser.id;
+    }
+
     if (limit > 0) {
       const [data, total] = await this.enrollmentRepo.findAndCount(findOptions);
       return { data, total, page, limit };
