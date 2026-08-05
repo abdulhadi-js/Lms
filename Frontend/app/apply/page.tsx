@@ -3,11 +3,11 @@ import { GraduationCap, BookOpen, ArrowRight, CheckCircle2, Loader2 } from 'luci
 import Link from 'next/link';
 import { MarketingNavbar } from '@/components/MarketingNavbar';
 import { useState, useEffect } from 'react';
-import { enrollmentsApi, academicsApi } from '@/lib/api';
+import { enrollmentsApi, academicsApi, coursesApi } from '@/lib/api';
 
 export default function ApplyPage() {
   const [campuses, setCampuses] = useState<any[]>([]);
-  const [classes, setClasses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     studentFirstName: '',
     studentLastName: '',
@@ -38,19 +38,21 @@ export default function ApplyPage() {
   }, []);
 
   useEffect(() => {
-    async function fetchClasses() {
+    async function fetchCourses() {
       if (!formData.campusId) {
-        setClasses([]);
+        setCourses([]);
         return;
       }
       try {
-        const data = await academicsApi.getPublicClasses(formData.campusId);
-        setClasses(data);
+        const data = await coursesApi.getPublic();
+        // Filter by campusId since the public endpoint currently returns all courses
+        const filtered = Array.isArray(data) ? data.filter((c: any) => c.campusId === formData.campusId || !c.campusId) : [];
+        setCourses(filtered);
       } catch (err) {
-        console.error('Failed to load classes', err);
+        console.error('Failed to load courses', err);
       }
     }
-    fetchClasses();
+    fetchCourses();
   }, [formData.campusId]);
 
   const validate = () => {
@@ -80,8 +82,16 @@ export default function ApplyPage() {
       return;
     }
     setIsLoading(true);
+    
+    // Clean up empty optional fields to prevent 400 Bad Request from class-validator
+    const payload: any = { ...formData };
+    if (!payload.email) delete payload.email;
+    if (!payload.previousSchool) delete payload.previousSchool;
+    if (!payload.gender) delete payload.gender;
+    if (!payload.dob) delete payload.dob;
+
     try {
-      await enrollmentsApi.apply(formData);
+      await enrollmentsApi.apply(payload);
       setSubmitted(true);
     } catch (err: any) {
       setErrors({ general: err.message || 'Something went wrong. Please try again.' });
@@ -234,11 +244,16 @@ export default function ApplyPage() {
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Desired Class *</label>
-                        <select name="desiredClassId" value={formData.desiredClassId} onChange={handleChange} disabled={!formData.campusId}
-                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors appearance-none cursor-pointer ${errors.desiredClassId ? 'border-error' : 'border-divider'}`}>
-                          <option value="" disabled>Select a class...</option>
-                          {classes.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                        <select 
+                          name="desiredClassId" 
+                          value={formData.desiredClassId} 
+                          onChange={handleChange}
+                          disabled={!formData.campusId}
+                          className={`w-full border rounded-lg px-4 py-3 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary ${errors.desiredClassId ? 'border-error' : 'border-divider'}`}
+                        >
+                          <option value="">Select a Course...</option>
+                          {courses.map(c => (
+                            <option key={c.id} value={c.id}>{c.title || c.name} {c.code ? `(${c.code})` : ''}</option>
                           ))}
                         </select>
                         {errors.desiredClassId && <p className="text-xs text-error">{errors.desiredClassId}</p>}
