@@ -157,11 +157,13 @@ export default function TeacherAnalytics() {
                 <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
                   <div className="w-full flex justify-around items-end h-full z-10 pl-4">
                     {[
-                      { label: 'A (90-100)', value: Number(performance?.averagePercentage || 0) >= 90 ? 80 : 20 },
-                      { label: 'B (80-89)', value: Number(performance?.averagePercentage || 0) >= 80 && Number(performance?.averagePercentage || 0) < 90 ? 80 : 35 },
-                      { label: 'C (70-79)', value: Number(performance?.averagePercentage || 0) >= 70 && Number(performance?.averagePercentage || 0) < 80 ? 80 : 25 },
-                      { label: 'D (60-69)', value: Number(performance?.averagePercentage || 0) >= 60 && Number(performance?.averagePercentage || 0) < 70 ? 80 : 12 },
-                      { label: 'F (<60)', value: Number(performance?.averagePercentage || 0) < 60 ? 80 : 5 },
+                      { label: 'A+ (90-100)', value: Number(performance?.averagePercentage || 0) >= 90 ? 80 : 20 },
+                      { label: 'A (80-89)', value: Number(performance?.averagePercentage || 0) >= 80 && Number(performance?.averagePercentage || 0) < 90 ? 80 : 35 },
+                      { label: 'B (70-79)', value: Number(performance?.averagePercentage || 0) >= 70 && Number(performance?.averagePercentage || 0) < 80 ? 80 : 25 },
+                      { label: 'C (60-69)', value: Number(performance?.averagePercentage || 0) >= 60 && Number(performance?.averagePercentage || 0) < 70 ? 80 : 15 },
+                      { label: 'D (50-59)', value: Number(performance?.averagePercentage || 0) >= 50 && Number(performance?.averagePercentage || 0) < 60 ? 80 : 10 },
+                      { label: 'E (40-49)', value: Number(performance?.averagePercentage || 0) >= 40 && Number(performance?.averagePercentage || 0) < 50 ? 80 : 5 },
+                      { label: 'F (<40)', value: Number(performance?.averagePercentage || 0) < 40 ? 80 : 2 },
                     ].map((bar, i) => (
                       <div key={i} className="flex flex-col items-center gap-2 group relative">
                         <span className="absolute -top-6 text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">{bar.value}%</span>

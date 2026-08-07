@@ -32,7 +32,7 @@ export default function FamilySiblingReportPage() {
     setGeneratingCode(familyCode);
     try {
       const res = await feesApi.getFamilyConsolidated(familyCode);
-      toast.success(`Consolidated Voucher for ${familyCode}: $${res.totalUnpaid} unpaid across ${res.fees?.length || 0} items`);
+      toast.success(`Consolidated Voucher for ${familyCode}: Rs. ${Number(res.totalUnpaid).toLocaleString('en-PK')} unpaid across ${res.fees?.length || 0} items`);
     } catch (err: any) {
       toast.error(err.message || 'Failed to generate consolidated voucher');
     } finally {
@@ -105,8 +105,9 @@ export default function FamilySiblingReportPage() {
                       {fam.familyCode}
                     </span>
                     <h3 className="text-xl font-bold text-heading-on-light mt-2">{fam.fatherName}</h3>
-                    <p className="text-xs text-body-secondary flex items-center gap-1 mt-1">
-                      <Phone className="w-3.5 h-3.5 text-primary" /> {fam.fatherPhone || 'No Phone'}
+                    <p className="text-xs text-body-secondary flex items-center gap-2 mt-1">
+                      <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-primary" /> {fam.fatherPhone || 'No Phone'}</span>
+                      {fam.fatherCnic && <span className="flex items-center gap-1 font-mono text-[11px] bg-surface-container-low px-1.5 rounded text-body-secondary">CNIC: {fam.fatherCnic}</span>}
                     </p>
                   </div>
 

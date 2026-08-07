@@ -89,7 +89,7 @@ export default function CourseDetail() {
               </div>
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-icon-inactive" />
-                <span>{course.credits} Credits</span>
+                <span>{course.credits} Total Marks</span>
               </div>
             </div>
           </div>

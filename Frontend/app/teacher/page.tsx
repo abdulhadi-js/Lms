@@ -98,7 +98,7 @@ export default function TeacherDashboard() {
       {/* Dashboard Banner */}
       <div className="rounded-xl bg-gradient-to-br from-[#4f772d] via-[#90a955] to-[#ecf39e] p-6 md:p-8 text-white mb-8 brand-shadow relative overflow-hidden">
         <div className="relative z-10">
-          <h2 className="font-semibold text-[28px] md:text-[22px] font-bold mb-6">Your Teaching Overview — Semester 1, 2026</h2>
+          <h2 className="font-semibold text-[28px] md:text-[22px] font-bold mb-6">Your Teaching Overview — Annual Term 2026</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
               <div className="font-bold text-[40px] leading-[1.2] mb-1">
@@ -311,7 +311,7 @@ export default function TeacherDashboard() {
                     {c.code && <span className="text-body-secondary"> ({c.code})</span>}.
                   </p>
                   <span className="text-xs text-body-secondary">
-                    {c.status === 'ACTIVE' ? 'Active this semester' : c.status}
+                    {c.status === 'ACTIVE' ? 'Active this term' : c.status}
                   </span>
                 </div>
               </div>

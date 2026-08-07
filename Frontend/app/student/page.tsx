@@ -106,7 +106,7 @@ export default function StudentDashboard() {
     {
       title: 'Enrolled Courses',
       val: loading ? '...' : activeEnrollments.length,
-      sub: 'Current Semester',
+      sub: 'Current Session',
       icon: BookOpen,
       color: 'text-primary-container',
       bg: 'bg-surface-container-low',

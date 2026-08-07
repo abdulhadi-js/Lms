@@ -141,7 +141,7 @@ export default function PnLReport() {
           </div>
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
-            <DollarSign className="w-96 h-96" />
+            <Banknote className="w-96 h-96" />
           </div>
         </div>
       )}

@@ -57,8 +57,7 @@ export default function AdminDashboard() {
 
   const stats = [
     { title: 'Total Students',       val: loading ? '...' : overview?.totalStudents ?? 0,                            sub: 'Active enrollments',  icon: Users,    color: 'text-primary', bg: 'bg-primary/10' },
-    // B3 FIX: was overview?.totalCourses — now matches what the API actually returns (activeCourses)
-    { title: 'Active Courses',        val: loading ? '...' : overview?.activeCourses ?? overview?.totalCourses ?? 0,  sub: 'Current semester',    icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
+    { title: 'Active Courses',        val: loading ? '...' : overview?.activeCourses ?? overview?.totalCourses ?? 0,  sub: 'Current session',    icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
     { title: 'Pending Applications',  val: loading ? '...' : overview?.pendingApplications ?? 0,                      sub: 'Needs review',        icon: Clock,    color: 'text-warning',           bg: 'bg-warning/10' },
     { title: 'Fees Collected',        val: loading ? '...' : `Rs. ${(overview?.totalFeesCollected || 0).toLocaleString('en-PK')}`, sub: 'Total received',   icon: Banknote, color: 'text-success',           bg: 'bg-success/10' },
   ];

@@ -119,7 +119,15 @@ export default function UserManagement() {
         fatherPhone: user.family?.fatherPhone || '',
         motherName: user.family?.motherName || '',
         guardianName: user.family?.guardianName || '',
-        address: user.family?.address || ''
+        address: user.family?.address || '',
+        grNumber: user.grNumber || '',
+        bFormNumber: user.bFormNumber || user.cnic || '',
+        dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+        gender: user.gender || '',
+        className: user.class || '',
+        section: user.section || '',
+        religion: user.religion || 'Islam',
+        fatherCnic: user.family?.father?.cnic || user.parentCnic || ''
       });
     } else {
       setIsEditMode(false);
