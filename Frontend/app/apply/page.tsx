@@ -22,6 +22,7 @@ export default function ApplyPage() {
     previousSchool: '',
     campusId: '',
     desiredClassId: '',
+    religion: 'Islam',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -212,15 +213,27 @@ export default function ApplyPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Religion *</label>
+                        <select name="religion" value={formData.religion} onChange={handleChange}
+                          className="w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider">
+                          <option value="Islam">Islam</option>
+                          <option value="Christianity">Christianity</option>
+                          <option value="Hinduism">Hinduism</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
                       <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Student B-Form / CNIC No. *</label>
                       <input name="bFormNumber" type="text" value={formData.bFormNumber} onChange={handleChange}
                         placeholder="e.g. 35202-1234567-1"
                         className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.bFormNumber ? 'border-error' : 'border-divider'}`} />
                       {errors.bFormNumber && <p className="text-xs text-error">{errors.bFormNumber}</p>}
                     </div>
+                  </div>
 
-                    {/* Guardian Info */}
+                  {/* Guardian Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-divider">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Father / Guardian Name *</label>

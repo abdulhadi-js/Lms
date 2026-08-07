@@ -151,9 +151,6 @@ export default function TeacherAnalytics() {
             <div className="bg-surface p-6 rounded-xl border border-divider brand-shadow">
               <h3 className="text-lg font-bold text-heading-on-light mb-1">Grade Distribution</h3>
               <p className="text-xs text-body-secondary mb-4">Based on all recorded marks for this course</p>
-              {!performance ? (
-                <div className="h-64 flex items-center justify-center text-body-secondary text-sm">No grade data available yet.</div>
-              ) : (
                 <div className="h-64 flex flex-col justify-end items-center border-b border-l border-divider relative pb-4 pl-4">
                   <div className="w-full flex justify-around items-end h-full z-10 pl-4">
                     {[
@@ -173,7 +170,6 @@ export default function TeacherAnalytics() {
                     ))}
                   </div>
                 </div>
-              )}
               <p className="text-sm text-body-secondary mt-4 text-center">Course avg: {Number(performance?.averagePercentage || 0).toFixed(1)}%</p>
             </div>
 

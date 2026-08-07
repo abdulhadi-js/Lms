@@ -61,13 +61,13 @@ export default function ReportCard() {
     );
   }
 
-  if (!student) return null;
+  const s = student || {};
 
-  const grNumber   = student.grNumber || student.id?.slice(0, 8).toUpperCase();
-  const className  = student.className || student.class?.name || student.enrollments?.[0]?.course?.classLevel || 'N/A';
-  const section    = student.section || 'N/A';
-  const fatherName = student.fatherName || student.family?.father?.name || 'N/A';
-  const rollNo     = student.rollNumber || student.grNumber || 'N/A';
+  const grNumber   = s.grNumber || s.id?.slice(0, 8).toUpperCase() || 'N/A';
+  const className  = s.className || s.class?.name || s.enrollments?.[0]?.course?.classLevel || 'N/A';
+  const section    = s.section || 'N/A';
+  const fatherName = s.fatherName || s.family?.father?.name || 'N/A';
+  const rollNo     = s.rollNumber || s.grNumber || 'N/A';
   const currentTerm = 'Annual Examination 2025–2026';
 
   // Group marks by subject/course
@@ -130,7 +130,7 @@ export default function ReportCard() {
         {/* Student Info Grid */}
         <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 mb-5 text-sm">
           <p><span className="font-semibold inline-block w-28">Student Name:</span>
-            <span className="border-b border-black inline-block w-44">{student.firstName} {student.lastName}</span></p>
+            <span className="border-b border-black inline-block w-44">{s.firstName || 'Unknown'} {s.lastName || 'Student'}</span></p>
           <p><span className="font-semibold inline-block w-28">GR Number:</span>
             <span className="border-b border-black inline-block w-44 font-mono">{grNumber}</span></p>
           <p><span className="font-semibold inline-block w-28">Father's Name:</span>
