@@ -62,7 +62,8 @@ export default function UserManagement() {
     gender: '',
     className: '',
     section: '',
-    religion: 'Islam'
+    religion: 'Islam',
+    fatherCnic: ''
   });
 
   const { data: usersData, isLoading: isUsersLoading } = useQuery<any[]>({
@@ -145,7 +146,8 @@ export default function UserManagement() {
         gender: '',
         className: '',
         section: '',
-        religion: 'Islam'
+        religion: 'Islam',
+        fatherCnic: ''
       });
     }
     setIsModalOpen(true);
@@ -182,7 +184,11 @@ export default function UserManagement() {
       if (!formData.phone) { toast.error('Student phone number is required'); return; }
       if (!formData.dateOfBirth) { toast.error('Date of Birth is required'); return; }
       if (!formData.gender) { toast.error('Gender is required'); return; }
+      if (!formData.bFormNumber) { toast.error('B-Form / CNIC is required'); return; }
+      if (!formData.className) { toast.error('Class is required'); return; }
+      if (!formData.section) { toast.error('Section is required'); return; }
       if (!formData.fatherName) { toast.error("Father's Name is required"); return; }
+      if (!formData.fatherCnic) { toast.error("Father's CNIC is required"); return; }
       if (!formData.fatherPhone) { toast.error("Father's Phone is required"); return; }
       if (!formData.address) { toast.error('Home Address is required'); return; }
     }
@@ -209,6 +215,7 @@ export default function UserManagement() {
       className: formData.className || undefined,
       section: formData.section || undefined,
       religion: formData.religion || undefined,
+      fatherCnic: formData.fatherCnic || undefined,
     };
     
     if (formData.password) {
@@ -687,16 +694,17 @@ export default function UserManagement() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-on-surface mb-1">B-Form / CNIC No.</label>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">B-Form / CNIC No. <span className="text-error">*</span></label>
                       <input
-                        type="text" placeholder="XXXXX-XXXXXXX-X"
+                        type="text" required placeholder="XXXXX-XXXXXXX-X"
                         value={formData.bFormNumber} onChange={e => setFormData({...formData, bFormNumber: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-on-surface mb-1">Class</label>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Class <span className="text-error">*</span></label>
                       <select
+                        required
                         value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       >
@@ -707,8 +715,9 @@ export default function UserManagement() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-on-surface mb-1">Section</label>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Section <span className="text-error">*</span></label>
                       <select
+                        required
                         value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       >
@@ -744,6 +753,14 @@ export default function UserManagement() {
                       <input
                         type="tel" required placeholder="03XX-XXXXXXX"
                         value={formData.fatherPhone} onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div className="col-span-1 sm:col-span-2">
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Father&apos;s CNIC <span className="text-error">*</span></label>
+                      <input
+                        type="text" required placeholder="XXXXX-XXXXXXX-X"
+                        value={formData.fatherCnic} onChange={e => setFormData({...formData, fatherCnic: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>

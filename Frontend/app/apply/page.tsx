@@ -13,10 +13,12 @@ export default function ApplyPage() {
     studentLastName: '',
     dob: '',
     gender: 'MALE',
+    bFormNumber: '',
     fatherName: '',
     fatherCnic: '',
     email: '',
     phone: '',
+    section: '',
     previousSchool: '',
     campusId: '',
     desiredClassId: '',
@@ -58,9 +60,13 @@ export default function ApplyPage() {
     if (!formData.studentFirstName.trim()) newErrors.studentFirstName = 'First name is required.';
     if (!formData.studentLastName.trim()) newErrors.studentLastName = 'Last name is required.';
     if (!formData.dob) newErrors.dob = 'Date of birth is required.';
+    if (!formData.bFormNumber.trim()) newErrors.bFormNumber = 'B-Form / Student CNIC is required.';
     if (!formData.fatherName.trim()) newErrors.fatherName = "Father's name is required.";
-    if (!formData.fatherCnic.trim()) newErrors.fatherCnic = 'CNIC is required.';
+    if (!formData.fatherCnic.trim()) newErrors.fatherCnic = "Father's CNIC is required.";
+    if (!formData.email.trim()) newErrors.email = 'Email is required (used for portal login).';
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email address.';
     if (!formData.phone.trim()) newErrors.phone = 'WhatsApp/Phone number is required.';
+    if (!formData.section.trim()) newErrors.section = 'Section is required.';
     if (!formData.campusId) newErrors.campusId = 'Please select a campus.';
     if (!formData.desiredClassId) newErrors.desiredClassId = 'Please select a class.';
     return newErrors;
@@ -83,7 +89,6 @@ export default function ApplyPage() {
     
     // Clean up empty optional fields to prevent 400 Bad Request from class-validator
     const payload: any = { ...formData };
-    if (!payload.email) delete payload.email;
     if (!payload.previousSchool) delete payload.previousSchool;
     if (!payload.gender) delete payload.gender;
     
@@ -198,13 +203,21 @@ export default function ApplyPage() {
                         {errors.dob && <p className="text-xs text-error">{errors.dob}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Gender</label>
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Gender *</label>
                         <select name="gender" value={formData.gender} onChange={handleChange}
                           className="w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider">
                           <option value="MALE">Male</option>
                           <option value="FEMALE">Female</option>
                         </select>
                       </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Student B-Form / CNIC No. *</label>
+                      <input name="bFormNumber" type="text" value={formData.bFormNumber} onChange={handleChange}
+                        placeholder="e.g. 35202-1234567-1"
+                        className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.bFormNumber ? 'border-error' : 'border-divider'}`} />
+                      {errors.bFormNumber && <p className="text-xs text-error">{errors.bFormNumber}</p>}
                     </div>
 
                     {/* Guardian Info */}
@@ -232,9 +245,11 @@ export default function ApplyPage() {
                         {errors.phone && <p className="text-xs text-error">{errors.phone}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Email (Optional)</label>
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Email Address * <span className="normal-case font-normal text-body-secondary">(for portal login)</span></label>
                         <input name="email" type="email" value={formData.email} onChange={handleChange}
-                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors border-divider`} />
+                          placeholder="student@example.com"
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.email ? 'border-error' : 'border-divider'}`} />
+                        {errors.email && <p className="text-xs text-error">{errors.email}</p>}
                       </div>
                     </div>
 
@@ -269,7 +284,16 @@ export default function ApplyPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Section * <span className="normal-case font-normal text-body-secondary">(e.g. A, B, C)</span></label>
+                        <select name="section" value={formData.section} onChange={handleChange}
+                          className={`w-full bg-surface-container-lowest border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.section ? 'border-error' : 'border-divider'}`}>
+                          <option value="">Select Section</option>
+                          {['A','B','C','D','E'].map(s => <option key={s} value={s}>Section {s}</option>)}
+                        </select>
+                        {errors.section && <p className="text-xs text-error">{errors.section}</p>}
+                      </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Previous School (Optional)</label>
                         <input name="previousSchool" type="text" value={formData.previousSchool} onChange={handleChange}
