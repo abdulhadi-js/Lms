@@ -19,8 +19,8 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function timeUntilDue(dueDate: string) {
-  const diff = new Date(dueDate).getTime() - Date.now();
+function timeUntilDue(dueDate: string, currentTime: number) {
+  const diff = new Date(dueDate).getTime() - currentTime;
   if (diff < 0) return { label: 'Overdue', color: 'text-error', bg: 'bg-error-bg' };
   const hours = diff / 1000 / 3600;
   if (hours < 24) return { label: `Due in ${Math.round(hours)}h`, color: 'text-warning', bg: 'bg-warning-bg' };
@@ -38,6 +38,7 @@ export default function AssignmentSubmissionPage() {
   const [existingSubmission, setExistingSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime] = useState(() => Date.now());
 
   const [tab, setTab] = useState<Tab>('file');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -147,7 +148,7 @@ export default function AssignmentSubmissionPage() {
     );
   }
 
-  const due = assignment.dueDate ? timeUntilDue(assignment.dueDate) : null;
+  const due = assignment.dueDate ? timeUntilDue(assignment.dueDate, currentTime) : null;
   const wordCount = textContent.trim().split(/\s+/).filter(Boolean).length;
 
   return (

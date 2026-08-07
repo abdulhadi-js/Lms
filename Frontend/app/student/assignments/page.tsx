@@ -24,6 +24,7 @@ export default function MyAssignments() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [sortByDue, setSortByDue] = useState(true);
+  const [currentTime] = useState(() => Date.now());
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -125,9 +126,10 @@ export default function MyAssignments() {
         {filtered.length > 0 ? (
           filtered.map((assignment) => {
             const dueDate = new Date(assignment.dueDate);
-            const isPastDue = new Date() > dueDate;
+            const today = new Date(currentTime);
+            const isPastDue = today > dueDate;
             const status = getAssignmentStatus(assignment);
-            const daysLeft = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            const daysLeft = Math.ceil((dueDate.getTime() - currentTime) / (1000 * 60 * 60 * 24));
 
             return (
               <article

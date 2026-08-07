@@ -16,6 +16,7 @@ export default function StudentExams() {
   const [exams, setExams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'UPCOMING' | 'AVAILABLE' | 'MISSED'>('ALL');
+  const [currentTime] = useState(() => Date.now());
 
   useEffect(() => {
     async function loadData() {
@@ -56,7 +57,7 @@ export default function StudentExams() {
   }, []);
 
   const getExamStatus = (exam: any): 'UPCOMING' | 'AVAILABLE' | 'MISSED' => {
-    const now = Date.now();
+    const now = currentTime;
     const start = new Date(exam.startTime).getTime();
     const end = new Date(exam.endTime).getTime();
     if (now < start) return 'UPCOMING';
@@ -125,7 +126,7 @@ export default function StudentExams() {
             const startDate = new Date(exam.startTime);
             const endDate = new Date(exam.endTime);
             const typeInfo = EXAM_TYPE_LABELS[exam.examType] || EXAM_TYPE_LABELS[exam.type] || { label: 'Exam', color: 'bg-surface-container text-body-secondary' };
-            const daysUntil = Math.ceil((startDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            const daysUntil = Math.ceil((startDate.getTime() - currentTime) / (1000 * 60 * 60 * 24));
 
             return (
               <div key={exam.id} className={`bg-surface rounded-xl border border-divider brand-shadow p-5 flex flex-col border-t-4 ${
