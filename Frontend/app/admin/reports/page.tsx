@@ -19,7 +19,7 @@ export default function ReportsAnalytics() {
     const fetchReports = async () => {
       setLoading(true);
       try {
-        const [ovData, riskData, perfData, attData] = await Promise.all([
+        const [ovData, riskData, perfData, attData, feesData] = await Promise.all([
           reportsApi.overview(),
           reportsApi.atRisk(undefined, 60),
           reportsApi.performance(),
