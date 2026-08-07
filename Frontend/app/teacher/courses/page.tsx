@@ -15,7 +15,7 @@ export default function TeacherCourses() {
   // Modals state
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<any>(null);
-  const [courseForm, setCourseForm] = useState({ title: '', code: '', description: '', credits: 3 });
+  const [courseForm, setCourseForm] = useState({ title: '', code: '', description: '', credits: 100 });
 
   const [showModuleModal, setShowModuleModal] = useState(false);
   const [editingModule, setEditingModule] = useState<any>(null);
@@ -63,10 +63,10 @@ export default function TeacherCourses() {
   const openCourseModal = (course?: any) => {
     if (course) {
       setEditingCourse(course);
-      setCourseForm({ title: course.title, code: course.code, description: course.description, credits: course.credits });
+      setCourseForm({ title: course.title, code: course.code, description: course.description, credits: course.credits || 100 });
     } else {
       setEditingCourse(null);
-      setCourseForm({ title: '', code: '', description: '', credits: 3 });
+      setCourseForm({ title: '', code: '', description: '', credits: 100 });
     }
     setShowCourseModal(true);
   };
@@ -82,19 +82,19 @@ export default function TeacherCourses() {
       fetchCourses();
     } catch (err) {
       console.error(err);
-      alert('Failed to save course');
+      alert('Failed to save subject');
     }
   };
 
   const deleteCourse = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this course?')) return;
+    if (!confirm('Are you sure you want to delete this subject?')) return;
     try {
       await coursesApi.remove(id);
       fetchCourses();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete course');
+      alert('Failed to delete subject');
     }
   };
 
@@ -145,11 +145,11 @@ export default function TeacherCourses() {
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-heading-on-light">My Courses</h2>
-          <p className="text-sm text-body-secondary mt-1">Manage your assigned courses and course content.</p>
+          <h2 className="text-3xl font-bold text-heading-on-light">My Subjects</h2>
+          <p className="text-sm text-body-secondary mt-1">Manage your assigned subjects and subject content.</p>
         </div>
         <button onClick={() => openCourseModal()} className="flex items-center gap-2 px-4 py-2 primary-gradient text-white rounded-lg text-sm font-semibold hover:shadow-md transition-shadow">
-          <Plus className="w-4 h-4" /> Create Course
+          <Plus className="w-4 h-4" /> Create Subject
         </button>
       </div>
 
@@ -209,7 +209,7 @@ export default function TeacherCourses() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Layers className="w-4 h-4 text-icon-inactive" />
-                        <span>{course.credits} Credits</span>
+                        <span>{course.credits} Total Marks</span>
                       </div>
                     </div>
                   </div>
@@ -231,7 +231,7 @@ export default function TeacherCourses() {
               {expandedCourseId === course.id && (
                 <div className="border-t border-divider bg-surface-container-lowest p-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-bold text-on-surface">Course Modules</h4>
+                    <h4 className="font-bold text-on-surface">Subject Modules</h4>
                     <button onClick={() => openModuleModal()} className="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-border-light rounded-lg text-sm font-medium text-primary hover:bg-surface-container transition-colors shadow-sm">
                       <Plus className="w-4 h-4" /> Add Module
                     </button>
@@ -292,27 +292,27 @@ export default function TeacherCourses() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b border-divider">
-              <h3 className="font-bold text-lg">{editingCourse ? 'Edit Course' : 'Create Course'}</h3>
+              <h3 className="font-bold text-lg">{editingCourse ? 'Edit Subject' : 'Create Subject'}</h3>
               <button onClick={() => setShowCourseModal(false)} className="text-body-secondary hover:text-on-surface">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-body-secondary mb-1">Course Code</label>
-                <input value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="e.g. CS101" />
+                <label className="block text-sm font-medium text-body-secondary mb-1">Subject Code</label>
+                <input value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="e.g. PHY-9" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-body-secondary mb-1">Title</label>
-                <input value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Course Title" />
+                <input value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Subject Title" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-body-secondary mb-1">Description</label>
                 <textarea value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Description" rows={3}></textarea>
               </div>
               <div>
-                <label className="block text-sm font-medium text-body-secondary mb-1">Credits</label>
-                <input type="number" value={courseForm.credits} onChange={e => setCourseForm({...courseForm, credits: parseInt(e.target.value)})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" />
+                <label className="block text-sm font-medium text-body-secondary mb-1">Total Marks</label>
+                <input type="number" min="1" value={courseForm.credits} onChange={e => setCourseForm({...courseForm, credits: parseInt(e.target.value) || 100})} className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary" />
               </div>
             </div>
             <div className="p-4 border-t border-divider flex justify-end gap-2 bg-surface">

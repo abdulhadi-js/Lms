@@ -24,7 +24,7 @@ function getGradeLabel(percentage: number): { letter: string; color: string } {
   return { letter: 'F', color: 'bg-error/10 text-error' };
 }
 
-function groupByCourse(marks: Mark[]) {
+function groupBySubject(marks: Mark[]) {
   const map: Record<string, { course: Mark['course']; marks: Mark[] }> = {};
   for (const mark of marks) {
     const key = mark.course?.id || 'unknown';
@@ -39,7 +39,7 @@ export default function MyGrades() {
   const [marks, setMarks] = useState<Mark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [openCourses, setOpenCourses] = useState<Set<string>>(new Set());
+  const [openSubjects, setOpenSubjects] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) return;
@@ -57,29 +57,29 @@ export default function MyGrades() {
     fetchMarks();
   }, [user]);
 
-  const grouped = groupByCourse(marks);
+  const grouped = groupBySubject(marks);
 
-  // Compute overall GPA
-  let totalWeightedPoints = 0;
-  let totalCredits = 0;
+  // Compute overall Percentage
+  let overallTotalScore = 0;
+  let overallTotalMax = 0;
   for (const { course, marks: courseMarks } of grouped) {
     const totalScore = courseMarks.reduce((s, m) => s + m.score, 0);
-    const totalMax = courseMarks.reduce((s, m) => s + m.maxScore, 0);
-    const pct = totalMax > 0 ? (totalScore / totalMax) * 100 : 0;
-    const gpa = pct >= 90 ? 4.0 : pct >= 80 ? 3.3 : pct >= 75 ? 3.0 : pct >= 70 ? 2.3 : pct >= 60 ? 2.0 : 0;
-    const credits = course?.credits || 3;
-    totalWeightedPoints += gpa * credits;
-    totalCredits += credits;
+    // Since course has max total marks in `credits`, we could use it, but typically 
+    // the sum of maxScore of components is what the teacher gave them out of.
+    const totalMax = course?.credits || courseMarks.reduce((s, m) => s + m.maxScore, 0);
+    overallTotalScore += totalScore;
+    overallTotalMax += totalMax;
   }
-  const cgpa = totalCredits > 0 ? (totalWeightedPoints / totalCredits).toFixed(2) : '0.00';
-  const gaugePercent = Math.min((parseFloat(cgpa) / 4.0) * 100, 100);
+  
+  const overallPct = overallTotalMax > 0 ? ((overallTotalScore / overallTotalMax) * 100).toFixed(1) : '0.0';
+  const gaugePercent = Math.min(parseFloat(overallPct), 100);
   const circumference = 2 * Math.PI * 45;
   const dashOffset = circumference - (gaugePercent / 100) * circumference;
 
-  const toggleCourse = (courseId: string) => {
-    setOpenCourses(prev => {
+  const toggleSubject = (subjectId: string) => {
+    setOpenSubjects(prev => {
       const next = new Set(prev);
-      next.has(courseId) ? next.delete(courseId) : next.add(courseId);
+      next.has(subjectId) ? next.delete(subjectId) : next.add(subjectId);
       return next;
     });
   };
@@ -118,16 +118,16 @@ export default function MyGrades() {
         </button>
       </div>
 
-      {/* GPA Summary Banner */}
+      {/* Overall Percentage Summary Banner */}
       <div className="rounded-xl p-8 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden bg-gradient-to-br from-[#4f772d] via-[#90a955] to-[#ecf39e]">
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-surface opacity-10 rounded-full blur-3xl" />
         <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-evergreen opacity-10 rounded-full blur-2xl" />
         <div className="flex flex-col z-10">
           <div className="flex items-baseline gap-2">
-            <span className="text-[48px] font-bold leading-tight">CGPA: {cgpa}</span>
-            <span className="text-[16px] opacity-80">Out of 4.0</span>
+            <span className="text-[48px] font-bold leading-tight">{overallPct}%</span>
+            <span className="text-[16px] opacity-80">Overall Percentage</span>
           </div>
-          <span className="text-sm opacity-75">{grouped.length} course{grouped.length !== 1 ? 's' : ''} · {totalCredits} total credits</span>
+          <span className="text-sm opacity-75">{grouped.length} subject{grouped.length !== 1 ? 's' : ''} · {overallTotalMax} Total Marks</span>
         </div>
         <div className="relative w-32 h-32 z-10 flex-shrink-0">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -142,7 +142,7 @@ export default function MyGrades() {
             </defs>
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-bold">{cgpa}</span>
+            <span className="text-xl font-bold">{overallPct}%</span>
           </div>
         </div>
       </div>
@@ -157,24 +157,24 @@ export default function MyGrades() {
       ) : (
         <div className="space-y-4">
           {grouped.map(({ course, marks: courseMarks }) => {
-            const courseId = course?.id || 'unknown';
-            const isOpen = openCourses.has(courseId);
+            const subjectId = course?.id || 'unknown';
+            const isOpen = openSubjects.has(subjectId);
             const totalScore = courseMarks.reduce((s, m) => s + m.score, 0);
-            const totalMax = courseMarks.reduce((s, m) => s + m.maxScore, 0);
+            const totalMax = course?.credits || courseMarks.reduce((s, m) => s + m.maxScore, 0);
             const pct = totalMax > 0 ? (totalScore / totalMax) * 100 : 0;
             const { letter, color } = getGradeLabel(pct);
 
             return (
-              <div key={courseId} className="bg-surface rounded-xl border border-divider overflow-hidden shadow-sm">
+              <div key={subjectId} className="bg-surface rounded-xl border border-divider overflow-hidden shadow-sm">
                 <div className="h-1 w-full bg-gradient-to-r from-success to-primary-container" />
                 <button
                   className="w-full flex items-center justify-between p-5 hover:bg-surface-container transition-colors text-left"
-                  onClick={() => toggleCourse(courseId)}
+                  onClick={() => toggleSubject(subjectId)}
                 >
                   <div className="flex items-center gap-4 flex-wrap">
                     <BookOpen className="w-5 h-5 text-primary shrink-0" />
                     <h2 className="text-[15px] font-semibold text-on-surface">
-                      {course?.title || 'Unknown Course'}
+                      {course?.title || 'Unknown Subject'}
                       {course?.code && <span className="text-body-secondary font-normal ml-2">({course.code})</span>}
                     </h2>
                     <span className={`${color} px-3 py-0.5 rounded-full text-xs font-bold`}>Grade: {letter}</span>

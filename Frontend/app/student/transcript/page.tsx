@@ -125,8 +125,8 @@ export default function StudentTranscript() {
             <Award className="w-8 h-8 text-on-primary" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold">Cumulative GPA: {cgpa}</h2>
-            <p className="text-on-primary/80">Total Credits Earned: {totalCredits}</p>
+            <h2 className="text-2xl font-bold">Cumulative Percentage: {cgpa}%</h2>
+            <p className="text-on-primary/80">Total Marks Earned: {totalCredits}</p>
           </div>
         </div>
         <div className="text-right hidden md:block">
@@ -160,8 +160,8 @@ export default function StudentTranscript() {
                     <span className="text-lg">{termData.term}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-bold text-primary">GPA: {termData.termGPA?.toFixed(2) || '—'}</span>
-                    <span className="text-xs text-body-secondary">{termCredits} credits</span>
+                    <span className="font-bold text-primary">Percentage: {termData.termGPA?.toFixed(2) || '—'}%</span>
+                    <span className="text-xs text-body-secondary">{termCredits} total marks</span>
                     {isOpen ? <ChevronUp className="w-5 h-5 text-body-secondary" /> : <ChevronDown className="w-5 h-5 text-body-secondary" />}
                   </div>
                 </button>
@@ -178,7 +178,7 @@ export default function StudentTranscript() {
                           </div>
                           <div className="text-on-surface font-medium mb-2">{course.name}</div>
                           <div className="flex gap-4 text-sm text-body-secondary">
-                            <div>Credits: <span className="font-medium">{course.credits}</span></div>
+                            <div>Total Marks: <span className="font-medium">{course.credits}</span></div>
                             <div>Points: <span className="font-medium">{course.points}</span></div>
                           </div>
                         </div>
@@ -189,11 +189,11 @@ export default function StudentTranscript() {
                     <table className="hidden md:table w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-surface-container text-body-secondary text-sm">
-                          <th className="p-3 font-semibold border-b border-divider">Course Code</th>
-                          <th className="p-3 font-semibold border-b border-divider">Course Name</th>
-                          <th className="p-3 font-semibold border-b border-divider text-center">Credits</th>
+                          <th className="p-3 font-semibold border-b border-divider">Subject Code</th>
+                          <th className="p-3 font-semibold border-b border-divider">Subject Name</th>
+                          <th className="p-3 font-semibold border-b border-divider text-center">Total Marks</th>
                           <th className="p-3 font-semibold border-b border-divider text-center">Grade</th>
-                          <th className="p-3 font-semibold border-b border-divider text-center">GPA Points</th>
+                          <th className="p-3 font-semibold border-b border-divider text-center">Points</th>
                         </tr>
                       </thead>
                       <tbody className="text-on-surface">

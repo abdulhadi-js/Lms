@@ -69,9 +69,9 @@ export default function StudentCoursesPage() {
           <div className="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary">
             <GraduationCap className="w-6 h-6" />
           </div>
-          My Courses
+          My Subjects
         </h1>
-        <p className="text-body-secondary mt-2">View and manage all your enrolled courses for current and past semesters.</p>
+        <p className="text-body-secondary mt-2">View and manage all your enrolled subjects for current and past terms.</p>
       </div>
 
       {/* Courses Content */}
@@ -131,14 +131,14 @@ export default function StudentCoursesPage() {
                     </span>
                     {enrollment.course?.credits && (
                       <span className="text-[10px] font-semibold bg-surface-container text-body-secondary px-2 py-0.5 rounded-full border border-divider">
-                        {enrollment.course.credits} Credits
+                        {enrollment.course.credits} Total Marks
                       </span>
                     )}
                   </div>
 
                   {/* Title & Info */}
                   <h3 className="text-xl font-bold text-on-surface line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                    {enrollment.course?.title || 'Untitled Course'}
+                    {enrollment.course?.title || 'Untitled Subject'}
                   </h3>
                   
                   {enrollment.course?.teacher && (
@@ -154,7 +154,7 @@ export default function StudentCoursesPage() {
                 {/* Progress Bar & Footer */}
                 <div className="mt-6 pt-5 border-t border-divider">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Course Progress</span>
+                    <span className="text-xs font-semibold text-body-secondary uppercase tracking-wider">Subject Progress</span>
                     <span className="text-sm font-bold text-on-surface">{progress}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-surface-container-highest overflow-hidden mb-5">
@@ -168,7 +168,7 @@ export default function StudentCoursesPage() {
                     href={`/student/courses/${courseId}`}
                     className="w-full py-2.5 rounded-lg bg-surface-container-lowest border border-divider text-sm font-semibold text-on-surface flex items-center justify-center gap-2 hover:bg-primary hover:text-on-primary hover:border-primary transition-colors"
                   >
-                    View Course
+                    View Subject
                     <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -182,8 +182,8 @@ export default function StudentCoursesPage() {
             <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-icon-inactive mb-4">
               <BookOpen className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-heading-on-light mb-2">No Courses Found</h3>
-            <p className="text-body-secondary max-w-md">You are not currently enrolled in any courses. Browse the course catalog to enroll in upcoming classes.</p>
+            <h3 className="text-lg font-bold text-heading-on-light mb-2">No Subjects Found</h3>
+            <p className="text-body-secondary max-w-md">You are not currently enrolled in any subjects.</p>
           </div>
         </div>
       )}
