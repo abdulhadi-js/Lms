@@ -457,7 +457,7 @@ export default function TeacherGradebook() {
                           />
                         </td>
                         <td className="py-3 px-4">
-                          {score !== '' && (
+                          {score !== undefined && (
                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold ${grade === 'F' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                               {grade}
                             </span>
