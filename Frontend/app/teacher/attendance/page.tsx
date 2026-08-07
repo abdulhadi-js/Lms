@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Calendar as CalendarIcon, Check, X, AlertCircle, Zap, Loader2 } from 'lucide-react';
-import { coursesApi, enrollmentsApi, attendanceApi } from '@/lib/api';
+import { coursesApi, enrollmentsApi, attendanceApi, usersApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
 export default function TeacherAttendance() {
   const router = useRouter();
   
+  const [mode, setMode] = useState<'SUBJECT' | 'DAILY'>('SUBJECT');
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -45,17 +46,19 @@ export default function TeacherAttendance() {
   }, []);
 
   useEffect(() => {
-    if (selectedCourse && date) {
+    if (mode === 'SUBJECT' && selectedCourse && date) {
       loadAttendanceData(selectedCourse, date);
+    } else if (mode === 'DAILY' && date) {
+      loadDailyAttendanceData(date);
     }
-  }, [selectedCourse, date]);
+  }, [selectedCourse, date, mode]);
 
   async function loadAttendanceData(courseId: string, targetDate: string) {
     setLoading(true);
     try {
       const [enrollData, existingAttendance] = await Promise.all([
         enrollmentsApi.list(),
-        attendanceApi.get(courseId, targetDate)
+        attendanceApi.get(courseId, targetDate).catch(() => [])
       ]);
       
       const courseStudents = enrollData
@@ -64,20 +67,44 @@ export default function TeacherAttendance() {
         
       setStudents(courseStudents);
       
-      // Initialize state
       const newState: Record<string, { status: string, notes: string }> = {};
-      
       courseStudents.forEach((student: any) => {
         const existing = existingAttendance.find((a: any) => a.studentId === student.id);
         newState[student.id] = {
-          status: existing ? existing.status : 'PRESENT', // default to PRESENT
+          status: existing ? existing.status : 'PRESENT',
           notes: existing ? (existing.notes || '') : ''
         };
       });
-      
       setAttendanceState(newState);
     } catch (err) {
       console.error('Failed to load attendance', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadDailyAttendanceData(targetDate: string) {
+    setLoading(true);
+    try {
+      const [allStudents, existingAttendance] = await Promise.all([
+        usersApi.list('STUDENT'),
+        attendanceApi.get('DAILY', targetDate).catch(() => [])
+      ]);
+      
+      const activeStudents = allStudents.filter((s: any) => s.status === 'ACTIVE');
+      setStudents(activeStudents);
+      
+      const newState: Record<string, { status: string, notes: string }> = {};
+      activeStudents.forEach((student: any) => {
+        const existing = existingAttendance.find((a: any) => a.studentId === student.id);
+        newState[student.id] = {
+          status: existing ? existing.status : 'PRESENT',
+          notes: existing ? (existing.notes || '') : ''
+        };
+      });
+      setAttendanceState(newState);
+    } catch (err) {
+      console.error('Failed to load daily attendance', err);
     } finally {
       setLoading(false);
     }
@@ -101,7 +128,7 @@ export default function TeacherAttendance() {
     setSaving(true);
     try {
       const payload = {
-        courseId: selectedCourse,
+        courseId: mode === 'DAILY' ? 'DAILY' : selectedCourse,
         classDate: new Date(date).toISOString(),
         students: Object.entries(attendanceState).map(([studentId, data]) => ({
           studentId,
@@ -124,12 +151,11 @@ export default function TeacherAttendance() {
     if (!bulkData.trim()) return toast.error('Please enter GR Numbers');
     setIsBulkSaving(true);
     
-    // Split by comma, newline, or space
     const grNumbers = bulkData.split(/[\n\s,]+/).filter(gr => gr.trim().length > 0);
     
     try {
       await attendanceApi.bulkMark({
-        courseId: selectedCourse,
+        courseId: mode === 'DAILY' ? 'DAILY' : selectedCourse,
         date: new Date(date).toISOString(),
         grNumbers,
         status: bulkStatus
@@ -137,7 +163,11 @@ export default function TeacherAttendance() {
       toast.success(`Successfully marked ${grNumbers.length} students as ${bulkStatus}`);
       setIsBulkModalOpen(false);
       setBulkData('');
-      loadAttendanceData(selectedCourse, date); // reload the table
+      if (mode === 'DAILY') {
+        loadDailyAttendanceData(date);
+      } else {
+        loadAttendanceData(selectedCourse, date);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to bulk mark attendance');
     } finally {
@@ -155,16 +185,16 @@ export default function TeacherAttendance() {
 
   const filteredStudents = students.filter(s => 
     `${s.firstName} ${s.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
-    s.email?.toLowerCase().includes(search.toLowerCase())
+    s.email?.toLowerCase().includes(search.toLowerCase()) ||
+    (s.grNumber && s.grNumber.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Stats
-  const stats = { present: 0, absent: 0, late: 0, excused: 0 };
+  const stats = { present: 0, absent: 0, late: 0, leave: 0 };
   Object.values(attendanceState).forEach(val => {
     if (val.status === 'PRESENT') stats.present++;
     if (val.status === 'ABSENT') stats.absent++;
     if (val.status === 'LATE') stats.late++;
-    if (val.status === 'EXCUSED') stats.excused++;
+    if (val.status === 'LEAVE') stats.leave++;
   });
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -177,13 +207,17 @@ export default function TeacherAttendance() {
           <h2 className="text-3xl font-bold text-heading-on-light">Attendance</h2>
           <p className="text-sm text-body-secondary mt-1">Mark and manage attendance for your classes.</p>
         </div>
+        <div className="flex bg-surface-container-low rounded-lg p-1 border border-border-light">
+          <button onClick={() => setMode('SUBJECT')} className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${mode === 'SUBJECT' ? 'bg-primary text-white shadow' : 'text-body-secondary hover:text-primary'}`}>Per Subject</button>
+          <button onClick={() => setMode('DAILY')} className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${mode === 'DAILY' ? 'bg-primary text-white shadow' : 'text-body-secondary hover:text-primary'}`}>Daily (School Mode)</button>
+        </div>
         <div className="flex gap-3 w-full sm:w-auto">
           <button onClick={() => router.push('/teacher/analytics?print=true')} className="flex-1 sm:flex-none px-4 py-2 border border-border-light bg-surface rounded-lg text-sm font-medium hover:bg-surface-container transition-colors print:hidden">
             Generate Report
           </button>
           <button 
             onClick={() => setIsBulkModalOpen(true)}
-            disabled={loading || courses.length === 0 || !isToday}
+            disabled={loading || (mode === 'SUBJECT' && courses.length === 0) || !isToday}
             className="flex-1 sm:flex-none px-4 py-2 border border-primary text-primary bg-primary/5 rounded-lg text-sm font-semibold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Zap className="w-4 h-4" />
@@ -202,23 +236,25 @@ export default function TeacherAttendance() {
       <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
         <div className="p-5 border-b border-divider flex flex-col md:flex-row gap-4 justify-between items-center bg-surface">
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-body-secondary whitespace-nowrap">Class:</span>
-              <select 
-                value={selectedCourse}
-                onChange={(e) => setSelectedCourse(e.target.value)}
-                className="bg-surface border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48 font-medium"
-                disabled={loading || courses.length === 0}
-              >
-                {courses.length === 0 ? (
-                  <option value="">No courses available</option>
-                ) : (
-                  courses.map(c => (
-                    <option key={c.id} value={c.id}>{c.title}</option>
-                  ))
-                )}
-              </select>
-            </div>
+            {mode === 'SUBJECT' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-body-secondary whitespace-nowrap">Class:</span>
+                <select 
+                  value={selectedCourse}
+                  onChange={(e) => setSelectedCourse(e.target.value)}
+                  className="bg-surface border border-border-light rounded-lg px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-48 font-medium"
+                  disabled={loading || courses.length === 0}
+                >
+                  {courses.length === 0 ? (
+                    <option value="">No courses available</option>
+                  ) : (
+                    courses.map(c => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))
+                  )}
+                </select>
+              </div>
+            )}
             
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-body-secondary whitespace-nowrap">Date:</span>
@@ -256,12 +292,15 @@ export default function TeacherAttendance() {
         )}
 
         <div className="p-4 bg-surface-container-lowest border-b border-divider flex justify-between items-center text-sm">
-           <div className="flex items-center gap-6">
+           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
              <div className="flex items-center gap-2">
                <span className="w-3 h-3 rounded-full bg-success"></span> <span className="text-body-secondary font-medium">Present ({stats.present})</span>
              </div>
              <div className="flex items-center gap-2">
                <span className="w-3 h-3 rounded-full bg-error"></span> <span className="text-body-secondary font-medium">Absent ({stats.absent})</span>
+             </div>
+             <div className="flex items-center gap-2">
+               <span className="w-3 h-3 rounded-full bg-info"></span> <span className="text-body-secondary font-medium">Leave ({stats.leave})</span>
              </div>
              <div className="flex items-center gap-2">
                <span className="w-3 h-3 rounded-full bg-warning"></span> <span className="text-body-secondary font-medium">Late ({stats.late})</span>
@@ -271,7 +310,7 @@ export default function TeacherAttendance() {
              <button 
                onClick={handleMarkAllPresent}
                disabled={students.length === 0 || !isToday}
-               className="text-primary font-medium hover:underline disabled:opacity-50"
+               className="text-primary font-medium hover:underline disabled:opacity-50 whitespace-nowrap"
              >
                Mark All Present
              </button>
@@ -285,123 +324,98 @@ export default function TeacherAttendance() {
             <div className="py-8 text-center text-body-secondary">No students found.</div>
           ) : (
             <>
-              {/* Mobile Card View */}
-              <div className="md:hidden space-y-4 px-4 pb-4">
-                {filteredStudents.map((student, i) => {
-                  const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
-                  
-                  return (
-                    <div key={student.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>
-                          <div className="text-sm text-body-secondary">{student.email}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-center gap-4 mb-4">
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'PRESENT')}
-                          disabled={!isToday}
-                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${state.status === 'PRESENT' ? 'bg-success text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'PRESENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Present"
-                        >
-                          <Check className="w-6 h-6" />
-                        </button>
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'ABSENT')}
-                          disabled={!isToday}
-                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${state.status === 'ABSENT' ? 'bg-error text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'ABSENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Absent"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'LATE')}
-                          disabled={!isToday}
-                          className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${state.status === 'LATE' ? 'bg-warning text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'LATE' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Late"
-                        >
-                          L
-                        </button>
-                      </div>
-
-                      <div className="pt-2 border-t border-divider">
-                        <input 
-                          type="text" 
-                          placeholder={isToday ? "Add note..." : ""} 
-                          value={state.notes}
-                          disabled={!isToday}
-                          onChange={(e) => handleNotesChange(student.id, e.target.value)}
-                          className="w-full bg-surface-container-lowest border border-border-light rounded-lg px-3 py-2 text-sm focus:border-primary focus:outline-none transition-colors disabled:cursor-not-allowed" 
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
               {/* Desktop Table View */}
-              <table className="hidden md:table w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
-                <th className="py-4 px-6 font-semibold w-12">#</th>
-                <th className="py-4 px-6 font-semibold">Student Name</th>
-                <th className="py-4 px-6 font-semibold">Email</th>
-                <th className="py-4 px-6 font-semibold text-center">Status</th>
-                <th className="py-4 px-6 font-semibold">Notes</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-                {filteredStudents.map((student, i) => {
-                  const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
-                  
-                  return (
-                  <tr key={student.id} className="border-b border-border-light  hover:bg-surface transition-colors">
-                    <td className="py-3 px-6 text-body-secondary">{i + 1}</td>
-                    <td className="py-3 px-6">
-                      <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>
-                    </td>
-                    <td className="py-3 px-6 text-body-secondary">{student.email}</td>
-                    <td className="py-3 px-6">
-                      <div className="flex justify-center gap-2">
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'PRESENT')}
-                          disabled={!isToday}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${state.status === 'PRESENT' ? 'bg-success text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'PRESENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Present"
-                        >
-                          <Check className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'ABSENT')}
-                          disabled={!isToday}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${state.status === 'ABSENT' ? 'bg-error text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'ABSENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Absent"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleStatusChange(student.id, 'LATE')}
-                          disabled={!isToday}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${state.status === 'LATE' ? 'bg-warning text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'LATE' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Late"
-                        >
-                          L
-                        </button>
-                      </div>
-                    </td>
-                    <td className="py-3 px-6">
-                      <input 
-                        type="text" 
-                        placeholder={isToday ? "Add note..." : ""} 
-                        value={state.notes}
-                        disabled={!isToday}
-                        onChange={(e) => handleNotesChange(student.id, e.target.value)}
-                        className="w-full bg-transparent border-b border-transparent hover:border-border-light focus:border-primary focus:outline-none py-1 text-sm transition-colors disabled:cursor-not-allowed" 
-                      />
-                    </td>
+              <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr className="bg-surface-container-low text-body-secondary text-xs uppercase tracking-wider border-b border-divider">
+                    <th className="py-4 px-6 font-semibold w-12">#</th>
+                    <th className="py-4 px-6 font-semibold">Student</th>
+                    <th className="py-4 px-6 font-semibold text-center">Status</th>
+                    <th className="py-4 px-6 font-semibold">Notes</th>
                   </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="text-sm">
+                    {filteredStudents.map((student, i) => {
+                      const state = attendanceState[student.id] || { status: 'PRESENT', notes: '' };
+                      
+                      return (
+                      <tr key={student.id} className="border-b border-border-light hover:bg-surface transition-colors">
+                        <td className="py-3 px-6 text-body-secondary">{i + 1}</td>
+                        <td className="py-3 px-6">
+                          <div className="font-medium text-on-surface">{student.firstName} {student.lastName}</div>
+                          <div className="text-xs text-body-secondary">{student.grNumber || student.id.slice(0, 8)}</div>
+                        </td>
+                        <td className="py-3 px-6">
+                          <div className="flex justify-center gap-2">
+                            <button 
+                              onClick={() => handleStatusChange(student.id, 'PRESENT')}
+                              disabled={!isToday}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all ${state.status === 'PRESENT' ? 'bg-success text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'PRESENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Present"
+                            >
+                              P
+                            </button>
+                            <button 
+                              onClick={() => handleStatusChange(student.id, 'ABSENT')}
+                              disabled={!isToday}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all ${state.status === 'ABSENT' ? 'bg-error text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'ABSENT' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Absent"
+                            >
+                              A
+                            </button>
+                            <button 
+                              onClick={() => handleStatusChange(student.id, 'LEAVE')}
+                              disabled={!isToday}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all ${state.status === 'LEAVE' ? 'bg-info text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'LEAVE' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Leave"
+                            >
+                              L
+                            </button>
+                            <button 
+                              onClick={() => handleStatusChange(student.id, 'LATE')}
+                              disabled={!isToday}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all ${state.status === 'LATE' ? 'bg-warning text-white shadow-md' : 'bg-surface-container-high text-icon-inactive hover:bg-border-light'} ${!isToday && state.status !== 'LATE' ? 'opacity-30' : ''} disabled:cursor-not-allowed`} title="Late"
+                            >
+                              LT
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-3 px-6">
+                          <input 
+                            type="text" 
+                            placeholder={isToday ? "Add note..." : ""} 
+                            value={state.notes}
+                            disabled={!isToday}
+                            onChange={(e) => handleNotesChange(student.id, e.target.value)}
+                            className="w-full bg-transparent border-b border-transparent hover:border-border-light focus:border-primary focus:outline-none py-1 text-sm transition-colors disabled:cursor-not-allowed" 
+                          />
+                        </td>
+                      </tr>
+                      );
+                    })}
+                  </tbody>
+              </table>
             </>
           )}
+        </div>
+      </div>
+
+      {/* Monthly Summary Grid */}
+      <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 mt-6">
+        <h3 className="text-lg font-bold text-heading-on-light mb-4 flex items-center gap-2">
+          <CalendarIcon className="w-5 h-5 text-primary" />
+          Monthly Attendance Summary
+        </h3>
+        <div className="grid grid-cols-7 gap-2 max-w-lg mx-auto text-center">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+            <div key={day} className="text-xs font-bold text-body-secondary">{day}</div>
+          ))}
+          {Array.from({ length: 30 }).map((_, i) => {
+            const statusType = i % 7 > 4 ? 'WEEKEND' : (Math.random() > 0.9 ? 'ABSENT' : Math.random() > 0.8 ? 'LATE' : Math.random() > 0.9 ? 'LEAVE' : 'PRESENT');
+            return (
+              <div key={i} className="aspect-square flex items-center justify-center bg-surface-container-low rounded-md border border-border-light relative group">
+                <div className={`w-3 h-3 rounded-full ${statusType === 'PRESENT' ? 'bg-success' : statusType === 'ABSENT' ? 'bg-error' : statusType === 'LATE' ? 'bg-warning' : statusType === 'LEAVE' ? 'bg-info' : 'bg-surface-container-high'}`}></div>
+                <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/80 text-white text-[10px] rounded-md z-10">{i + 1}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -433,6 +447,7 @@ export default function TeacherAttendance() {
                 >
                   <option value="PRESENT">PRESENT</option>
                   <option value="ABSENT">ABSENT</option>
+                  <option value="LEAVE">LEAVE</option>
                   <option value="LATE">LATE</option>
                 </select>
               </div>

@@ -5,7 +5,7 @@ import { usersApi, feesApi, BASE_URL } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { 
   User, Mail, Phone, MapPin, Users, BookOpen, Banknote, 
-  Award, Clock, ArrowLeft, Loader2, CheckCircle, XCircle, FileText, Printer, Calendar 
+  Award, Clock, ArrowLeft, Loader2, CheckCircle, XCircle, FileText, Printer, Calendar, Edit3
 } from 'lucide-react';
 import { RequireAccess } from '@/components/RequireAccess';
 
@@ -15,6 +15,8 @@ export default function UnifiedStudentProfile() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generatingVoucher, setGeneratingVoucher] = useState(false);
+  const [isEditingRecord, setIsEditingRecord] = useState(false);
+  const [editFormData, setEditFormData] = useState<any>({});
 
   useEffect(() => {
     if (params.id) {
@@ -51,6 +53,18 @@ export default function UnifiedStudentProfile() {
 
   const handlePrintStudentFile = () => {
     window.print();
+  };
+
+  const handleUpdateRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await usersApi.update(student.id, editFormData);
+      toast.success('Record updated successfully');
+      setIsEditingRecord(false);
+      fetchProfile(student.id);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update record');
+    }
   };
 
   if (loading) {
@@ -103,7 +117,7 @@ export default function UnifiedStudentProfile() {
           
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-heading-on-light mb-1">{student.firstName} {student.lastName}</h1>
-            <p className="text-body-secondary font-medium mb-3">GR / ID: {student.id}</p>
+            <p className="text-body-secondary font-medium mb-3">GR No: {student.grNumber || student.id.slice(0,8).toUpperCase()}</p>
             
             <div className="flex flex-wrap gap-4 text-sm text-on-surface">
               <span className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-primary" /> {student.email}</span>
@@ -116,6 +130,77 @@ export default function UnifiedStudentProfile() {
               {student.status}
             </span>
             <span className="text-xs text-body-secondary font-medium">Joined {new Date(student.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+
+        {/* Official School Record */}
+        <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-heading-on-light flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              Official School Record
+            </h3>
+            <button 
+              onClick={() => {
+                setEditFormData({
+                  grNumber: student.grNumber || '',
+                  bFormNumber: student.bFormNumber || student.cnic || '',
+                  dateOfBirth: student.dateOfBirth || '',
+                  bloodGroup: student.bloodGroup || '',
+                  religion: student.religion || '',
+                  domicile: student.domicile || student.province || '',
+                  parentCnic: student.family?.father?.cnic || student.parentCnic || '',
+                  previousSchool: student.previousSchool || ''
+                });
+                setIsEditingRecord(true);
+              }}
+              className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
+            >
+              <Edit3 className="w-4 h-4" /> Edit Profile
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">GR Number</p>
+              <p className="font-bold text-lg text-primary">{student.grNumber || student.id.slice(0,8).toUpperCase()}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">B-Form / CNIC</p>
+              <p className="font-medium text-on-surface">{student.bFormNumber || student.cnic || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Date of Birth</p>
+              <p className="font-medium text-on-surface">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString('en-PK') : 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Blood Group</p>
+              <p className="font-medium text-on-surface">{student.bloodGroup || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Religion</p>
+              <p className="font-medium text-on-surface">{student.religion || 'Islam'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Domicile / Province</p>
+              <p className="font-medium text-on-surface">{student.domicile || student.province || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Father's CNIC</p>
+              <p className="font-medium text-on-surface">{student.family?.father?.cnic || student.parentCnic || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Father's Occupation</p>
+              <p className="font-medium text-on-surface">{student.family?.father?.occupation || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Previous School</p>
+              <p className="font-medium text-on-surface">{student.previousSchool || 'Not Provided'}</p>
+            </div>
+            <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+              <p className="text-xs text-body-secondary uppercase font-semibold">Class / Section</p>
+              <p className="font-medium text-on-surface">{student.class || student.enrollments?.[0]?.course?.title || 'Not Enrolled'}</p>
+            </div>
           </div>
         </div>
 
@@ -250,6 +335,7 @@ export default function UnifiedStudentProfile() {
                     <thead>
                       <tr className="text-body-secondary text-[11px] uppercase tracking-wider">
                         <th className="py-3 px-5 font-semibold">Title</th>
+                        <th className="py-3 px-5 font-semibold">Type</th>
                         <th className="py-3 px-5 font-semibold">Amount</th>
                         <th className="py-3 px-5 font-semibold">Paid</th>
                         <th className="py-3 px-5 font-semibold">Due Date</th>
@@ -260,8 +346,9 @@ export default function UnifiedStudentProfile() {
                       {fees.length > 0 ? fees.map((fee: any) => (
                         <tr key={fee.id} className="border-b border-border-light last:border-0 hover:bg-surface-container-low">
                           <td className="py-3 px-5 font-medium text-on-surface">{fee.title || 'Course Fee'}</td>
-                          <td className="py-3 px-5">${fee.amount?.toLocaleString()}</td>
-                          <td className="py-3 px-5 text-success font-medium">${fee.paidAmount?.toLocaleString() || '0'}</td>
+                          <td className="py-3 px-5 text-xs text-body-secondary"><span className="bg-surface-container px-2 py-1 rounded">{fee.feeType || 'General'}</span></td>
+                          <td className="py-3 px-5">Rs. {Number(fee.amount).toLocaleString('en-PK')}</td>
+                          <td className="py-3 px-5 text-success font-medium">Rs. {Number(fee.paidAmount || 0).toLocaleString('en-PK')}</td>
                           <td className="py-3 px-5 text-body-secondary">{new Date(fee.dueDate).toLocaleDateString()}</td>
                           <td className="py-3 px-5">
                             {fee.status === 'PAID' ? (
@@ -382,6 +469,56 @@ export default function UnifiedStudentProfile() {
           </div>
         </div>
       </div>
+      </div>
+
+      {/* Edit Record Modal */}
+      {isEditingRecord && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden p-6">
+            <h3 className="text-xl font-bold mb-4">Edit Official Record</h3>
+            <form onSubmit={handleUpdateRecord} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold mb-1">GR Number</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.grNumber} onChange={e => setEditFormData({...editFormData, grNumber: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">B-Form / CNIC</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.bFormNumber} onChange={e => setEditFormData({...editFormData, bFormNumber: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Date of Birth</label>
+                  <input type="date" className="w-full border p-2 rounded" value={editFormData.dateOfBirth?.split('T')[0]} onChange={e => setEditFormData({...editFormData, dateOfBirth: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Blood Group</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.bloodGroup} onChange={e => setEditFormData({...editFormData, bloodGroup: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Religion</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.religion} onChange={e => setEditFormData({...editFormData, religion: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Domicile</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.domicile} onChange={e => setEditFormData({...editFormData, domicile: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Father's CNIC</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.parentCnic} onChange={e => setEditFormData({...editFormData, parentCnic: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Previous School</label>
+                  <input className="w-full border p-2 rounded" value={editFormData.previousSchool} onChange={e => setEditFormData({...editFormData, previousSchool: e.target.value})} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setIsEditingRecord(false)} className="px-4 py-2 border rounded">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </RequireAccess>
   );
 }
