@@ -7,17 +7,30 @@ import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 export default function DepartmentsPage() {
   const { user } = useAuth();
   const [departments, setDepartments] = useState<any[]>([]);
+  const [campuses, setCampuses] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', campusId: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
       loadDepartments();
+      if (user.isSuperAdmin) {
+        loadCampuses();
+      }
     }
   }, [user]);
+
+  const loadCampuses = async () => {
+    try {
+      const data = await fetchApi('/campuses');
+      setCampuses(data);
+    } catch (err: any) {
+      console.error('Failed to load campuses', err);
+    }
+  };
 
   const loadDepartments = async () => {
     try {
@@ -43,7 +56,7 @@ export default function DepartmentsPage() {
       } else {
         await fetchApi('/departments', {
           method: 'POST',
-          body: JSON.stringify({ ...formData, campusId: user?.campusId || null }),
+          body: JSON.stringify({ ...formData, campusId: user?.isSuperAdmin ? formData.campusId : (user?.campusId || null) }),
         });
       }
       setIsModalOpen(false);
@@ -65,7 +78,7 @@ export default function DepartmentsPage() {
 
   const openModal = (dept: any = null) => {
     setEditingDept(dept);
-    setFormData(dept ? { name: dept.name } : { name: '' });
+    setFormData(dept ? { name: dept.name, campusId: dept.campusId } : { name: '', campusId: '' });
     setIsModalOpen(true);
   };
 
@@ -142,6 +155,22 @@ export default function DepartmentsPage() {
                   required
                 />
               </div>
+              {user?.isSuperAdmin && !editingDept && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-on-surface mb-2">Campus</label>
+                  <select
+                    value={formData.campusId}
+                    onChange={(e) => setFormData({...formData, campusId: e.target.value})}
+                    className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                    required
+                  >
+                    <option value="">Select a campus</option>
+                    {campuses.map(campus => (
+                      <option key={campus.id} value={campus.id}>{campus.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex justify-end gap-3 mt-8">
                 <button 
                   type="button" 
