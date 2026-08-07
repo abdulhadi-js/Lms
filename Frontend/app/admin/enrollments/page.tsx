@@ -22,6 +22,8 @@ export default function EnrollmentsManagement() {
   const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
 
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+  const [enrollByClassModalOpen, setEnrollByClassModalOpen] = useState(false);
+  const [selectedClassForEnroll, setSelectedClassForEnroll] = useState('');
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
 
@@ -208,6 +210,12 @@ export default function EnrollmentsManagement() {
             className="flex items-center gap-2 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors hidden md:flex"
           >
             Session Rollover
+          </button>
+          <button 
+            onClick={() => setEnrollByClassModalOpen(true)}
+            className="flex items-center gap-2 border border-border-light bg-surface text-on-surface px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-low transition-colors"
+          >
+            Enroll by Class
           </button>
           <button 
             onClick={() => setEnrollModalOpen(true)}
@@ -451,6 +459,98 @@ export default function EnrollmentsManagement() {
           )}
         </div>
       </div>
+
+      {/* Enroll by Class Modal */}
+      {enrollByClassModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-surface rounded-xl shadow-xl p-5 w-full max-w-md animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-heading-on-light mb-2">Bulk Enroll — Assign Class to Subject</h3>
+            <p className="text-sm text-body-secondary mb-4">Select a class and a subject to enroll all students of that class into the subject at once.</p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Select Class (Course to pull students from)</label>
+                <select 
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={selectedClassForEnroll}
+                  onChange={(e) => setSelectedClassForEnroll(e.target.value)}
+                >
+                  <option value="">-- Choose a Class --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Select Subject (Target)</label>
+                <select 
+                  className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  value={selectedCourse}
+                  onChange={(e) => setSelectedCourse(e.target.value)}
+                >
+                  <option value="">-- Choose a Subject --</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+              
+              {selectedClassForEnroll && (
+                <div className="bg-surface-container-lowest p-3 rounded-lg border border-border-light">
+                  <p className="text-sm text-on-surface font-medium">Preview</p>
+                  <p className="text-xs text-body-secondary mt-1">
+                    {enrollments.filter(e => e.course?.id === selectedClassForEnroll && e.status === 'ACTIVE').length} students found in this class.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  setEnrollByClassModalOpen(false);
+                  setSelectedClassForEnroll('');
+                  setSelectedCourse('');
+                }}
+                className="px-4 py-2 border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  if (!selectedClassForEnroll || !selectedCourse) {
+                    toast.error("Please select both a class and a subject.");
+                    return;
+                  }
+                  try {
+                    const classStudents = enrollments
+                      .filter(e => e.course?.id === selectedClassForEnroll && e.status === 'ACTIVE' && e.student?.id)
+                      .map(e => e.student.id);
+                      
+                    if (classStudents.length === 0) {
+                      toast.error("No active students found in the selected class.");
+                      return;
+                    }
+                    
+                    await enrollmentsApi.bulkEnroll(selectedCourse, classStudents);
+                    toast.success(`Successfully enrolled ${classStudents.length} students into subject.`);
+                    setEnrollByClassModalOpen(false);
+                    setSelectedClassForEnroll('');
+                    setSelectedCourse('');
+                    fetchData();
+                  } catch (err: any) {
+                    toast.error(err.message || 'Failed to enroll by class');
+                  }
+                }}
+                className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 flex items-center gap-2"
+              >
+                Enroll All Students in Class &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Direct Enroll Modal */}
       {enrollModalOpen && (

@@ -1,7 +1,7 @@
 "use client";
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { Search, Plus, DollarSign, AlertCircle, TrendingUp, MoreVertical, Edit, Trash2, CreditCard } from 'lucide-react';
+import { Search, Plus, AlertCircle, TrendingUp, MoreVertical, Edit, Trash2, CreditCard } from 'lucide-react';
 import { feesApi, usersApi, coursesApi } from '@/lib/api';
 
 export default function FeesManagement() {
@@ -41,7 +41,7 @@ export default function FeesManagement() {
     courseId: '',
     amount: '',
     dueDate: '',
-    title: ''
+    title: 'TUITION'
   });
 
   // Pay Modal State
@@ -91,8 +91,9 @@ export default function FeesManagement() {
         amount: fee.amount || '',
         description: fee.description || '',
         dueDate: fee.dueDate ? new Date(fee.dueDate).toISOString().split('T')[0] : '',
-        status: fee.status || 'PENDING',
-        discount: fee.discount || '0'
+        status: 'PENDING',
+        discount: '0',
+        feeType: 'TUITION'
       });
     } else {
       setIsEditMode(false);
@@ -104,7 +105,8 @@ export default function FeesManagement() {
         description: '',
         dueDate: '',
         status: 'PENDING',
-        discount: '0'
+        discount: '0',
+        feeType: 'TUITION'
       });
     }
     setIsModalOpen(true);
@@ -118,7 +120,8 @@ export default function FeesManagement() {
       amount: Number(formData.amount),
       description: formData.description,
       status: formData.status,
-      discount: Number(formData.discount)
+      discount: Number(formData.discount),
+      feeType: formData.feeType
     };
     if (formData.courseId) payload.courseId = formData.courseId;
     if (formData.dueDate) payload.dueDate = new Date(formData.dueDate).toISOString();
@@ -176,7 +179,8 @@ export default function FeesManagement() {
         courseId: bulkFormData.courseId,
         amount: Number(bulkFormData.amount),
         dueDate: new Date(bulkFormData.dueDate).toISOString(),
-        title: bulkFormData.title
+        title: bulkFormData.title,
+        feeType: bulkFormData.title
       });
       toast.success('Bulk fees generated successfully!');
       setBulkModalOpen(false);
@@ -229,7 +233,7 @@ export default function FeesManagement() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-3xl font-bold text-heading-on-light">Fee Management</h2>
-          <p className="text-sm text-body-secondary mt-1">Track and manage student payments and outstanding balances.</p>
+          <p className="text-sm text-body-secondary mt-1">Manage student fee challans, monthly tuition, and outstanding balances.</p>
         </div>
         <div className="flex gap-2">
           <button 
@@ -243,7 +247,7 @@ export default function FeesManagement() {
             className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
           >
             <Plus className="h-4 w-4" />
-            Create Invoice
+            Create Fee Record
           </button>
         </div>
       </div>
@@ -255,16 +259,16 @@ export default function FeesManagement() {
           </div>
           <div>
             <p className="text-sm font-medium text-body-secondary">Total Collected</p>
-            <h3 className="text-2xl font-bold text-on-surface mt-1">${totalCollected.toFixed(2)}</h3>
+            <h3 className="text-2xl font-bold text-on-surface mt-1">Rs. {totalCollected.toLocaleString('en-PK')}</h3>
           </div>
         </div>
         <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex items-start gap-4">
           <div className="p-3 bg-warning-bg text-warning rounded-lg">
-            <DollarSign className="w-6 h-6" />
+            <span className="text-xs font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">Rs</span>
           </div>
           <div>
             <p className="text-sm font-medium text-body-secondary">Total Outstanding</p>
-            <h3 className="text-2xl font-bold text-on-surface mt-1">${totalOutstanding.toFixed(2)}</h3>
+            <h3 className="text-2xl font-bold text-on-surface mt-1">Rs. {totalOutstanding.toLocaleString('en-PK')}</h3>
           </div>
         </div>
         <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex items-start gap-4">
@@ -322,6 +326,16 @@ export default function FeesManagement() {
                       <div>
                         <div className="font-medium text-on-surface">{fee.student?.firstName} {fee.student?.lastName}</div>
                         {fee.course && <div className="text-xs text-body-secondary">{fee.course?.title}</div>}
+                        {fee.feeType && (
+                          <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                            fee.feeType === 'TUITION' ? 'bg-success/10 text-success' :
+                            fee.feeType === 'EXAM' ? 'bg-purple-500/10 text-purple-600' :
+                            fee.feeType === 'TRANSPORT' ? 'bg-blue-500/10 text-blue-600' :
+                            'bg-gray-500/10 text-gray-600'
+                          }`}>
+                            {fee.feeType}
+                          </span>
+                        )}
                       </div>
                       <button 
                         onClick={() => setOpenDropdown(openDropdown === fee.id ? null : fee.id)}
@@ -353,7 +367,7 @@ export default function FeesManagement() {
                               onClick={() => { toast.success('Installments config loaded'); setOpenDropdown(null); }}
                               className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
                             >
-                              <DollarSign className="w-4 h-4 text-icon-inactive" /> Setup Installments
+                              <span className="text-xs font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">Rs</span> Setup Installments
                             </button>
                           )}
                           <button 
@@ -379,8 +393,8 @@ export default function FeesManagement() {
 
                       <div className="text-body-secondary">Amount:</div>
                       <div className="text-right">
-                        <div className="font-bold text-on-surface">${Number(fee.amount).toFixed(2)}</div>
-                        {fee.paidAmount > 0 && <div className="text-xs text-success">Paid: ${Number(fee.paidAmount).toFixed(2)}</div>}
+                        <div className="font-bold text-on-surface">Rs. {Number(fee.amount).toLocaleString('en-PK')}</div>
+                        {fee.paidAmount > 0 && <div className="text-xs text-success">Paid: Rs. {Number(fee.paidAmount).toLocaleString('en-PK')}</div>}
                       </div>
                       
                       <div className="text-body-secondary">Status:</div>
@@ -402,7 +416,7 @@ export default function FeesManagement() {
               <table className="hidden md:table w-full text-left border-collapse">
               <thead>
                 <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
-                  <th className="py-3 px-4 font-semibold">Student / Course</th>
+                  <th className="py-3 px-4 font-semibold">Student / Class</th>
                   <th className="py-3 px-4 font-semibold">Description</th>
                   <th className="py-3 px-4 font-semibold">Amount</th>
                   <th className="py-3 px-4 font-semibold">Status</th>
@@ -416,11 +430,21 @@ export default function FeesManagement() {
                     <td className="py-3 px-4">
                       <div className="font-medium text-on-surface">{fee.student?.firstName} {fee.student?.lastName}</div>
                       {fee.course && <div className="text-xs text-body-secondary">{fee.course?.title}</div>}
+                      {fee.feeType && (
+                        <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                          fee.feeType === 'TUITION' ? 'bg-success/10 text-success' :
+                          fee.feeType === 'EXAM' ? 'bg-purple-500/10 text-purple-600' :
+                          fee.feeType === 'TRANSPORT' ? 'bg-blue-500/10 text-blue-600' :
+                          'bg-gray-500/10 text-gray-600'
+                        }`}>
+                          {fee.feeType}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-on-surface">{fee.description || 'General Fee'}</td>
                     <td className="py-3 px-4">
-                      <div className="font-bold text-on-surface">${Number(fee.amount).toFixed(2)}</div>
-                      {fee.paidAmount > 0 && <div className="text-xs text-success">Paid: ${Number(fee.paidAmount).toFixed(2)}</div>}
+                      <div className="font-bold text-on-surface">Rs. {Number(fee.amount).toLocaleString('en-PK')}</div>
+                      {fee.paidAmount > 0 && <div className="text-xs text-success">Paid: Rs. {Number(fee.paidAmount).toLocaleString('en-PK')}</div>}
                     </td>
                     <td className="py-3 px-4">
                       {fee.status === 'PAID' && <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/20">Paid</span>}
@@ -473,7 +497,7 @@ export default function FeesManagement() {
                               onClick={() => { toast.success('Installments config loaded'); setOpenDropdown(null); }}
                               className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
                             >
-                              <DollarSign className="w-4 h-4 text-icon-inactive" /> Setup Installments
+                              <span className="text-xs font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">Rs</span> Setup Installments
                             </button>
                           )}
                           <button
@@ -551,8 +575,26 @@ export default function FeesManagement() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                  <label className="block text-sm font-medium text-on-surface mb-1">Fee Type</label>
+                  <select 
+                    required
+                    className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                    value={formData.feeType}
+                    onChange={(e) => setFormData({...formData, feeType: e.target.value})}
+                  >
+                    <option value="TUITION">TUITION — Monthly Tuition Fee</option>
+                    <option value="ADMISSION">ADMISSION — Admission Fee</option>
+                    <option value="EXAM">EXAM — Exam / Board Fee</option>
+                    <option value="TRANSPORT">TRANSPORT — Transport Fee</option>
+                    <option value="SPORTS">SPORTS — Sports Fund</option>
+                    <option value="LAB">LAB — Lab Charges</option>
+                    <option value="LIBRARY">LIBRARY — Library Fee</option>
+                    <option value="OTHER">OTHER — Other Charges</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Amount ($)</label>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Amount (Rs.)</label>
                   <input 
                     type="number"
                     step="0.01"
@@ -563,7 +605,7 @@ export default function FeesManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Discount ($)</label>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Discount (Rs.)</label>
                   <input 
                     type="number"
                     step="0.01"
@@ -640,7 +682,7 @@ export default function FeesManagement() {
             <h3 className="text-xl font-bold text-heading-on-light mb-4">Record Payment</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Payment Amount ($)</label>
+                <label className="block text-sm font-medium text-on-surface mb-1">Payment Amount (Rs.)</label>
                 <input 
                   type="number"
                   step="0.01"
@@ -698,7 +740,7 @@ export default function FeesManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Base Amount ($)</label>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Base Amount (Rs.)</label>
                   <input 
                     type="number"
                     step="0.01"
@@ -720,19 +762,26 @@ export default function FeesManagement() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Invoice Title</label>
-                <input 
-                  type="text"
-                  placeholder="e.g. October Tuition Fee"
+                <label className="block text-sm font-medium text-on-surface mb-1">Fee Type</label>
+                <select 
                   required
                   className="w-full border border-border-light rounded-lg p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                   value={bulkFormData.title}
                   onChange={(e) => setBulkFormData({...bulkFormData, title: e.target.value})}
-                />
+                >
+                  <option value="TUITION">TUITION — Monthly Tuition Fee</option>
+                  <option value="ADMISSION">ADMISSION — Admission Fee</option>
+                  <option value="EXAM">EXAM — Exam / Board Fee</option>
+                  <option value="TRANSPORT">TRANSPORT — Transport Fee</option>
+                  <option value="SPORTS">SPORTS — Sports Fund</option>
+                  <option value="LAB">LAB — Lab Charges</option>
+                  <option value="LIBRARY">LIBRARY — Library Fee</option>
+                  <option value="OTHER">OTHER — Other Charges</option>
+                </select>
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t border-divider">
                 <button type="button" onClick={() => setBulkModalOpen(false)} className="px-4 py-2 border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">Generate Bulk Fees</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">Generate Monthly Challan</button>
               </div>
             </form>
           </div>

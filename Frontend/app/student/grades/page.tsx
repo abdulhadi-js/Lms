@@ -15,13 +15,14 @@ interface Mark {
   gradedAt?: string;
 }
 
-function getGradeLabel(percentage: number): { letter: string; color: string } {
-  if (percentage >= 90) return { letter: 'A', color: 'bg-success/10 text-success' };
-  if (percentage >= 80) return { letter: 'B+', color: 'bg-primary/10 text-primary' };
-  if (percentage >= 75) return { letter: 'B', color: 'bg-primary/10 text-primary' };
-  if (percentage >= 70) return { letter: 'C+', color: 'bg-warning/10 text-warning' };
-  if (percentage >= 60) return { letter: 'C', color: 'bg-warning/10 text-warning' };
-  return { letter: 'F', color: 'bg-error/10 text-error' };
+function getGradeLabel(percentage: number): { letter: string; color: string; remarks: string } {
+  if (percentage >= 90) return { letter: 'A+', color: 'bg-success/10 text-success border border-success/30', remarks: 'Outstanding' };
+  if (percentage >= 80) return { letter: 'A', color: 'bg-success/10 text-success border border-success/20', remarks: 'Excellent' };
+  if (percentage >= 70) return { letter: 'B', color: 'bg-primary/10 text-primary border border-primary/20', remarks: 'Good' };
+  if (percentage >= 60) return { letter: 'C', color: 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20', remarks: 'Satisfactory' };
+  if (percentage >= 50) return { letter: 'D', color: 'bg-[#f97316]/10 text-[#f97316] border border-[#f97316]/20', remarks: 'Pass' };
+  if (percentage >= 40) return { letter: 'E', color: 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20', remarks: 'Pass (Minimum)' };
+  return { letter: 'F', color: 'bg-error/10 text-error border border-error/30', remarks: 'Fail' };
 }
 
 function groupBySubject(marks: Mark[]) {
@@ -147,6 +148,37 @@ export default function MyGrades() {
         </div>
       </div>
 
+      {/* Pakistani Grading Scale Reference */}
+      <details className="bg-surface border border-divider rounded-xl overflow-hidden group">
+        <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface-container transition-colors">
+          <div className="flex items-center gap-2 font-semibold text-on-surface">
+            <BookOpen className="w-5 h-5 text-primary" />
+            Pakistani Grading Scale Reference
+          </div>
+          <ChevronDown className="w-5 h-5 text-body-secondary group-open:rotate-180 transition-transform" />
+        </summary>
+        <div className="p-4 border-t border-divider overflow-x-auto bg-surface-container-lowest">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-surface-container text-body-secondary text-xs uppercase">
+              <tr>
+                <th className="px-4 py-2">Grade</th>
+                <th className="px-4 py-2">Percentage</th>
+                <th className="px-4 py-2">Remarks</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-divider">
+              <tr><td className="px-4 py-2 font-bold text-success">A+</td><td className="px-4 py-2">90-100</td><td className="px-4 py-2">Outstanding</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-success">A</td><td className="px-4 py-2">80-89</td><td className="px-4 py-2">Excellent</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-primary">B</td><td className="px-4 py-2">70-79</td><td className="px-4 py-2">Good</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-[#f59e0b]">C</td><td className="px-4 py-2">60-69</td><td className="px-4 py-2">Satisfactory</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-[#f97316]">D</td><td className="px-4 py-2">50-59</td><td className="px-4 py-2">Pass</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-[#ef4444]">E</td><td className="px-4 py-2">40-49</td><td className="px-4 py-2">Pass (Minimum)</td></tr>
+              <tr><td className="px-4 py-2 font-bold text-error">F</td><td className="px-4 py-2">Below 40</td><td className="px-4 py-2">Fail</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
       {/* Empty State */}
       {grouped.length === 0 ? (
         <div className="text-center py-16 border border-divider rounded-xl bg-surface">
@@ -162,7 +194,7 @@ export default function MyGrades() {
             const totalScore = courseMarks.reduce((s, m) => s + m.score, 0);
             const totalMax = course?.credits || courseMarks.reduce((s, m) => s + m.maxScore, 0);
             const pct = totalMax > 0 ? (totalScore / totalMax) * 100 : 0;
-            const { letter, color } = getGradeLabel(pct);
+            const { letter, color, remarks } = getGradeLabel(pct);
 
             return (
               <div key={subjectId} className="bg-surface rounded-xl border border-divider overflow-hidden shadow-sm">
@@ -177,7 +209,7 @@ export default function MyGrades() {
                       {course?.title || 'Unknown Subject'}
                       {course?.code && <span className="text-body-secondary font-normal ml-2">({course.code})</span>}
                     </h2>
-                    <span className={`${color} px-3 py-0.5 rounded-full text-xs font-bold`}>Grade: {letter}</span>
+                    <span className={`${color} px-3 py-0.5 rounded-full text-xs font-bold`}>Grade: {letter} · {remarks}</span>
                     <span className="text-body-secondary text-sm">{pct.toFixed(1)}%</span>
                   </div>
                   {isOpen ? <ChevronUp className="w-5 h-5 text-body-secondary shrink-0" /> : <ChevronDown className="w-5 h-5 text-body-secondary shrink-0" />}
