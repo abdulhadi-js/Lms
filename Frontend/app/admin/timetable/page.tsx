@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Calendar as LucideCalendar, Plus, Edit, Trash2, Clock, MapPin, Users, Loader2 } from 'lucide-react';
-import { timetableApi, coursesApi } from '@/lib/api';
+import { timetableApi, coursesApi, academicsApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -22,6 +22,8 @@ const localizer = dateFnsLocalizer({
 export default function AdminTimetable() {
   const [schedules, setSchedules] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [classFilter, setClassFilter] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   
   // Modal State
@@ -49,9 +51,13 @@ export default function AdminTimetable() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const courseData = await coursesApi.list();
+      const [courseData, classesData] = await Promise.all([
+        coursesApi.list(),
+        academicsApi.listClasses().catch(() => [])
+      ]);
       const coursesList = courseData.data || courseData || [];
       setCourses(coursesList);
+      setClasses(classesData.data || classesData || []);
       
       const newSchedules: any[] = [];
       coursesList.forEach((course: any) => {
@@ -178,15 +184,16 @@ export default function AdminTimetable() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-3xl font-bold text-heading-on-light">Timetable Scheduling</h2>
-          <p className="text-sm text-body-secondary mt-1">Manage class schedules and allocate resources.</p>
+          <p className="text-sm text-body-secondary mt-1">Manage period-based class schedules and teacher allocations.</p>
         </div>
-        <a 
-          href="/admin/courses"
-          className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
-        >
-          <Edit className="h-4 w-4" />
-          Manage Courses
-        </a>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleOpenModal()}
+            className="flex items-center gap-2 primary-gradient text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-md transition-shadow"
+          >
+            <Plus className="h-4 w-4" /> Add Schedule Slot
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">
@@ -217,33 +224,53 @@ export default function AdminTimetable() {
 
         {/* Main Timetable Area */}
         <div className="flex-1 bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
-          <div className="p-5 border-b border-divider flex items-center justify-between bg-surface">
+          <div className="p-5 border-b border-divider flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-surface">
             <div className="flex items-center gap-2 text-on-surface font-bold text-lg">
               <LucideCalendar className="w-5 h-5 text-primary" />
               <span>Weekly Master Schedule</span>
             </div>
-            <div className="flex gap-2">
-            <select className="border border-border-light bg-surface rounded-lg px-3 py-1.5 text-sm text-on-surface outline-none focus:border-primary">
-              <option>All Courses</option>
-            </select>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <select
+                value={classFilter}
+                onChange={e => setClassFilter(e.target.value)}
+                className="border border-border-light bg-surface rounded-lg px-3 py-1.5 text-sm text-on-surface outline-none focus:border-primary flex-1 sm:w-48"
+              >
+                <option value="ALL">All Classes</option>
+                {classes.map(cls => (
+                  <option key={cls.id} value={cls.id}>{cls.name}</option>
+                ))}
+                {classes.length === 0 && ['9','10','11','12'].map(c => (
+                  <option key={c} value={c}>Class {c}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => handleOpenModal()}
+                className="flex items-center gap-1 bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-        </div>
 
         <div className="overflow-x-auto min-h-[400px]">
-          {isLoading ? (
+          {(() => {
+            const filteredSchedules = classFilter === 'ALL'
+              ? schedules
+              : schedules.filter(s => s.course?.classId === classFilter || s.course?.classLevel === classFilter);
+            return isLoading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
-          ) : schedules.length === 0 ? (
-            <div className="flex flex-col justify-center items-center h-64 text-body-secondary">
-              <LucideCalendar className="w-12 h-12 mb-2 opacity-20" />
-              <p>No timetable schedules found.</p>
-            </div>
-          ) : (
-            <>
-              {/* Mobile Card View */}
-              <div className="md:hidden space-y-4">
-                {schedules.map((slot) => (
+            ) : filteredSchedules.length === 0 ? (
+              <div className="flex flex-col justify-center items-center h-64 text-body-secondary">
+                <LucideCalendar className="w-12 h-12 mb-2 opacity-20" />
+                <p>{classFilter === 'ALL' ? 'No timetable schedules found.' : 'No schedules for this class.'}</p>
+              </div>
+            ) : (
+              <>
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4 p-4">
+                  {filteredSchedules.map((slot) => (
                   <div key={slot.id} className="bg-surface p-4 rounded-xl border border-divider shadow-sm relative">
                     <div className="flex justify-between items-start mb-3">
                       <div>
@@ -274,37 +301,52 @@ export default function AdminTimetable() {
               </div>
 
               {/* Desktop Calendar View */}
-              <div className="hidden md:block h-[600px] p-4">
-                <Calendar
-                  localizer={localizer}
-                  events={calendarEvents}
-                  startAccessor="start"
-                  endAccessor="end"
-                  defaultView="work_week"
-                  views={['work_week', 'day', 'agenda']}
-                  min={new Date(0, 0, 0, 8, 0, 0)} // 8 AM
-                  max={new Date(0, 0, 0, 20, 0, 0)} // 8 PM
-                  onSelectEvent={(event: any) => handleOpenModal(event.resource)}
-                  components={{
-                    event: (props: any) => {
-                      const slot = props.event.resource;
-                      return (
-                        <div className="p-1 h-full flex flex-col justify-between text-xs overflow-hidden">
-                          <div className="font-semibold truncate">{slot.course?.title || slot.course?.code}</div>
-                          <div className="flex justify-between items-end mt-1">
-                            <span>{slot.room}</span>
+                <div className="hidden md:block h-[600px] p-4">
+                  <Calendar
+                    localizer={localizer}
+                    events={filteredSchedules.map(slot => {
+                      const dayOffsetMap: Record<string, number> = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+                      const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 0 });
+                      const dayOffset = dayOffsetMap[slot.dayOfWeek] ?? 1;
+                      const targetDate = new Date(currentWeekStart);
+                      targetDate.setDate(targetDate.getDate() + dayOffset);
+                      const [startHour, startMin] = parseTimeStr(slot.startTimeStr);
+                      const [endHour, endMin] = parseTimeStr(slot.endTimeStr);
+                      const start = new Date(targetDate);
+                      start.setHours(startHour, startMin, 0, 0);
+                      const end = new Date(targetDate);
+                      end.setHours(endHour, endMin, 0, 0);
+                      return { title: `${slot.course?.code} - ${slot.room}`, start, end, resource: slot };
+                    })}
+                    startAccessor="start"
+                    endAccessor="end"
+                    defaultView="work_week"
+                    views={['work_week', 'day', 'agenda']}
+                    min={new Date(0, 0, 0, 8, 0, 0)}
+                    max={new Date(0, 0, 0, 20, 0, 0)}
+                    onSelectEvent={(event: any) => handleOpenModal(event.resource)}
+                    components={{
+                      event: (props: any) => {
+                        const slot = props.event.resource;
+                        return (
+                          <div className="p-1 h-full flex flex-col justify-between text-xs overflow-hidden">
+                            <div className="font-semibold truncate">{slot.course?.title || slot.course?.code}</div>
+                            <div className="flex justify-between items-end mt-1">
+                              <span>{slot.room}</span>
+                              <span className="opacity-75">{slot.course?.teacher ? `${slot.course.teacher.firstName?.[0]}. ${slot.course.teacher.lastName}` : '⚠'}</span>
+                            </div>
                           </div>
-                        </div>
-                      )
-                    }
-                  }}
-                  eventPropGetter={() => ({
-                    style: { backgroundColor: 'var(--primary)', borderColor: 'var(--primary-fixed)', borderRadius: '6px' }
-                  })}
-                />
-              </div>
-            </>
-          )}
+                        )
+                      }
+                    }}
+                    eventPropGetter={() => ({
+                      style: { backgroundColor: 'var(--primary)', borderColor: 'var(--primary-fixed)', borderRadius: '6px' }
+                    })}
+                  />
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
       </div>
@@ -321,17 +363,49 @@ export default function AdminTimetable() {
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Course</label>
+                <label className="block text-sm font-medium text-on-surface mb-1">Subject / Course <span className="text-error">*</span></label>
                 <select 
                   required
                   className="w-full border border-border-light rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
                   value={formData.courseId}
                   onChange={e => setFormData({...formData, courseId: e.target.value})}
                 >
-                  <option value="">Select Course</option>
-                  {courses.map(c => <option key={c.id} value={c.id}>{c.title} ({c.code})</option>)}
+                  <option value="">Select Subject</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} ({c.code}){c.classLevel ? ` — Class ${c.classLevel}` : ''}
+                    </option>
+                  ))}
                 </select>
+                {/* Teacher & Class Preview */}
+                {formData.courseId && (() => {
+                  const selected = courses.find(c => c.id === formData.courseId);
+                  if (!selected) return null;
+                  return (
+                    <div className="mt-2 p-2.5 rounded-lg bg-surface-container border border-divider flex flex-col gap-1 text-xs">
+                      {selected.teacher ? (
+                        <div className="flex items-center gap-2 text-success font-medium">
+                          <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center font-bold text-[10px]">
+                            {selected.teacher.firstName?.[0]}{selected.teacher.lastName?.[0]}
+                          </div>
+                          Teacher: {selected.teacher.firstName} {selected.teacher.lastName}
+                        </div>
+                      ) : (
+                        <div className="text-error font-medium flex items-center gap-1">
+                          ⚠ No teacher assigned to this subject
+                        </div>
+                      )}
+                      {(selected.classLevel || selected.class?.name) && (
+                        <div className="text-body-secondary">
+                          Class: <span className="font-semibold text-primary">{selected.class?.name || `Class ${selected.classLevel}`}</span>
+                        </div>
+                      )}
+                      <div className="text-body-secondary">Total Marks: <span className="font-semibold">{selected.credits || 100}</span></div>
+                    </div>
+                  );
+                })()}
               </div>
+
               
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Day of Week</label>
