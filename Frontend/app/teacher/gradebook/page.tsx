@@ -423,10 +423,10 @@ export default function TeacherGradebook() {
                 <tbody className="divide-y divide-divider text-sm">
                   {students.map(student => {
                     const key = `exam_${student.id}`;
-                    const score = pendingChanges[key]?.score ?? '';
+                    const score = pendingChanges[key]?.score;
                     let grade = '-';
                     let pct = 0;
-                    if (score !== '' && examFormData.totalMarks > 0) {
+                    if (score !== undefined && examFormData.totalMarks > 0) {
                       pct = (Number(score) / examFormData.totalMarks) * 100;
                       grade = getPakistaniGrade(pct);
                     }
@@ -438,7 +438,7 @@ export default function TeacherGradebook() {
                         <td className="py-3 px-4">
                           <input 
                             type="number"
-                            value={score}
+                            value={score ?? ''}
                             onChange={(e) => {
                               const val = e.target.value;
                               if (val === '') {
