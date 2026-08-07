@@ -34,7 +34,8 @@ export default function FeesManagement() {
     description: '',
     dueDate: '',
     status: 'PENDING',
-    discount: '0'
+    discount: '0',
+    feeType: 'TUITION'
   });
 
   const [bulkFormData, setBulkFormData] = useState({
