@@ -27,18 +27,29 @@ This project is an end-to-end multi-portal School LMS providing distinct interfa
 1. **Clone the repository**
    ```bash
    git clone https://github.com/abdulhadi-js/Lms.git
-   cd Lms/Frontend
+   cd Lms
    ```
-2. **Install Dependencies**
+
+2. **Start the Backend Server**
+   Navigate to the backend directory, install dependencies, and start the API server:
    ```bash
+   cd Backend
+   npm install
+   npm run start
+   ```
+   *(Ensure your database environment variables are configured in the Backend directory before starting)*
+
+3. **Start the Frontend Client**
+   Open a new terminal window, navigate to the frontend directory, install dependencies, and start the Next.js app:
+   ```bash
+   cd Frontend
    npm install
    ```
-3. **Set Environment Variables**
-   Create a `.env.local` file in the `Frontend` directory with the following variables:
+   Create a `.env.local` file in the `Frontend` directory with the following variable:
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
    ```
-4. **Run the Development Server**
+   Then start the development server:
    ```bash
    npm run dev
    ```
