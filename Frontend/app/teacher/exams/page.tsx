@@ -30,7 +30,8 @@ export default function ExamsManagement() {
   // Exam Form
   const [eForm, setEForm] = useState({
     title: '', durationMinutes: 60, totalMarks: 100,
-    startTime: '', endTime: ''
+    startTime: '', endTime: '',
+    examType: 'MONTHLY_TEST'
   });
   
   // Assign Questions
@@ -107,9 +108,9 @@ export default function ExamsManagement() {
         startTime: new Date(eForm.startTime).toISOString(),
         endTime: new Date(eForm.endTime).toISOString()
       });
-      toast.success('Exam drafted successfully');
+      toast.success('Exam/Quiz scheduled successfully');
       setIsExamModalOpen(false);
-      setEForm({ title: '', durationMinutes: 60, totalMarks: 100, startTime: '', endTime: '' });
+      setEForm({ title: '', durationMinutes: 60, totalMarks: 100, startTime: '', endTime: '', examType: 'MONTHLY_TEST' });
       loadData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to draft exam');
@@ -170,8 +171,8 @@ export default function ExamsManagement() {
     <div className="max-w-[1280px] mx-auto px-4 md:px-[32px] py-8 pb-24 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-heading-on-light">Examination & CBT</h2>
-          <p className="text-sm text-body-secondary mt-1">Build question banks and schedule online tests.</p>
+          <h2 className="text-3xl font-bold text-heading-on-light">Exams & Quiz Management</h2>
+          <p className="text-sm text-body-secondary mt-1">Schedule monthly tests, quizzes, mid-terms and annual exams for your subjects.</p>
         </div>
         
         <select 
@@ -416,13 +417,23 @@ export default function ExamsManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-surface rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-5 border-b border-divider flex justify-between items-center">
-              <h3 className="text-lg font-bold">Create Online Exam</h3>
+              <h3 className="text-lg font-bold">Schedule Exam / Quiz</h3>
               <button onClick={() => setIsExamModalOpen(false)} className="text-icon-inactive hover:text-error">&times;</button>
             </div>
             <form onSubmit={saveExam} className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Exam Title</label>
-                <input type="text" required value={eForm.title} onChange={e => setEForm({...eForm, title: e.target.value})} placeholder="Midterm Exam" className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+                <label className="block text-sm font-medium mb-1">Exam Type <span className="text-error">*</span></label>
+                <select required value={eForm.examType} onChange={e => setEForm({...eForm, examType: e.target.value})} className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
+                  <option value="MONTHLY_TEST">Monthly Test</option>
+                  <option value="QUIZ">Quiz / Class Test</option>
+                  <option value="MID_TERM">Mid-Term Exam</option>
+                  <option value="HALF_YEARLY">Half-Yearly Exam</option>
+                  <option value="ANNUAL">Annual Examination</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Exam Title <span className="text-error">*</span></label>
+                <input type="text" required value={eForm.title} onChange={e => setEForm({...eForm, title: e.target.value})} placeholder="e.g. Chapter 3 Quiz" className="w-full bg-surface border border-border-light rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
