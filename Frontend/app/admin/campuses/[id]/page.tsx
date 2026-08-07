@@ -12,6 +12,7 @@ export default function CampusDetails() {
   const [campus, setCampus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   const [formData, setFormData] = useState({ name: '', code: '', address: '', contactPhone: '', isActive: true });
 
@@ -147,17 +148,23 @@ export default function CampusDetails() {
             <p className="text-xs text-error/80 mb-4">Deactivating or deleting a campus can affect all users and classes assigned to it. Proceed with caution.</p>
             <button 
               type="button"
-              className="w-full px-4 py-2 bg-error text-white rounded-lg text-sm font-semibold hover:bg-error/90 transition-colors"
+              disabled={deleting}
+              className="w-full px-4 py-2 bg-error text-white rounded-lg text-sm font-semibold hover:bg-error/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete this campus?')) {
+                  setDeleting(true);
                   campusesApi.remove(id).then(() => {
                     toast.success('Campus deleted');
                     router.push('/admin/campuses');
-                  }).catch((err: any) => toast.error(err.message));
+                  }).catch((err: any) => {
+                    toast.error(err.message);
+                    setDeleting(false);
+                  });
                 }
               }}
             >
-              Delete Campus
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {deleting ? 'Deleting...' : 'Delete Campus'}
             </button>
           </div>
         </div>
