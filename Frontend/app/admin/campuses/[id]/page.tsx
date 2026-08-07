@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Building2, MapPin, Phone, ArrowLeft, Loader2, Save, Trash2 } from 'lucide-react';
+import { Building2, MapPin, Phone, ArrowLeft, Loader2, Save, Trash2, Users, GraduationCap, BookOpen, UserCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { campusesApi } from '@/lib/api';
+import { campusesApi, usersApi, academicsApi } from '@/lib/api';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,6 +10,11 @@ export default function CampusDetails() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const [campus, setCampus] = useState<any>(null);
+  
+  const [students, setStudents] = useState<any[]>([]);
+  const [staff, setStaff] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -17,20 +22,41 @@ export default function CampusDetails() {
   const [formData, setFormData] = useState({ name: '', code: '', address: '', contactPhone: '', isActive: true });
 
   useEffect(() => {
-    fetchCampus();
+    fetchCampusData();
   }, [id]);
 
-  const fetchCampus = async () => {
+  const fetchCampusData = async () => {
     try {
-      const data = await campusesApi.get(id);
-      setCampus(data);
+      const [campusData, allUsers, allClasses] = await Promise.all([
+        campusesApi.get(id),
+        usersApi.list(undefined, 10000, 0).catch(() => []), // fetch max 10k users
+        academicsApi.listClasses().catch(() => [])
+      ]);
+      
+      setCampus(campusData);
       setFormData({ 
-        name: data.name, 
-        code: data.code, 
-        address: data.address || '', 
-        contactPhone: data.contactPhone || '',
-        isActive: data.isActive !== false
+        name: campusData.name, 
+        code: campusData.code, 
+        address: campusData.address || '', 
+        contactPhone: campusData.contactPhone || '',
+        isActive: campusData.isActive !== false
       });
+
+      const usersArr = Array.isArray(allUsers) ? allUsers : [];
+      const campusUsers = usersArr.filter(u => (u.campusId === id || u.campus?.id === id));
+      
+      setStudents(campusUsers.filter(u => {
+        const roleName = (u.role?.name || u.role || '').toUpperCase();
+        return roleName === 'STUDENT';
+      }));
+      setStaff(campusUsers.filter(u => {
+        const roleName = (u.role?.name || u.role || '').toUpperCase();
+        return roleName && roleName !== 'STUDENT';
+      }));
+
+      const classesArr = Array.isArray(allClasses) ? allClasses : [];
+      setClasses(classesArr.filter(c => (c.campusId === id || c.campus?.id === id)));
+
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch campus details');
       router.push('/admin/campuses');
@@ -45,7 +71,7 @@ export default function CampusDetails() {
     try {
       await campusesApi.update(id, formData);
       toast.success('Campus updated successfully');
-      fetchCampus();
+      fetchCampusData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to update campus');
     } finally {
@@ -71,15 +97,47 @@ export default function CampusDetails() {
             <Building2 className="w-8 h-8 text-primary" />
             {campus.name}
           </h2>
-          <p className="text-sm text-body-secondary mt-1">Manage details and settings for this campus branch.</p>
+          <p className="text-sm text-body-secondary mt-1">Manage details, staff, students, and departments for this campus.</p>
+        </div>
+      </div>
+
+      {/* Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="bg-surface border border-divider brand-shadow rounded-xl p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+            <GraduationCap className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-body-secondary uppercase tracking-wider">Total Students</p>
+            <h4 className="text-2xl font-black text-heading-on-light">{students.length}</h4>
+          </div>
+        </div>
+        <div className="bg-surface border border-divider brand-shadow rounded-xl p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-[#10b981]/10 flex items-center justify-center shrink-0">
+            <UserCircle className="w-6 h-6 text-[#10b981]" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-body-secondary uppercase tracking-wider">Total Staff</p>
+            <h4 className="text-2xl font-black text-heading-on-light">{staff.length}</h4>
+          </div>
+        </div>
+        <div className="bg-surface border border-divider brand-shadow rounded-xl p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center shrink-0">
+            <BookOpen className="w-6 h-6 text-[#8b5cf6]" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-body-secondary uppercase tracking-wider">Active Classes</p>
+            <h4 className="text-2xl font-black text-heading-on-light">{classes.length}</h4>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Form & Lists */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
             <div className="p-5 border-b border-divider bg-surface-container-lowest">
-              <h3 className="font-bold text-lg text-heading-on-light">Campus Information</h3>
+              <h3 className="font-bold text-lg text-heading-on-light">Campus Profile</h3>
             </div>
             <form onSubmit={handleUpdate} className="p-5 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -126,11 +184,51 @@ export default function CampusDetails() {
               </div>
             </form>
           </div>
+
+          {/* Associated Users Table Preview */}
+          <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
+             <div className="p-5 border-b border-divider flex justify-between items-center bg-surface-container-lowest">
+               <h3 className="font-bold text-lg text-heading-on-light flex items-center gap-2">
+                 <Users className="w-5 h-5 text-primary" /> Staff Directory
+               </h3>
+               <Link href="/admin/users" className="text-xs font-semibold text-primary hover:underline">View All →</Link>
+             </div>
+             <div className="p-0">
+               {staff.length > 0 ? (
+                 <div className="divide-y divide-border-light">
+                   {staff.slice(0, 5).map(s => (
+                     <div key={s.id} className="p-4 flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                           {s.firstName?.[0]}{s.lastName?.[0]}
+                         </div>
+                         <div>
+                           <p className="text-sm font-semibold text-on-surface">{s.firstName} {s.lastName}</p>
+                           <p className="text-xs text-body-secondary">{s.email}</p>
+                         </div>
+                       </div>
+                       <span className="text-xs font-bold text-[#10b981] bg-[#10b981]/10 px-2 py-1 rounded-md uppercase tracking-wider">
+                         {s.role?.name || s.role || 'STAFF'}
+                       </span>
+                     </div>
+                   ))}
+                   {staff.length > 5 && (
+                     <div className="p-4 text-center text-xs font-medium text-body-secondary bg-surface-container-lowest">
+                       + {staff.length - 5} more staff members
+                     </div>
+                   )}
+                 </div>
+               ) : (
+                 <p className="p-8 text-center text-sm text-body-secondary">No staff members found for this campus.</p>
+               )}
+             </div>
+          </div>
         </div>
 
+        {/* Right Column: Classes, Stats & Danger Zone */}
         <div className="space-y-6">
           <div className="bg-surface rounded-xl border border-divider brand-shadow p-5">
-            <h3 className="font-bold text-lg text-heading-on-light mb-4">Quick Stats</h3>
+            <h3 className="font-bold text-lg text-heading-on-light mb-4">Quick Info</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-surface-container-lowest rounded-lg border border-border-light">
                 <span className="text-sm font-medium text-body-secondary">Created At</span>
@@ -141,6 +239,34 @@ export default function CampusDetails() {
                 <span className="text-sm font-bold text-on-surface">{new Date(campus.updatedAt).toLocaleDateString()}</span>
               </div>
             </div>
+          </div>
+
+          <div className="bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
+             <div className="p-5 border-b border-divider flex justify-between items-center bg-surface-container-lowest">
+               <h3 className="font-bold text-lg text-heading-on-light flex items-center gap-2">
+                 <BookOpen className="w-5 h-5 text-[#8b5cf6]" /> Classes
+               </h3>
+               <Link href="/admin/academics/classes" className="text-xs font-semibold text-[#8b5cf6] hover:underline">View All →</Link>
+             </div>
+             <div className="p-0">
+               {classes.length > 0 ? (
+                 <div className="divide-y divide-border-light">
+                   {classes.slice(0, 5).map(c => (
+                     <div key={c.id} className="p-4 hover:bg-surface-container-lowest transition-colors">
+                       <p className="text-sm font-semibold text-on-surface">{c.name}</p>
+                       <p className="text-xs text-body-secondary">Capacity: {c.capacity}</p>
+                     </div>
+                   ))}
+                   {classes.length > 5 && (
+                     <div className="p-4 text-center text-xs font-medium text-body-secondary bg-surface-container-lowest">
+                       + {classes.length - 5} more classes
+                     </div>
+                   )}
+                 </div>
+               ) : (
+                 <p className="p-6 text-center text-sm text-body-secondary">No classes created yet.</p>
+               )}
+             </div>
           </div>
           
           <div className="bg-error-bg/30 rounded-xl border border-error/20 p-5">
@@ -172,3 +298,4 @@ export default function CampusDetails() {
     </div>
   );
 }
+
