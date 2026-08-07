@@ -54,7 +54,15 @@ export default function UserManagement() {
     fatherPhone: '',
     motherName: '',
     guardianName: '',
-    address: ''
+    address: '',
+    // Pakistani student-specific required fields
+    grNumber: '',
+    bFormNumber: '',
+    dateOfBirth: '',
+    gender: '',
+    className: '',
+    section: '',
+    religion: 'Islam'
   });
 
   const { data: usersData, isLoading: isUsersLoading } = useQuery<any[]>({
@@ -130,7 +138,14 @@ export default function UserManagement() {
         fatherPhone: '',
         motherName: '',
         guardianName: '',
-        address: ''
+        address: '',
+        grNumber: '',
+        bFormNumber: '',
+        dateOfBirth: '',
+        gender: '',
+        className: '',
+        section: '',
+        religion: 'Islam'
       });
     }
     setIsModalOpen(true);
@@ -158,8 +173,18 @@ export default function UserManagement() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isEditMode && !formData.password) {
-      toast.error("Password is required for new users");
+      toast.error('Password is required for new users');
       return;
+    }
+
+    const isStudentRole = roles.find(r => r.id === formData.roleId)?.name === 'STUDENT';
+    if (isStudentRole && !isEditMode) {
+      if (!formData.phone) { toast.error('Student phone number is required'); return; }
+      if (!formData.dateOfBirth) { toast.error('Date of Birth is required'); return; }
+      if (!formData.gender) { toast.error('Gender is required'); return; }
+      if (!formData.fatherName) { toast.error("Father's Name is required"); return; }
+      if (!formData.fatherPhone) { toast.error("Father's Phone is required"); return; }
+      if (!formData.address) { toast.error('Home Address is required'); return; }
     }
     
     const payload: any = {
@@ -176,7 +201,14 @@ export default function UserManagement() {
       fatherPhone: formData.fatherPhone || undefined,
       motherName: formData.motherName || undefined,
       guardianName: formData.guardianName || undefined,
-      address: formData.address || undefined
+      address: formData.address || undefined,
+      grNumber: formData.grNumber || undefined,
+      bFormNumber: formData.bFormNumber || undefined,
+      dateOfBirth: formData.dateOfBirth || undefined,
+      gender: formData.gender || undefined,
+      className: formData.className || undefined,
+      section: formData.section || undefined,
+      religion: formData.religion || undefined,
     };
     
     if (formData.password) {
@@ -595,55 +627,148 @@ export default function UserManagement() {
               {roles.find(r => r.id === formData.roleId)?.name === 'STUDENT' && (
                 <div className="pt-4 border-t border-divider space-y-4">
                   <h4 className="text-sm font-bold text-primary flex items-center gap-2">
-                    <Users className="w-4 h-4" /> Family / Guardian Details
+                    <Users className="w-4 h-4" /> Student Details
+                    <span className="ml-auto text-xs font-normal text-body-secondary">Fields marked * are required</span>
                   </h4>
+
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Phone / Contact No. <span className="text-error">*</span></label>
+                      <input
+                        type="tel" required placeholder="03XX-XXXXXXX"
+                        value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Date of Birth <span className="text-error">*</span></label>
+                      <input
+                        type="date" required
+                        value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Gender <span className="text-error">*</span></label>
+                      <select
+                        required
+                        value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      >
+                        <option value="" disabled>Select Gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Religion</label>
+                      <select
+                        value={formData.religion} onChange={e => setFormData({...formData, religion: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      >
+                        <option value="Islam">Islam</option>
+                        <option value="Christianity">Christianity</option>
+                        <option value="Hinduism">Hinduism</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Official Record */}
+                  <h4 className="text-xs font-bold text-body-secondary uppercase tracking-wide pt-2">Official School Record</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">GR Number</label>
+                      <input
+                        type="text" placeholder="Auto-generated if blank"
+                        value={formData.grNumber} onChange={e => setFormData({...formData, grNumber: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">B-Form / CNIC No.</label>
+                      <input
+                        type="text" placeholder="XXXXX-XXXXXXX-X"
+                        value={formData.bFormNumber} onChange={e => setFormData({...formData, bFormNumber: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Class</label>
+                      <select
+                        value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      >
+                        <option value="">Select Class</option>
+                        {['Nursery','KG','1','2','3','4','5','6','7','8','9','10','11','12'].map(c => (
+                          <option key={c} value={c}>Class {c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Section</label>
+                      <select
+                        value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      >
+                        <option value="">Select Section</option>
+                        {['A','B','C','D','E'].map(s => (
+                          <option key={s} value={s}>Section {s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Guardian Info */}
+                  <h4 className="text-xs font-bold text-body-secondary uppercase tracking-wide pt-2">Family / Guardian Info</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="col-span-1 sm:col-span-2">
-                      <label className="block text-xs font-medium text-on-surface mb-1">Family Code (Link to existing sibling)</label>
-                      <input 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Family Code <span className="text-body-secondary font-normal">(Link siblings)</span></label>
+                      <input
                         type="text" placeholder="e.g. FAM-1234"
                         value={formData.familyCode} onChange={e => setFormData({...formData, familyCode: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface-container text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface-container text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-on-surface mb-1">Father's Name</label>
-                      <input 
-                        type="text" 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Father&apos;s Name <span className="text-error">*</span></label>
+                      <input
+                        type="text" required placeholder="Full Name"
                         value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-on-surface mb-1">Father's Phone</label>
-                      <input 
-                        type="text" 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Father&apos;s Phone <span className="text-error">*</span></label>
+                      <input
+                        type="tel" required placeholder="03XX-XXXXXXX"
                         value={formData.fatherPhone} onChange={e => setFormData({...formData, fatherPhone: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-on-surface mb-1">Mother's Name</label>
-                      <input 
-                        type="text" 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Mother&apos;s Name</label>
+                      <input
+                        type="text"
                         value={formData.motherName} onChange={e => setFormData({...formData, motherName: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-on-surface mb-1">Guardian's Name</label>
-                      <input 
-                        type="text" 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Guardian&apos;s Name</label>
+                      <input
+                        type="text"
                         value={formData.guardianName} onChange={e => setFormData({...formData, guardianName: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                     <div className="col-span-1 sm:col-span-2">
-                      <label className="block text-xs font-medium text-on-surface mb-1">Address</label>
-                      <input 
-                        type="text" 
+                      <label className="block text-xs font-semibold text-on-surface mb-1">Home Address <span className="text-error">*</span></label>
+                      <input
+                        type="text" required placeholder="Street, City"
                         value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" 
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       />
                     </div>
                   </div>
