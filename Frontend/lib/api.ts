@@ -287,7 +287,7 @@ export const rolesApi = {
 export const feesApi = {
   list: () => fetchAuthApi('/fees'),
   create: (data: any) => fetchAuthApi('/fees', { method: 'POST', body: JSON.stringify(data) }),
-  bulkGenerate: (data: { courseId: string; amount: number; dueDate: string; title: string }) => fetchAuthApi('/fees/bulk-generate', { method: 'POST', body: JSON.stringify(data) }),
+  bulkGenerate: (data: { courseId: string; amount: number; dueDate: string; title: string; feeType?: string }) => fetchAuthApi('/fees/bulk-generate', { method: 'POST', body: JSON.stringify(data) }),
   getFamilyConsolidated: (familyCode: string) => fetchAuthApi(`/fees/family/${familyCode}/consolidated`),
   pay: (id: string, amount: number) => fetchAuthApi(`/fees/${id}/pay`, {
     method: 'POST',
