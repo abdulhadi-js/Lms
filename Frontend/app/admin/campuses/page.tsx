@@ -68,7 +68,7 @@ export default function CampusesManagement() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {campuses.map(campus => (
-            <div key={campus.id} onClick={() => router.push('/admin')} className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+            <div key={campus.id} onClick={() => router.push(`/admin/campuses/${campus.id}`)} className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
               <div className="h-2 bg-gradient-to-r from-primary to-secondary" />
               <div className="p-5">
                 <div className="flex justify-between items-start mb-4">
