@@ -333,7 +333,7 @@ export default function ReportsAnalytics() {
                   const entries = Object.entries(grouped);
                   if (entries.length === 0) return <div className="text-sm text-body-secondary py-4">No fee data available.</div>;
 
-                  return entries.map(([type, data]) => {
+                  return entries.map(([type, data]: [string, any]) => {
                     const percent = data.total > 0 ? (data.collected / data.total) * 100 : 0;
                     return (
                       <div key={type}>
