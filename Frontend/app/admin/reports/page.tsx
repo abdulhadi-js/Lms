@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock, DollarSign } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { reportsApi } from '@/lib/api';
+import { reportsApi, feesApi } from '@/lib/api';
 import Link from 'next/link';
 
 export default function ReportsAnalytics() {
@@ -13,6 +13,7 @@ export default function ReportsAnalytics() {
   const [performanceData, setPerformanceData] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [fees, setFees] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -22,10 +23,12 @@ export default function ReportsAnalytics() {
           reportsApi.overview(),
           reportsApi.atRisk(undefined, 60),
           reportsApi.performance(),
-          reportsApi.attendance()
+          reportsApi.attendance(),
+          feesApi.list()
         ]);
         setOverview(ovData);
         setAtRisk(riskData);
+        setFees(feesData.data || feesData || []);
         
         const perfArray = Array.isArray(perfData) ? perfData : [];
         setPerformanceData(perfArray);
@@ -65,7 +68,7 @@ export default function ReportsAnalytics() {
         </div>
         <div className="flex gap-2 print:hidden">
           <Link href="/admin/reports/pnl" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
-            <DollarSign className="w-4 h-4" />
+            <span className="text-xs font-bold">Rs.</span>
             P&L Closing
           </Link>
           <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-light rounded-lg text-sm font-medium hover:bg-surface-container transition-colors brand-shadow">
@@ -108,7 +111,7 @@ export default function ReportsAnalytics() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-medium text-body-secondary">Total Revenue</p>
-                  <h3 className="text-2xl font-bold text-on-surface mt-2">${overview?.totalFeesCollected?.toFixed(2) || '0.00'}</h3>
+                  <h3 className="text-2xl font-bold text-on-surface mt-2">Rs. {Number(overview?.totalFeesCollected || 0).toLocaleString('en-PK')}</h3>
                 </div>
                 <div className="p-3 bg-success-bg text-success rounded-lg">
                   <TrendingUp className="w-5 h-5" />
@@ -268,6 +271,84 @@ export default function ReportsAnalytics() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 bg-surface rounded-xl border border-divider brand-shadow overflow-hidden">
+              <div className="p-5 border-b border-divider bg-surface flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-bold text-heading-on-light">Monthly Fee Defaulter List</h3>
+                  <p className="text-sm text-body-secondary">Students with outstanding fee dues for the current month.</p>
+                </div>
+                <button onClick={() => window.print()} className="border border-border-light bg-surface px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-surface-container flex items-center gap-2">
+                  <Download className="w-3 h-3" /> Print Defaulter List
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
+                      <th className="py-3 px-4 font-semibold">Student Name</th>
+                      <th className="py-3 px-4 font-semibold">Fee Type</th>
+                      <th className="py-3 px-4 font-semibold">Amount Due (Rs.)</th>
+                      <th className="py-3 px-4 font-semibold">Due Date</th>
+                      <th className="py-3 px-4 font-semibold text-right">Days Overdue</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {(() => {
+                      const defaulters = fees.filter(f => f.status === 'PENDING' || f.status === 'OVERDUE');
+                      if (defaulters.length === 0) return <tr><td colSpan={5} className="py-8 text-center text-body-secondary">No outstanding fees found.</td></tr>;
+                      return defaulters.map((f, i) => {
+                        const dueDate = new Date(f.dueDate);
+                        const daysOverdue = Math.max(0, Math.floor((new Date().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
+                        return (
+                          <tr key={i} className="border-b border-border-light hover:bg-surface-container/10 transition-colors">
+                            <td className="py-3 px-4 font-medium text-on-surface text-xs">{f.student?.firstName} {f.student?.lastName}</td>
+                            <td className="py-3 px-4 text-body-secondary">{f.feeType}</td>
+                            <td className="py-3 px-4 font-bold text-error">Rs. {Number(f.amount || 0).toLocaleString('en-PK')}</td>
+                            <td className="py-3 px-4 text-body-secondary">{new Date(f.dueDate).toLocaleDateString()}</td>
+                            <td className="py-3 px-4 text-right font-medium text-error">{daysOverdue} days</td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-surface p-5 rounded-xl border border-divider brand-shadow flex flex-col">
+              <h3 className="text-lg font-bold text-heading-on-light mb-4">Fee Collection by Type</h3>
+              <div className="flex-1 space-y-4">
+                {(() => {
+                  const grouped = fees.reduce((acc, f) => {
+                    const type = f.feeType || 'OTHER';
+                    if (!acc[type]) acc[type] = { collected: 0, total: 0 };
+                    acc[type].total += Number(f.amount || 0);
+                    if (f.status === 'PAID') acc[type].collected += Number(f.amount || 0);
+                    return acc;
+                  }, {} as Record<string, {collected: number, total: number}>);
+                  
+                  const entries = Object.entries(grouped);
+                  if (entries.length === 0) return <div className="text-sm text-body-secondary py-4">No fee data available.</div>;
+
+                  return entries.map(([type, data]) => {
+                    const percent = data.total > 0 ? (data.collected / data.total) * 100 : 0;
+                    return (
+                      <div key={type}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium text-on-surface">{type}</span>
+                          <span className="text-body-secondary">Rs. {Number(data.collected).toLocaleString('en-PK')} / Rs. {Number(data.total).toLocaleString('en-PK')}</span>
+                        </div>
+                        <div className="w-full bg-surface-container rounded-full h-2">
+                          <div className="bg-primary h-2 rounded-full" style={{ width: `${percent}%` }}></div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </div>
         </>

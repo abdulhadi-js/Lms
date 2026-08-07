@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck, LibraryBig } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, BarChart3, Settings, LogOut, Bell, Menu, Calendar, ChevronLeft, ChevronRight, X, Building2, ShieldCheck, LibraryBig, FileText } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { BASE_URL } from '@/lib/api';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -57,6 +57,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Academics', path: '/admin/academics', icon: BookOpen, moduleId: 'ACADEMICS' },
         { name: 'Streams & Groups', path: '/admin/academic-groups', icon: LibraryBig, moduleId: 'ACADEMICS' },
         { name: 'Timetable', path: '/admin/timetable', icon: Calendar, moduleId: 'ACADEMICS' },
+        { name: 'Academic Calendar', path: '/admin/academic-calendar', icon: Calendar, moduleId: 'ACADEMICS' },
+        { name: 'Exam Schedule', path: '/admin/exam-schedule', icon: FileText, moduleId: 'ACADEMICS' },
       ]
     },
     {
