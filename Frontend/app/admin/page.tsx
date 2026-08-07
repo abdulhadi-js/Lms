@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
 
-  const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const currentDate = new Date().toLocaleDateString('en-PK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
     // B3 FIX: was overview?.totalCourses — now matches what the API actually returns (activeCourses)
     { title: 'Active Courses',        val: loading ? '...' : overview?.activeCourses ?? overview?.totalCourses ?? 0,  sub: 'Current semester',    icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
     { title: 'Pending Applications',  val: loading ? '...' : overview?.pendingApplications ?? 0,                      sub: 'Needs review',        icon: Clock,    color: 'text-warning',           bg: 'bg-warning/10' },
-    { title: 'Fees Collected',        val: loading ? '...' : `$${(overview?.totalFeesCollected || 0).toLocaleString()}`, sub: 'Total received',   icon: Banknote, color: 'text-success',           bg: 'bg-success/10' },
+    { title: 'Fees Collected',        val: loading ? '...' : `Rs. ${(overview?.totalFeesCollected || 0).toLocaleString('en-PK')}`, sub: 'Total received',   icon: Banknote, color: 'text-success',           bg: 'bg-success/10' },
   ];
 
   return (

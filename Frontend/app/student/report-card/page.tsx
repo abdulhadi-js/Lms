@@ -1,40 +1,53 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { marksApi, usersApi } from '@/lib/api';
+import { marksApi, usersApi, attendanceApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { ArrowLeft, Printer, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+
+function getPakGrade(pct: number): { letter: string; remarks: string } {
+  if (pct >= 90) return { letter: 'A+', remarks: 'Outstanding' };
+  if (pct >= 80) return { letter: 'A',  remarks: 'Excellent' };
+  if (pct >= 70) return { letter: 'B',  remarks: 'Good' };
+  if (pct >= 60) return { letter: 'C',  remarks: 'Satisfactory' };
+  if (pct >= 50) return { letter: 'D',  remarks: 'Pass' };
+  if (pct >= 40) return { letter: 'E',  remarks: 'Pass (Minimum)' };
+  return { letter: 'F', remarks: 'Fail' };
+}
 
 export default function ReportCard() {
   const router = useRouter();
   const { user } = useAuth();
-  
-  const [loading, setLoading] = useState(true);
-  const [student, setStudent] = useState<any>(null);
-  const [marks, setMarks] = useState<any[]>([]);
-  const [transcript, setTranscript] = useState<any>(null);
-  const [attendance, setAttendance] = useState({ present: 185, total: 210 }); // Mocked for simplicity or could be fetched
+
+  const [loading, setLoading]     = useState(true);
+  const [student, setStudent]     = useState<any>(null);
+  const [marks, setMarks]         = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<{ present: number; total: number } | null>(null);
 
   useEffect(() => {
-    if (user?.id) {
-      loadData(user.id);
-    }
+    if (user?.id) loadData(user.id);
   }, [user]);
 
   async function loadData(studentId: string) {
     setLoading(true);
     try {
-      const [profileData, marksData, transcriptData] = await Promise.all([
+      const [profileData, marksData, attData] = await Promise.all([
         usersApi.getUnifiedProfile(studentId),
         marksApi.getStudentMarks(studentId),
-        marksApi.getTranscript(studentId).catch(() => null)
+        // Fetch real attendance — sum across all courses
+        attendanceApi.get(undefined, studentId).catch(() => []),
       ]);
       setStudent(profileData);
-      setMarks(marksData);
-      setTranscript(transcriptData);
-    } catch (err: any) {
-      toast.error("Failed to load report card");
+      setMarks(Array.isArray(marksData) ? marksData : marksData?.data || []);
+
+      // Compute attendance from real data
+      const attList = Array.isArray(attData) ? attData : attData?.data || [];
+      const present = attList.filter((a: any) => a.status === 'PRESENT').length;
+      const total = attList.length;
+      setAttendance(total > 0 ? { present, total } : null);
+    } catch {
+      toast.error('Failed to load report card');
     } finally {
       setLoading(false);
     }
@@ -50,143 +63,180 @@ export default function ReportCard() {
 
   if (!student) return null;
 
-  const currentTerm = 'Annual 2026';
-  const grNumber = student.grNumber || student.id.slice(0, 8).toUpperCase();
-  const className = student.class || student.enrollments?.[0]?.course?.title || 'Not Enrolled';
-  const section = student.section || student.enrollments?.[0]?.section?.title || 'N/A';
-  
-  // Compute totals
-  let totalMarks = 0;
-  let obtainedMarks = 0;
-  
-  // Aggregate marks by course if needed, assuming marksData has course/subject info
-  const subjectsMap: Record<string, any> = {};
-  
-  marks.forEach(m => {
-    const subj = m.assignment?.course?.title || 'General';
-    if (!subjectsMap[subj]) {
-      subjectsMap[subj] = { obtained: 0, max: 0, grade: 'N/A' };
-    }
-    subjectsMap[subj].obtained += m.score || 0;
-    subjectsMap[subj].max += m.maxScore || 100;
+  const grNumber   = student.grNumber || student.id?.slice(0, 8).toUpperCase();
+  const className  = student.className || student.class?.name || student.enrollments?.[0]?.course?.classLevel || 'N/A';
+  const section    = student.section || 'N/A';
+  const fatherName = student.fatherName || student.family?.father?.name || 'N/A';
+  const rollNo     = student.rollNumber || student.grNumber || 'N/A';
+  const currentTerm = 'Annual Examination 2025–2026';
+
+  // Group marks by subject/course
+  const subjectsMap: Record<string, { obtained: number; max: number; code: string }> = {};
+  marks.forEach((m: any) => {
+    const subj = m.course?.title || m.assignment?.course?.title || m.subject || 'General';
+    const code = m.course?.code  || m.assignment?.course?.code  || '';
+    if (!subjectsMap[subj]) subjectsMap[subj] = { obtained: 0, max: 0, code };
+    subjectsMap[subj].obtained += Number(m.score ?? m.obtainedMarks ?? 0);
+    subjectsMap[subj].max      += Number(m.maxScore ?? m.totalMarks ?? m.course?.credits ?? 100);
   });
 
-  const subjectRows = Object.keys(subjectsMap).map(subj => {
-    const data = subjectsMap[subj];
+  let totalMarks = 0, obtainedMarks = 0;
+  const subjectRows = Object.entries(subjectsMap).map(([subj, data]) => {
     const pct = data.max > 0 ? (data.obtained / data.max) * 100 : 0;
-    
-    totalMarks += data.max;
+    totalMarks   += data.max;
     obtainedMarks += data.obtained;
-    
-    let grade = 'F';
-    if (pct >= 90) grade = 'A+';
-    else if (pct >= 80) grade = 'A';
-    else if (pct >= 70) grade = 'B';
-    else if (pct >= 60) grade = 'C';
-    else if (pct >= 50) grade = 'D';
-    
-    return { subject: subj, total: data.max, obtained: data.obtained, pct, grade };
+    const { letter, remarks } = getPakGrade(pct);
+    return { subject: subj, code: data.code, total: data.max, obtained: data.obtained, pct, letter, remarks };
   });
 
   const overallPct = totalMarks > 0 ? (obtainedMarks / totalMarks) * 100 : 0;
-  let overallGrade = 'F';
-  if (overallPct >= 90) overallGrade = 'A+';
-  else if (overallPct >= 80) overallGrade = 'A';
-  else if (overallPct >= 70) overallGrade = 'B';
-  else if (overallPct >= 60) overallGrade = 'C';
-  else if (overallPct >= 50) overallGrade = 'D';
+  const { letter: overallGrade, remarks: overallRemarks } = getPakGrade(overallPct);
+  const isPassed = overallPct >= 40;
+
+  const attPct = attendance ? ((attendance.present / attendance.total) * 100).toFixed(0) : null;
 
   return (
     <div className="max-w-[1000px] mx-auto px-4 py-8 space-y-6 print:block w-full">
       <style dangerouslySetInnerHTML={{ __html: `
-        @media print { 
+        @media print {
           body { -webkit-print-color-adjust: exact; background: white !important; }
           .print-hidden { display: none !important; }
+          .print-border { border: 1px solid #000 !important; }
         }
       `}} />
-      
+
+      {/* Controls */}
       <div className="flex justify-between items-center print-hidden mb-6">
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center text-sm font-semibold hover:text-primary transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        <button onClick={() => router.back()}
+          className="flex items-center text-sm font-semibold hover:text-primary transition-colors gap-1">
+          <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <button
-          onClick={() => window.print()}
-          className="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2"
-        >
+        <button onClick={() => window.print()}
+          className="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
           <Printer className="w-4 h-4" /> Print Result Card
         </button>
       </div>
 
-      <div className="border-4 border-slate-800 p-8 bg-white text-black print:p-0 print:border-none">
-        <div className="text-center border-b-2 border-slate-800 pb-4 mb-6">
-          <h1 className="text-3xl font-bold uppercase tracking-wider mb-2">EduCore LMS / School Name</h1>
-          <h2 className="text-xl font-semibold uppercase">Progress Report Card — 2025-2026</h2>
+      {/* Report Card */}
+      <div className="border-4 border-slate-800 bg-white text-black p-8 print:p-4 print:border-2">
+
+        {/* Header */}
+        <div className="text-center border-b-2 border-slate-800 pb-4 mb-5">
+          <h1 className="text-2xl font-bold uppercase tracking-wider">EduCore School System</h1>
+          <h2 className="text-lg font-semibold uppercase mt-1">Progress Report Card — 2025–2026</h2>
+          <p className="text-sm mt-1 text-gray-600">{currentTerm}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6 text-sm font-semibold">
-          <div>
-            <p className="mb-2"><span className="inline-block w-24">Student:</span> <span className="border-b border-black inline-block w-48">{student.firstName} {student.lastName}</span></p>
-            <p className="mb-2"><span className="inline-block w-24">Class:</span> <span className="border-b border-black inline-block w-48">{className}</span></p>
-            <p className="mb-2"><span className="inline-block w-24">Roll No:</span> <span className="border-b border-black inline-block w-48">{student.rollNumber || 'N/A'}</span></p>
-          </div>
-          <div>
-            <p className="mb-2"><span className="inline-block w-24">GR No:</span> <span className="border-b border-black inline-block w-48">{grNumber}</span></p>
-            <p className="mb-2"><span className="inline-block w-24">Section:</span> <span className="border-b border-black inline-block w-48">{section}</span></p>
-            <p className="mb-2"><span className="inline-block w-24">Term:</span> <span className="border-b border-black inline-block w-48">{currentTerm}</span></p>
-          </div>
+        {/* Student Info Grid */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 mb-5 text-sm">
+          <p><span className="font-semibold inline-block w-28">Student Name:</span>
+            <span className="border-b border-black inline-block w-44">{student.firstName} {student.lastName}</span></p>
+          <p><span className="font-semibold inline-block w-28">GR Number:</span>
+            <span className="border-b border-black inline-block w-44 font-mono">{grNumber}</span></p>
+          <p><span className="font-semibold inline-block w-28">Father's Name:</span>
+            <span className="border-b border-black inline-block w-44">{fatherName}</span></p>
+          <p><span className="font-semibold inline-block w-28">Roll No:</span>
+            <span className="border-b border-black inline-block w-44">{rollNo}</span></p>
+          <p><span className="font-semibold inline-block w-28">Class:</span>
+            <span className="border-b border-black inline-block w-44">{className}</span></p>
+          <p><span className="font-semibold inline-block w-28">Section:</span>
+            <span className="border-b border-black inline-block w-44">{section}</span></p>
         </div>
 
-        <table className="w-full border-collapse border-2 border-slate-800 mb-6 text-sm text-center">
+        {/* Marks Table */}
+        <table className="w-full border-collapse border-2 border-slate-800 mb-5 text-sm text-center">
           <thead>
-            <tr className="border-b-2 border-slate-800 bg-slate-100">
-              <th className="border-r border-slate-800 p-2 text-left w-2/5">Subject</th>
-              <th className="border-r border-slate-800 p-2">Tot. Marks</th>
-              <th className="border-r border-slate-800 p-2">Obtained</th>
-              <th className="border-r border-slate-800 p-2">%</th>
-              <th className="p-2">Grade</th>
+            <tr className="bg-slate-100 border-b-2 border-slate-800">
+              <th className="border border-slate-800 p-2 text-left w-1/3">Subject</th>
+              <th className="border border-slate-800 p-2 w-16">Code</th>
+              <th className="border border-slate-800 p-2 w-20">Tot. Marks</th>
+              <th className="border border-slate-800 p-2 w-20">Obtained</th>
+              <th className="border border-slate-800 p-2 w-16">%</th>
+              <th className="border border-slate-800 p-2 w-14">Grade</th>
+              <th className="border border-slate-800 p-2">Remarks</th>
             </tr>
           </thead>
           <tbody>
             {subjectRows.length > 0 ? subjectRows.map((row, i) => (
-              <tr key={i} className="border-b border-slate-800">
-                <td className="border-r border-slate-800 p-2 text-left font-medium">{row.subject}</td>
-                <td className="border-r border-slate-800 p-2">{row.total}</td>
-                <td className="border-r border-slate-800 p-2">{row.obtained}</td>
-                <td className="border-r border-slate-800 p-2">{row.pct.toFixed(1)}%</td>
-                <td className="p-2 font-bold">{row.grade}</td>
+              <tr key={i} className="border-b border-slate-400">
+                <td className="border border-slate-400 p-2 text-left font-medium">{row.subject}</td>
+                <td className="border border-slate-400 p-2 font-mono text-xs">{row.code}</td>
+                <td className="border border-slate-400 p-2">{row.total}</td>
+                <td className="border border-slate-400 p-2 font-semibold">{row.obtained}</td>
+                <td className="border border-slate-400 p-2">{row.pct.toFixed(1)}%</td>
+                <td className={`border border-slate-400 p-2 font-bold ${row.letter === 'F' ? 'text-red-700' : row.letter === 'A+' || row.letter === 'A' ? 'text-green-700' : ''}`}>
+                  {row.letter}
+                </td>
+                <td className="border border-slate-400 p-2 text-xs">{row.remarks}</td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={5} className="p-4 text-center">No subjects recorded.</td>
+                <td colSpan={7} className="p-6 text-center text-gray-500 italic">
+                  No exam results recorded yet.
+                </td>
               </tr>
             )}
           </tbody>
         </table>
 
-        <div className="border-2 border-slate-800 p-4 mb-6 text-sm grid grid-cols-3 gap-4">
-          <div className="font-semibold">Total: {totalMarks}</div>
-          <div className="font-semibold">Obtained: {obtainedMarks}</div>
-          <div className="font-semibold">Pct: {overallPct.toFixed(1)}%</div>
-          <div className="font-semibold">Overall Grade: {overallGrade}</div>
-          <div className="font-semibold">Position: 3rd in class</div>
-          <div className="font-semibold text-green-700">Remarks: Promoted to Next Class</div>
+        {/* Summary Row */}
+        <div className="border-2 border-slate-800 p-4 mb-4 text-sm grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div><span className="font-semibold">Total Marks:</span> {totalMarks}</div>
+          <div><span className="font-semibold">Marks Obtained:</span> {obtainedMarks}</div>
+          <div><span className="font-semibold">Percentage:</span> {overallPct.toFixed(1)}%</div>
+          <div>
+            <span className="font-semibold">Grade:</span>{' '}
+            <span className={`font-bold ${overallGrade === 'F' ? 'text-red-700' : 'text-green-700'}`}>
+              {overallGrade} — {overallRemarks}
+            </span>
+          </div>
         </div>
 
-        <div className="border-2 border-slate-800 p-4 mb-12 text-sm font-semibold">
-          Attendance: {attendance.present}/{attendance.total} days ({((attendance.present/attendance.total)*100).toFixed(0)}%)
+        {/* Attendance & Result */}
+        <div className="border-2 border-slate-800 p-4 mb-4 text-sm grid grid-cols-2 gap-3">
+          <div>
+            <span className="font-semibold">Attendance:</span>{' '}
+            {attendance
+              ? `${attendance.present}/${attendance.total} days (${attPct}%)`
+              : 'Not recorded'}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">Result:</span>
+            {isPassed ? (
+              <span className="flex items-center gap-1 text-green-700 font-bold">
+                <CheckCircle2 className="w-4 h-4" /> PASS — Promoted
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-red-700 font-bold">
+                <XCircle className="w-4 h-4" /> FAIL — Detained
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex justify-between items-end mt-12 text-sm font-semibold">
+        {/* Pakistani Grading Scale Reference */}
+        <div className="border border-slate-400 p-3 mb-6 text-xs">
+          <p className="font-bold mb-1">Grading Scale (Pakistani Board):</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {[['A+','90–100','Outstanding'],['A','80–89','Excellent'],['B','70–79','Good'],['C','60–69','Satisfactory'],['D','50–59','Pass'],['E','40–49','Pass (Min.)'],['F','Below 40','Fail']].map(([g, r, l]) => (
+              <span key={g}><strong>{g}</strong>: {r} ({l})</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Signatures */}
+        <div className="flex justify-between items-end text-sm font-semibold mt-8 gap-4">
           <div className="text-center">
-            <div className="w-48 border-b border-black mb-2"></div>
-            Class Teacher
+            <div className="w-40 border-b-2 border-black mb-1"></div>
+            <p>Class Teacher</p>
           </div>
           <div className="text-center">
-            <div className="w-48 border-b border-black mb-2"></div>
-            Principal
+            <div className="w-40 border-b-2 border-black mb-1"></div>
+            <p>Head of Section</p>
+          </div>
+          <div className="text-center">
+            <div className="w-40 border-b-2 border-black mb-1"></div>
+            <p>Principal</p>
           </div>
         </div>
       </div>

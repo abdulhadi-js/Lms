@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock, DollarSign } from 'lucide-react';
+import { Download, Users, TrendingUp, AlertTriangle, BookOpen, Clock, Banknote } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { reportsApi, feesApi } from '@/lib/api';
 import Link from 'next/link';

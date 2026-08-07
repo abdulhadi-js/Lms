@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Plus, Search, TrendingUp, TrendingDown, DollarSign, Loader2, ArrowRight } from 'lucide-react';
+import { Plus, Search, TrendingUp, TrendingDown, Banknote, Loader2, ArrowRight } from 'lucide-react';
 import { RequireAccess } from '@/components/RequireAccess';
 import { financeApi } from '@/lib/api';
 
@@ -123,7 +123,7 @@ export default function AccountsManagement() {
             </div>
             <div>
               <p className="text-sm font-medium text-body-secondary uppercase tracking-wider">Manual Income</p>
-              <h3 className="text-2xl font-bold text-on-surface mt-1">${totalIncome.toLocaleString()}</h3>
+              <h3 className="text-2xl font-bold text-on-surface mt-1">Rs. {totalIncome.toLocaleString('en-PK')}</h3>
             </div>
           </div>
           
@@ -133,19 +133,19 @@ export default function AccountsManagement() {
             </div>
             <div>
               <p className="text-sm font-medium text-body-secondary uppercase tracking-wider">Total Expenses</p>
-              <h3 className="text-2xl font-bold text-on-surface mt-1">${totalExpense.toLocaleString()}</h3>
+              <h3 className="text-2xl font-bold text-on-surface mt-1">Rs. {totalExpense.toLocaleString('en-PK')}</h3>
             </div>
           </div>
 
           <div className="bg-surface rounded-xl border border-divider brand-shadow p-5 flex items-start gap-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-16 translate-x-16" />
             <div className="p-3 bg-primary-container/20 text-primary-fixed rounded-lg">
-              <DollarSign className="w-6 h-6" />
+              <Banknote className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-medium text-body-secondary uppercase tracking-wider">Net (Manual)</p>
               <h3 className={`text-2xl font-bold mt-1 ${netProfit >= 0 ? 'text-success' : 'text-error'}`}>
-                ${netProfit.toLocaleString()}
+                Rs. {netProfit.toLocaleString('en-PK')}
               </h3>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function AccountsManagement() {
               <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col justify-center items-center h-64 text-body-secondary">
-                <DollarSign className="w-12 h-12 mb-2 opacity-20" />
+                <Banknote className="w-12 h-12 mb-2 opacity-20" />
                 <p>No transactions found.</p>
               </div>
             ) : (
@@ -224,7 +224,7 @@ export default function AccountsManagement() {
                         {t.referenceNumber && <div className="text-xs text-body-secondary mt-0.5">Ref: {t.referenceNumber}</div>}
                       </td>
                       <td className={`py-3 px-4 text-right font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-error'}`}>
-                        {t.type === 'INCOME' ? '+' : '-'}${Number(t.amount).toLocaleString()}
+                        {t.type === 'INCOME' ? '+' : '-'}Rs. {Number(t.amount).toLocaleString('en-PK')}
                       </td>
                     </tr>
                   ))}

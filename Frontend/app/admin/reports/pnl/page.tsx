@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Download, Calendar, DollarSign, TrendingUp, TrendingDown, ArrowLeft, RefreshCcw } from 'lucide-react';
+import { Download, Calendar, Banknote, TrendingUp, TrendingDown, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { financeApi } from '@/lib/api';
 import Link from 'next/link';
 
@@ -102,7 +102,7 @@ export default function PnLReport() {
               </h3>
               <div className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
                 <span className="font-medium text-gray-700">Total Operational Income (Fees + Manual)</span>
-                <span className="text-xl font-bold text-success">${Number(data.totalIncome).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                <span className="text-xl font-bold text-success">Rs. {Number(data.totalIncome).toLocaleString('en-PK')}</span>
               </div>
             </div>
 
@@ -114,7 +114,7 @@ export default function PnLReport() {
               </h3>
               <div className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
                 <span className="font-medium text-gray-700">Total Expenses (Payroll, Maintenance, etc.)</span>
-                <span className="text-xl font-bold text-error">-${Number(data.totalExpenses).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                <span className="text-xl font-bold text-error">-Rs. {Number(data.totalExpenses).toLocaleString('en-PK')}</span>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function PnLReport() {
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-black text-gray-900 uppercase tracking-widest">Net Cash-In-Hand</span>
                 <span className={`text-3xl font-black ${data.netProfit >= 0 ? 'text-success' : 'text-error'}`}>
-                  ${Number(data.netProfit).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                  Rs. {Number(data.netProfit).toLocaleString('en-PK')}
                 </span>
               </div>
             </div>

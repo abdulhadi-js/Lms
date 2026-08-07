@@ -126,7 +126,7 @@ export function AdminBentoStats({ className = '' }: BentoStatsProps) {
     {
       label: 'Fees Collected',
       value: Math.round(stats?.totalFeesCollected ?? 0),
-      prefix: '$',
+      prefix: 'Rs.',
       gradient: 'from-success/10 to-transparent',
       accent: 'bg-success',
       textColor: 'text-success',
