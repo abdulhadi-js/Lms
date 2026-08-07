@@ -40,7 +40,7 @@ test.describe('Super Admin Integration Tests - Part 3', () => {
     await page.goto('/admin/families');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('h2, h3').filter({ hasText: /Famil/i }).first()).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /Famil/i }).first()).toBeVisible();
     
     // Ensure table loads or shows empty state
     await expect(page.locator('table, .grid')).toBeVisible();
