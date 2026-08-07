@@ -82,8 +82,8 @@ export default function StudentTranscript() {
           }
           marks = Array.isArray(transcriptData) ? transcriptData : [];
         } catch {
-          marks = await marksApi.getStudentMarks(user.id).catch(() => []);
-          marks = Array.isArray(marks) ? marks : marks?.data || [];
+          let fallbackMarks: any = await marksApi.getStudentMarks(user.id).catch(() => []);
+          marks = Array.isArray(fallbackMarks) ? fallbackMarks : fallbackMarks?.data || [];
         }
         const grouped = groupMarksByTerm(marks);
         setRawMarks(marks);
