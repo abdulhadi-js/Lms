@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { marksApi, usersApi } from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth-context';
 import { ArrowLeft, Printer, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 

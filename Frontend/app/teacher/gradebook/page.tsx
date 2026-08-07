@@ -646,7 +646,7 @@ export default function TeacherGradebook() {
                 <tr><td colSpan={3} className="p-8 text-center text-body-secondary">Create assignments first to add columns to the gradebook.</td></tr>
               ) : (
                 table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className="border-b border-border-light  hover:bg-surface transition-colors group-">
+                  <tr key={row.id} className="border-b border-border-light hover:bg-surface transition-colors group">
                     {row.getVisibleCells().map((cell, index) => (
                       <td 
                         key={cell.id} 
@@ -660,6 +660,7 @@ export default function TeacherGradebook() {
               )}
             </tbody>
           </table>
+          </div>
           </div>
         )}
       </div>

@@ -469,7 +469,6 @@ export default function UnifiedStudentProfile() {
           </div>
         </div>
       </div>
-      </div>
 
       {/* Edit Record Modal */}
       {isEditingRecord && (
