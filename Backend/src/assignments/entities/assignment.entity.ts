@@ -5,10 +5,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { AcademicClass } from '../../academics/entities/academic-class.entity';
 import { Subject } from '../../academics/entities/subject.entity';
 import { Section } from '../../academics/entities/section.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('assignments')
 export class Assignment {
@@ -36,6 +38,13 @@ export class Assignment {
 
   @ManyToOne(() => Section, { nullable: true })
   section: Section;
+
+  @Column({ type: 'uuid', nullable: true })
+  teacherId: string;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'teacherId' })
+  teacher: User;
 
   @Column()
   title: string;

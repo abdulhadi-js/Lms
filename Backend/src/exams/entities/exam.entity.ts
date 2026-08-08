@@ -6,12 +6,14 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ExamQuestion } from './exam-question.entity';
 import { ExamSubmission } from './exam-submission.entity';
 import { Campus } from '../../campuses/entities/campus.entity';
 import { AcademicClass } from '../../academics/entities/academic-class.entity';
 import { Subject } from '../../academics/entities/subject.entity';
+import { User } from '../../users/entities/user.entity';
 
 export enum ExamStatus {
   DRAFT = 'DRAFT',
@@ -41,6 +43,13 @@ export class Exam {
 
   @ManyToOne(() => Subject, { nullable: true })
   subject: Subject;
+
+  @Column({ type: 'uuid', nullable: true })
+  teacherId: string;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'teacherId' })
+  teacher: User;
 
   @Column({ type: 'int', default: 60 })
   durationMinutes: number;
