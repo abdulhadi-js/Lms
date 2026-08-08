@@ -29,7 +29,7 @@ export default function AcademicsManagement() {
   // Forms
   const [classForm, setClassForm] = useState({ name: '', level: 1, campusId: '', academicGroupId: '' });
   const [sectionForm, setSectionForm] = useState({ name: '' });
-  const [subjectForm, setSubjectForm] = useState({ name: '', code: '' });
+  const [subjectForm, setSubjectForm] = useState({ name: '', code: '', sectionId: '' });
 
   const fetchClasses = async () => {
     setLoading(true);
@@ -144,7 +144,7 @@ export default function AcademicsManagement() {
       }
       setSubjectModalOpen(false);
       setEditingSubject(null);
-      setSubjectForm({ name: '', code: '' });
+      setSubjectForm({ name: '', code: '', sectionId: '' });
       loadClassDetails(selectedClass);
     } catch (err: any) {
       toast.error(err.message);
@@ -315,7 +315,7 @@ export default function AcademicsManagement() {
                   <button 
                     onClick={() => {
                       setEditingSubject(null);
-                      setSubjectForm({ name: '', code: '' });
+                      setSubjectForm({ name: '', code: '', sectionId: '' });
                       setSubjectModalOpen(true);
                     }}
                     className="text-xs font-semibold text-primary hover:bg-primary/10 px-2.5 py-1.5 rounded transition-colors"
@@ -345,7 +345,7 @@ export default function AcademicsManagement() {
                                 <button 
                                   onClick={() => {
                                     setEditingSubject(sub);
-                                    setSubjectForm({ name: sub.name, code: sub.code || '' });
+                                    setSubjectForm({ name: sub.name, code: sub.code || '', sectionId: sub.sectionId || sub.section?.id || '' });
                                     setSubjectModalOpen(true);
                                   }}
                                   className="text-body-secondary hover:text-primary transition-colors p-1"
@@ -457,6 +457,14 @@ export default function AcademicsManagement() {
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Subject Code (Optional)</label>
                 <input type="text" value={subjectForm.code} onChange={e => setSubjectForm({ ...subjectForm, code: e.target.value })}
                   className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Assigned Section (Optional)</label>
+                <select value={subjectForm.sectionId} onChange={e => setSubjectForm({ ...subjectForm, sectionId: e.target.value })}
+                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                  <option value="">All Sections (Class-wide)</option>
+                  {sections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button type="button" onClick={() => setSubjectModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>

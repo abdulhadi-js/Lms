@@ -9,6 +9,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { AcademicClass } from './academic-class.entity';
+import { Section } from './section.entity';
 
 @Entity('subjects')
 export class Subject {
@@ -29,6 +30,13 @@ export class Subject {
   })
   @JoinColumn({ name: 'classId' })
   academicClass: AcademicClass;
+
+  @Column({ type: 'uuid', nullable: true })
+  sectionId: string;
+
+  @ManyToOne(() => Section, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 
   @CreateDateColumn()
   createdAt: Date;

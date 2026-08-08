@@ -74,6 +74,10 @@ export class CreateSubjectDto {
   @IsUUID()
   @IsNotEmpty()
   classId: string;
+
+  @IsUUID()
+  @IsOptional()
+  sectionId?: string;
 }
 
 export class UpdateSubjectDto {
@@ -88,6 +92,10 @@ export class UpdateSubjectDto {
   @IsUUID()
   @IsOptional()
   classId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  sectionId?: string;
 }
 
 export class AssignTeacherDto {
