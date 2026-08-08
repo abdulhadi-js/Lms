@@ -19,7 +19,7 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: TransactionType })
+  @Column({ type: 'varchar', enum: TransactionType })
   type: TransactionType;
 
   @Column()

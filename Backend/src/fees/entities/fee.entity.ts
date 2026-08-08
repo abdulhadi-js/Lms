@@ -76,7 +76,7 @@ export class Fee {
   @Column({ type: 'varchar', default: FeeStatus.PENDING })
   status: FeeStatus;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   paidAt: Date;
 
   @Column({ nullable: true })

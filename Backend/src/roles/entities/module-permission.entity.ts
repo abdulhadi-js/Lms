@@ -38,7 +38,7 @@ export class ModulePermission {
   @JoinColumn({ name: 'roleId' })
   role: Role;
 
-  @Column({ type: 'enum', enum: ModuleId })
+  @Column({ type: 'varchar' })
   moduleId: ModuleId;
 
   @Column({ default: false })

@@ -14,178 +14,224 @@ datasource db {
 }
 
 model applications {
-  id            String   @id
-  firstName     String
-  lastName      String
-  email         String
-  phone         String
-  desiredCourse String
-  notes         String?
-  status        String   @default("PENDING_REVIEW")
-  reviewNotes   String?
-  createdAt     DateTime @default(now())
+  id               String           @id
+  studentFirstName String?
+  studentLastName  String?
+  dob              DateTime?
+  gender           String?
+  fatherName       String?
+  fatherCnic       String?
+  phone            String?
+  email            String?
+  previousSchool   String?
+  desiredClassId   String?
+  academicGroupId  String?
+  motherName       String?
+  guardianName     String?
+  discountAmount   Decimal          @default(0)
+  status           String           @default("PENDING")
+  testDate         DateTime?
+  testMarks        Float?
+  reviewNotes      String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
+  campusId         String?
+  campuses         campuses?        @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_groups  academic_groups? @relation(fields: [academicGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model assignments {
-  id            String                @id
-  courseId      String
-  title         String
-  description   String?
-  rubric        Unsupported("jsonb")?
-  maxMarks      Int
-  dueDate       DateTime
-  weightPercent Int?
+  id               String                @id
+  courseId         String
+  classId          String?
+  subjectId        String?
+  sectionId        String?
+  teacherId        String?
+  title            String
+  description      String?
+  rubric           Unsupported("jsonb")?
+  maxMarks         Int
+  dueDate          DateTime
+  weightPercent    Int?
+  campusId         String?
+  academicClassId  String?
+  campuses         campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?                @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sections         sections?             @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects         subjects?             @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes?     @relation(fields: [academicClassId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([courseId], map: "IDX_9e5684667ea189ade0fc79fa4f")
 }
 
 model attendance {
-  id        String   @id
-  studentId String
-  courseId  String
-  classDate DateTime
-  status    String
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id               String            @id
+  studentId        String?
+  userId           String?
+  classId          String?
+  sectionId        String?
+  subjectId        String?
+  courseId         String?
+  classDate        DateTime
+  status           String
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  campusId         String?
+  campuses         campuses?         @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes? @relation(fields: [classId], references: [id], onUpdate: NoAction)
+  users            users?            @relation(fields: [studentId], references: [id], onUpdate: NoAction)
 }
 
 model audit_logs {
-  id         String   @id
-  actor_id   String?
+  id         String    @id
   action     String
   entityType String
   entityId   String
-  oldValue   String?
-  newValue   String?
-  ipAddress  String?
-  createdAt  DateTime @default(now())
-  users      users?   @relation(fields: [actor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reason     String?
+  userId     String?
+  createdAt  DateTime  @default(now())
+  campusId   String?
+  campuses   campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model courses {
-  id          String        @id
-  code        String        @unique(map: "sqlite_autoindex_courses_2")
-  title       String
-  description String?
-  teacherId   String?
-  credits     Int           @default(3)
-  status      String        @default("ACTIVE")
-  users       users?        @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  enrollments enrollments[]
-  fees        fees[]
-  messages    messages[]
-  modules     modules[]
-  timetable   timetable[]
+  id             String           @id
+  title          String
+  code           String?
+  description    String?
+  credits        Int              @default(3)
+  teacherId      String
+  campusId       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  course_modules course_modules[]
+  campuses       campuses?        @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users            @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  enrollments    enrollments[]
 }
 
 model enrollments {
-  id         String    @id
-  studentId  String
-  courseId   String
-  status     String    @default("ENROLLED")
-  dropReason String?
-  droppedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  courses    courses   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users     @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String            @id
+  studentId        String
+  sectionId        String?
+  classId          String?
+  courseId         String?
+  subjectId        String?
+  status           String            @default("ACTIVE")
+  academicYear     String?
+  dropReason       String?
+  droppedAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  campusId         String?
+  campuses         campuses?         @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects         subjects?         @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  courses          courses?          @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  academic_classes academic_classes? @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sections         sections?         @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            users             @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([courseId], map: "IDX_60dd0ae4e21002e63a5fdefeec")
   @@index([studentId], map: "IDX_bf3ba3dfa95e2df7388eb4589f")
+  @@index([subjectId], map: "IDX_501dd97a2251e66a506f45a358")
+  @@index([classId], map: "IDX_470304681bce2933d3cbb680db")
+  @@index([sectionId], map: "IDX_e0edac70a2adb9b921a8437bfa")
 }
 
 model fees {
-  id           String    @id
-  studentId    String
-  courseId     String?
-  amount       Float
-  description  String?
-  dueDate      DateTime
-  paidAmount   Float     @default(0)
-  status       String    @default("PENDING")
-  paidAt       DateTime?
-  refundReason String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now())
-  courses      courses?  @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users        users     @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String                @id
+  studentId        String
+  sectionId        String?
+  classId          String?
+  amount           Float
+  description      String?
+  dueDate          DateTime
+  discount         Decimal               @default(0)
+  lateFee          Decimal               @default(0)
+  holdUntil        DateTime?
+  installments     Unsupported("jsonb")?
+  paidAmount       Float                 @default(0)
+  status           String                @default("PENDING")
+  paidAt           DateTime?
+  refundReason     String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @default(now())
+  campusId         String?
+  campuses         campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes?     @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sections         sections?             @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users                 @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([classId], map: "IDX_936579d7035a0a0edd794717ae")
+  @@index([sectionId], map: "IDX_81914054bf2da94fbaf22948a5")
+  @@index([studentId], map: "IDX_4bfe987bde282dde6183efbca5")
 }
 
 model grading_criteria {
-  id          String  @id
+  id          String    @id
   minScore    Float
   maxScore    Float
   gradeLetter String
   gpaPoints   Float
   description String?
-}
-
-model lessons {
-  id          String  @id
-  title       String
-  description String?
-  contentType String
-  contentUrl  String?
-  order       Int     @default(0)
-  duration    Int?
-  moduleId    String
-  modules     modules @relation(fields: [moduleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campusId    String?
+  campuses    campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model marks {
-  id             String   @id
-  studentId      String
-  courseId       String
-  component      String
-  score          Float
-  maxScore       Float
-  weightPercent  Float
-  notes          String?
-  overrideReason String?
-  gradeLetter    String?
-  gpaPoints      Float?
-  graderId       String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now())
+  id               String            @id
+  studentId        String
+  sectionId        String
+  classId          String?
+  subjectId        String
+  component        String
+  score            Float
+  maxScore         Float
+  weightPercent    Float
+  notes            String?
+  overrideReason   String?
+  gradeLetter      String?
+  gpaPoints        Float?
+  graderId         String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  campusId         String?
+  campuses         campuses?         @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes? @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users             @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model messages {
-  id                               String   @id
+  id                               String    @id
   senderId                         String
   receiverId                       String?
-  courseId                         String?
+  sectionId                        String?
   body                             String
-  isRead                           Boolean  @default(false)
-  createdAt                        DateTime @default(now())
-  courses                          courses? @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_messages_receiverIdTousers users?   @relation("messages_receiverIdTousers", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_messages_senderIdTousers   users    @relation("messages_senderIdTousers", fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model modules {
-  id          String    @id
-  title       String
-  description String?
-  order       Int       @default(0)
-  courseId    String
-  lessons     lessons[]
-  courses     courses   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([courseId], map: "IDX_83489b37212a5a547bde8f8901")
+  isRead                           Boolean   @default(false)
+  createdAt                        DateTime  @default(now())
+  campusId                         String?
+  campuses                         campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sections                         sections? @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_messages_receiverIdTousers users?    @relation("messages_receiverIdTousers", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_messages_senderIdTousers   users     @relation("messages_senderIdTousers", fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model notifications {
-  id           String   @id
+  id           String    @id
   title        String
   body         String
   audienceRole String?
   courseId     String?
   senderId     String
-  createdAt    DateTime @default(now())
+  isRead       Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  campusId     String?
+  campuses     campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model submissions {
-  id           String   @id
+  id           String    @id
   assignmentId String
   studentId    String
   textContent  String?
@@ -193,88 +239,420 @@ model submissions {
   grade        Int?
   feedback     String?
   graderId     String?
-  submittedAt  DateTime @default(now())
+  submittedAt  DateTime  @default(now())
+  campusId     String?
+  campuses     campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([studentId], map: "IDX_4fc99318a291abd7e2a50f5085")
 }
 
 model timetable {
-  id        String   @id
-  courseId  String
-  dayOfWeek String
-  startTime String
-  endTime   String
-  room      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  courses   courses  @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String            @id
+  sectionId        String
+  classId          String?
+  subjectId        String
+  teacherId        String?
+  dayOfWeek        String
+  startTime        String
+  endTime          String
+  room             String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  campusId         String?
+  campuses         campuses?         @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?            @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects         subjects          @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  academic_classes academic_classes? @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sections         sections          @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([subjectId], map: "IDX_a8d2ae09f814cfdf7a80fd491b")
+  @@index([classId], map: "IDX_3ccd179100653724ca4112a232")
+  @@index([sectionId], map: "IDX_a3b7aa05fa0ed25debcf7d9c41")
 }
 
 model users {
-  id                                  String        @id
-  email                               String        @unique(map: "sqlite_autoindex_users_2")
+  id                                  String                @id
+  email                               String                @unique(map: "sqlite_autoindex_users_2")
   passwordHash                        String
-  role                                String
-  status                              String        @default("ACTIVE")
+  isSuperAdmin                        Boolean               @default(false)
+  roleId                              String?
+  campusId                            String?
+  familyId                            String?
+  status                              String                @default("ACTIVE")
   firstName                           String
   lastName                            String
   phone                               String?
+  dateOfBirth                         DateTime?
+  gender                              String?
   profilePicture                      String?
+  departmentId                        String?
+  isTeachingStaff                     Boolean               @default(false)
+  previousSchool                      String?
+  classId                             String?
+  sectionId                           String?
+  discountAmount                      Decimal               @default(0)
   metadata                            String?
-  createdAt                           DateTime      @default(now())
-  updatedAt                           DateTime      @default(now())
-  audit_logs                          audit_logs[]
+  createdAt                           DateTime              @default(now())
+  updatedAt                           DateTime              @default(now())
+  assignments                         assignments[]
+  attendance                          attendance[]
   courses                             courses[]
   enrollments                         enrollments[]
+  exam_submissions                    exam_submissions[]
+  exams                               exams[]
   fees                                fees[]
-  messages_messages_receiverIdTousers messages[]    @relation("messages_receiverIdTousers")
-  messages_messages_senderIdTousers   messages[]    @relation("messages_senderIdTousers")
+  marks                               marks[]
+  messages_messages_receiverIdTousers messages[]            @relation("messages_receiverIdTousers")
+  messages_messages_senderIdTousers   messages[]            @relation("messages_senderIdTousers")
+  questions                           questions[]
+  staff_profiles                      staff_profiles?
+  teacher_assignments                 teacher_assignments[]
+  timetable                           timetable[]
+  sections                            sections?             @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes                    academic_classes?     @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  departments                         departments?          @relation(fields: [departmentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  families                            families?             @relation(fields: [familyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campuses                            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles                               roles?                @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([role], map: "IDX_ace513fa30d485cfd25c11a9e4")
   @@index([email], map: "IDX_97672ac88f789774dd47f7c8be")
+  @@index([campusId], map: "IDX_3bca1783a663d7485fc95d82a9")
+  @@index([roleId], map: "IDX_368e146b785b574f42ae9e53d5")
 }
 
-model Question {
-  id            String         @id @default(uuid())
-  text          String
-  type          String
-  options       String
-  correctAnswer String
-  courseId      String
-  chapter       String?
-  topic         String?
-  difficulty    String
-  marks         Int
-  ExamQuestion  ExamQuestion[]
+model academic_classes {
+  id                  String                @id
+  name                String
+  level               Int                   @default(0)
+  academicGroupId     String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+  campusId            String?
+  campuses            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_groups     academic_groups?      @relation(fields: [academicGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignments         assignments[]
+  attendance          attendance[]
+  enrollments         enrollments[]
+  exams               exams[]
+  fees                fees[]
+  marks               marks[]
+  questions           questions[]
+  sections            sections[]
+  subjects            subjects[]
+  teacher_assignments teacher_assignments[]
+  timetable           timetable[]
+  users               users[]
 }
 
-model Exam {
-  id              String           @id @default(uuid())
-  title           String
-  courseId        String
-  durationMinutes Int
-  totalMarks      Int
-  startTime       DateTime
-  endTime         DateTime
-  status          String
-  ExamQuestion    ExamQuestion[]
-  ExamSubmission  ExamSubmission[]
+model academic_groups {
+  id               String             @id
+  name             String
+  campusId         String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now())
+  academic_classes academic_classes[]
+  campuses         campuses           @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  applications     applications[]
 }
 
-model ExamQuestion {
-  id         String   @id @default(uuid())
+model campuses {
+  id                  String                @id
+  name                String
+  code                String                @unique(map: "sqlite_autoindex_campuses_2")
+  address             String?
+  contactPhone        String?
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+  academic_classes    academic_classes[]
+  academic_groups     academic_groups[]
+  applications        applications[]
+  assignments         assignments[]
+  attendance          attendance[]
+  audit_logs          audit_logs[]
+  course_lessons      course_lessons[]
+  course_modules      course_modules[]
+  courses             courses[]
+  departments         departments[]
+  enrollments         enrollments[]
+  exam_questions      exam_questions[]
+  exam_submissions    exam_submissions[]
+  exams               exams[]
+  families            families[]
+  fees                fees[]
+  grading_criteria    grading_criteria[]
+  marks               marks[]
+  message_outbox      message_outbox[]
+  message_templates   message_templates[]
+  messages            messages[]
+  module_permissions  module_permissions[]
+  notifications       notifications[]
+  questions           questions[]
+  sections            sections[]
+  staff_profiles      staff_profiles[]
+  subjects            subjects[]
+  submissions         submissions[]
+  teacher_assignments teacher_assignments[]
+  timetable           timetable[]
+  transactions        transactions[]
+  users               users[]
+}
+
+model course_lessons {
+  id             String         @id
+  title          String
+  description    String?
+  contentType    String         @default("DOCUMENT")
+  contentUrl     String?
+  moduleId       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+  campusId       String?
+  campuses       campuses?      @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  course_modules course_modules @relation(fields: [moduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model course_modules {
+  id             String           @id
+  title          String
+  description    String?
+  courseId       String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  campusId       String?
+  course_lessons course_lessons[]
+  campuses       campuses?        @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  courses        courses          @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model departments {
+  id        String   @id
+  name      String
+  campusId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  campuses  campuses @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users[]
+}
+
+model exam_questions {
+  id         String    @id
   examId     String
   questionId String
-  question   Question @relation(fields: [questionId], references: [id])
-  exam       Exam     @relation(fields: [examId], references: [id])
+  createdAt  DateTime  @default(now())
+  campusId   String?
+  campuses   campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  questions  questions @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exams      exams     @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model ExamSubmission {
-  id          String   @id @default(uuid())
+model exam_submissions {
+  id          String                @id
   examId      String
   studentId   String
-  answers     String
-  score       Int
-  submittedAt DateTime @default(now())
-  exam        Exam     @relation(fields: [examId], references: [id])
+  answers     Unsupported("jsonb")?
+  score       Int                   @default(0)
+  submittedAt DateTime              @default(now())
+  campusId    String?
+  campuses    campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users                 @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exams       exams                 @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model exams {
+  id               String             @id
+  title            String
+  courseId         String?
+  classId          String?
+  subjectId        String?
+  teacherId        String?
+  durationMinutes  Int                @default(60)
+  totalMarks       Int                @default(100)
+  startTime        DateTime?
+  endTime          DateTime?
+  status           String             @default("DRAFT")
+  campusId         String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now())
+  academicClassId  String?
+  exam_questions   exam_questions[]
+  exam_submissions exam_submissions[]
+  campuses         campuses?          @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?             @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects         subjects?          @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes?  @relation(fields: [academicClassId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model families {
+  id           String    @id
+  familyCode   String    @unique(map: "sqlite_autoindex_families_2")
+  fatherName   String
+  fatherPhone  String
+  motherName   String?
+  guardianName String?
+  address      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  campusId     String?
+  campuses     campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users        users[]
+}
+
+model message_outbox {
+  id             String    @id
+  recipientPhone String
+  content        String
+  status         String    @default("PENDING")
+  createdAt      DateTime  @default(now())
+  sentAt         DateTime?
+  campusId       String?
+  campuses       campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model message_templates {
+  id        String    @id
+  name      String
+  type      String
+  content   String
+  createdAt DateTime  @default(now())
+  campusId  String?
+  campuses  campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model module_permissions {
+  id           String                @id
+  roleId       String
+  moduleId     String
+  canView      Boolean               @default(false)
+  canAdd       Boolean               @default(false)
+  canEdit      Boolean               @default(false)
+  canDelete    Boolean               @default(false)
+  specialFlags Unsupported("jsonb")?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @default(now())
+  campusId     String?
+  campuses     campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles        roles                 @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model questions {
+  id               String                @id
+  text             String
+  type             String                @default("MCQ")
+  options          Unsupported("jsonb")?
+  correctAnswer    String
+  courseId         String?
+  classId          String?
+  subjectId        String?
+  teacherId        String?
+  chapter          String?
+  topic            String?
+  difficulty       String                @default("MEDIUM")
+  marks            Int                   @default(1)
+  campusId         String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @default(now())
+  academicClassId  String?
+  exam_questions   exam_questions[]
+  campuses         campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?                @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects         subjects?             @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes?     @relation(fields: [academicClassId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model roles {
+  id                 String               @id
+  name               String               @unique(map: "sqlite_autoindex_roles_2")
+  campusId           String?
+  isSystem           Boolean              @default(false)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now())
+  module_permissions module_permissions[]
+  users              users[]
+}
+
+model sections {
+  id                  String                @id
+  name                String
+  classId             String
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+  campusId            String?
+  assignments         assignments[]
+  enrollments         enrollments[]
+  fees                fees[]
+  messages            messages[]
+  campuses            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes    academic_classes      @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subjects            subjects[]
+  teacher_assignments teacher_assignments[]
+  timetable           timetable[]
+  users               users[]
+}
+
+model staff_profiles {
+  id                 String    @id
+  qualifications     String?
+  experience         String?
+  appointmentDate    DateTime?
+  basicSalary        Decimal   @default(0)
+  allowances         String?
+  deductions         String?
+  bankAccountDetails String?
+  userId             String    @unique(map: "sqlite_autoindex_staff_profiles_2")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now())
+  campusId           String?
+  campuses           campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users              users     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model subjects {
+  id                  String                @id
+  name                String
+  code                String?
+  classId             String
+  sectionId           String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+  campusId            String?
+  assignments         assignments[]
+  enrollments         enrollments[]
+  exams               exams[]
+  questions           questions[]
+  campuses            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sections            sections?             @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  academic_classes    academic_classes      @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teacher_assignments teacher_assignments[]
+  timetable           timetable[]
+}
+
+model teacher_assignments {
+  id               String            @id
+  sectionId        String
+  subjectId        String
+  teacherId        String
+  classId          String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  campusId         String?
+  campuses         campuses?         @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes academic_classes? @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            users             @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subjects         subjects          @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sections         sections          @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model transactions {
+  id              String    @id
+  type            String
+  category        String
+  amount          Decimal
+  date            DateTime
+  description     String?
+  referenceNumber String?
+  campusId        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+  campuses        campuses? @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
