@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { ShieldCheck, Plus, Settings2, Shield, Search, X, Check, CheckSquare, Square } from 'lucide-react';
+import { ShieldCheck, Plus, Settings2, Shield, Search, X, Check, CheckSquare, Square, Users } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { rolesApi, campusesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -255,16 +256,21 @@ export default function RolesManagement() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      {!role.isSystem && isSuperAdmin && (
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => handleEditClick(role)} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="Edit Role">
-                            <Settings2 className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleDelete(role.id)} className="text-body-secondary hover:text-error transition-colors p-1.5 rounded-lg hover:bg-error-bg" title="Delete Role">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex justify-end gap-2">
+                        <Link href={`/admin/roles/${role.id}`} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="View Users">
+                          <Users className="w-4 h-4" />
+                        </Link>
+                        {!role.isSystem && isSuperAdmin && (
+                          <>
+                            <button onClick={() => handleEditClick(role)} className="text-body-secondary hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-surface-container" title="Edit Role">
+                              <Settings2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(role.id)} className="text-body-secondary hover:text-error transition-colors p-1.5 rounded-lg hover:bg-error-bg" title="Delete Role">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )})}
