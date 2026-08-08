@@ -31,7 +31,7 @@ export class MessageOutbox {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', nullable: true })
   sentAt: Date;
 
   @Column({ type: 'uuid', nullable: true })

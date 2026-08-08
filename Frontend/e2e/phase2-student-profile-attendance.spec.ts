@@ -6,7 +6,7 @@ test.describe('PHASE 2 - Pakistani School LMS Features', () => {
   test('Student detail page shows Pakistani fields (Admin)', async ({ page }) => {
     // Login as admin
     await page.goto('/login');
-    await page.fill('input[data-testid="login-email"]', 'admin@educore.com');
+    await page.fill('input[data-testid="login-email"]', 'superadmin@educore.com');
     await page.fill('input[data-testid="login-password"]', 'Admin@123!');
     await page.click('button[data-testid="login-submit"]');
     

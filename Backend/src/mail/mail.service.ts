@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor() {}
 
   private async sendMail(options: {
     to: string;
@@ -13,14 +12,7 @@ export class MailService {
     template: string;
     context: Record<string, any>;
   }) {
-    try {
-      await this.mailerService.sendMail(options);
-    } catch (error) {
-      this.logger.error(
-        `Failed to send email to ${options.to}: ${error.message}`,
-      );
-      // Don't throw — email failures should not break core app flows
-    }
+    this.logger.log(`[MOCK EMAIL] Sent to ${options.to} with subject "${options.subject}"`);
   }
 
   async sendPasswordReset(

@@ -57,10 +57,10 @@ export class Exam {
   @Column({ type: 'int', default: 100 })
   totalMarks: number;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', nullable: true })
   startTime: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', nullable: true })
   endTime: Date;
 
   @Column({ type: 'varchar', default: ExamStatus.DRAFT })

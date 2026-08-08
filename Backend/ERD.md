@@ -191,6 +191,11 @@ erDiagram
     String metadata "❓"
     DateTime createdAt 
     DateTime updatedAt 
+    String grNumber "❓"
+    String bFormNumber "❓"
+    String bloodGroup "❓"
+    String religion "❓"
+    String domicile "❓"
     }
   
 
@@ -437,12 +442,12 @@ erDiagram
     "timetable" }o--|| "subjects" : "subjects"
     "timetable" }o--|o "academic_classes" : "academic_classes"
     "timetable" }o--|| "sections" : "sections"
-    "users" }o--|o "sections" : "sections"
-    "users" }o--|o "academic_classes" : "academic_classes"
-    "users" }o--|o "departments" : "departments"
-    "users" }o--|o "families" : "families"
-    "users" }o--|o "campuses" : "campuses"
     "users" }o--|o "roles" : "roles"
+    "users" }o--|o "campuses" : "campuses"
+    "users" }o--|o "families" : "families"
+    "users" }o--|o "departments" : "departments"
+    "users" }o--|o "academic_classes" : "academic_classes"
+    "users" }o--|o "sections" : "sections"
     "academic_classes" }o--|o "campuses" : "campuses"
     "academic_classes" }o--|o "academic_groups" : "academic_groups"
     "academic_groups" }o--|| "campuses" : "campuses"

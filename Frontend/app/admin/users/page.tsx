@@ -195,7 +195,7 @@ export default function UserManagement() {
       return;
     }
 
-    const isStudentRole = roles.find(r => r.id === formData.roleId)?.name === 'STUDENT';
+    const isStudentRole = roles.find(r => r.id === formData.roleId)?.name?.toUpperCase() === 'STUDENT';
     if (isStudentRole && !isEditMode) {
       if (!formData.phone) { toast.error('Student phone number is required'); return; }
       if (!formData.dateOfBirth) { toast.error('Date of Birth is required'); return; }
@@ -471,7 +471,7 @@ export default function UserManagement() {
                           >
                             <Edit className="w-4 h-4 text-icon-inactive" /> Edit User
                           </button>
-                          {row.role?.name !== 'STUDENT' && (
+                          {row.role?.name?.toUpperCase() !== 'STUDENT' && (
                             <button 
                               onClick={() => handleOpenHrModal(row.id)}
                               className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-primary-container/20 flex items-center gap-2"
@@ -594,6 +594,7 @@ export default function UserManagement() {
                   <div>
                     <label className="block text-sm font-medium text-on-surface mb-1">Role Assignment</label>
                     <select 
+                      name="role"
                       required
                       disabled={isLoading || roles.length === 0}
                       value={formData.roleId} onChange={e => setFormData({...formData, roleId: e.target.value})}
@@ -650,7 +651,7 @@ export default function UserManagement() {
                 </div>
               )}
 
-              {roles.find(r => r.id === formData.roleId)?.name === 'STUDENT' && (
+              {roles.find(r => r.id === formData.roleId)?.name?.toUpperCase() === 'STUDENT' && (
                 <div className="pt-4 border-t border-divider space-y-4">
                   <h4 className="text-sm font-bold text-primary flex items-center gap-2">
                     <Users className="w-4 h-4" /> Student Details
@@ -707,6 +708,7 @@ export default function UserManagement() {
                     <div>
                       <label className="block text-xs font-semibold text-on-surface mb-1">GR Number</label>
                       <input
+                        name="grNumber"
                         type="text" placeholder="Auto-generated if blank"
                         value={formData.grNumber} onChange={e => setFormData({...formData, grNumber: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
@@ -715,6 +717,7 @@ export default function UserManagement() {
                     <div>
                       <label className="block text-xs font-semibold text-on-surface mb-1">B-Form / CNIC No. <span className="text-error">*</span></label>
                       <input
+                        name="bFormNumber"
                         type="text" required placeholder="XXXXX-XXXXXXX-X"
                         value={formData.bFormNumber} onChange={e => setFormData({...formData, bFormNumber: e.target.value})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
@@ -723,6 +726,7 @@ export default function UserManagement() {
                     <div>
                       <label className="block text-xs font-semibold text-on-surface mb-1">Class <span className="text-error">*</span></label>
                       <select
+                        name="classId"
                         required
                         value={formData.classId} onChange={e => setFormData({...formData, classId: e.target.value, sectionId: ''})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
@@ -736,6 +740,7 @@ export default function UserManagement() {
                     <div>
                       <label className="block text-xs font-semibold text-on-surface mb-1">Section <span className="text-error">*</span></label>
                       <select
+                        name="sectionId"
                         required
                         disabled={!formData.classId}
                         value={formData.sectionId} onChange={e => setFormData({...formData, sectionId: e.target.value})}

@@ -8,7 +8,7 @@ test.describe('Phase 1 - Pakistani Improvements', () => {
       localStorage.setItem('auth_token', 'mock-token');
       localStorage.setItem('user', JSON.stringify({
         id: 'admin-1',
-        email: 'admin@educore.com',
+        email: 'superadmin@educore.com',
         role: 'ADMIN',
         firstName: 'System',
         lastName: 'Admin'

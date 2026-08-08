@@ -22,7 +22,7 @@ test.describe('Admin Roles Security', () => {
   // Skipped if admin@educore.com doesn't exist in the test DB.
   test.skip('Admin cannot see Build Custom Matrix button on Roles page', async ({ page }) => {
     await page.goto('/login');
-    await page.fill('input[data-testid="login-email"]', 'admin@educore.com');
+    await page.fill('input[data-testid="login-email"]', 'superadmin@educore.com');
     await page.fill('input[data-testid="login-password"]', 'Admin@123!');
     await page.click('button[data-testid="login-submit"]');
     await expect(page).toHaveURL(/\/admin/, { timeout: 60000 });
