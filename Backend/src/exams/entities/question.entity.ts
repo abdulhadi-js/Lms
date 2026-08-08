@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 import { ExamQuestion } from './exam-question.entity';
 import { Campus } from '../../campuses/entities/campus.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
+import { Subject } from '../../academics/entities/subject.entity';
 
 export enum QuestionType {
   MCQ = 'MCQ',
@@ -41,6 +43,18 @@ export class Question {
 
   @Column({ type: 'uuid', nullable: true })
   courseId: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { nullable: true })
+  academicClass: AcademicClass;
+
+  @Column({ type: 'uuid', nullable: true })
+  subjectId: string;
+
+  @ManyToOne(() => Subject, { nullable: true })
+  subject: Subject;
 
   @Column({ nullable: true })
   chapter: string;

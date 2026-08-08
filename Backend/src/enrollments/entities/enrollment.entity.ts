@@ -12,6 +12,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 import { Course } from '../../courses/entities/course.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
 
 @Entity('enrollments')
 export class Enrollment {
@@ -33,6 +34,14 @@ export class Enrollment {
   @ManyToOne(() => Section, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'sectionId' })
   section: Section;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
 
   @Index()
   @Column({ nullable: true })

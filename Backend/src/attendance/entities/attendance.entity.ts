@@ -10,6 +10,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
 
 export enum AttendanceStatus {
   PRESENT = 'PRESENT',
@@ -32,6 +33,13 @@ export class Attendance {
 
   @Column({ type: 'uuid', nullable: true })
   userId: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
 
   @Column({ type: 'uuid', nullable: true })
   sectionId: string;

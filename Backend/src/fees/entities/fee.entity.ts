@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
 
 export enum FeeStatus {
   PENDING = 'PENDING',
@@ -39,6 +40,14 @@ export class Fee {
   @ManyToOne(() => Section)
   @JoinColumn({ name: 'sectionId' })
   section: Section;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass)
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
 
   @Column({ type: 'float' })
   amount: number;

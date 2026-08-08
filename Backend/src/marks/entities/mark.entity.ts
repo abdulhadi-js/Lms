@@ -10,6 +10,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
 
 @Entity('marks')
 export class Mark {
@@ -25,6 +26,13 @@ export class Mark {
 
   @Column({ type: 'uuid' })
   sectionId: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { nullable: true })
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
 
   @Column({ type: 'uuid' })
   subjectId: string;

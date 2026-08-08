@@ -10,6 +10,8 @@ import {
 import { ExamQuestion } from './exam-question.entity';
 import { ExamSubmission } from './exam-submission.entity';
 import { Campus } from '../../campuses/entities/campus.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
+import { Subject } from '../../academics/entities/subject.entity';
 
 export enum ExamStatus {
   DRAFT = 'DRAFT',
@@ -27,6 +29,18 @@ export class Exam {
 
   @Column({ type: 'uuid', nullable: true })
   courseId: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { nullable: true })
+  academicClass: AcademicClass;
+
+  @Column({ type: 'uuid', nullable: true })
+  subjectId: string;
+
+  @ManyToOne(() => Subject, { nullable: true })
+  subject: Subject;
 
   @Column({ type: 'int', default: 60 })
   durationMinutes: number;

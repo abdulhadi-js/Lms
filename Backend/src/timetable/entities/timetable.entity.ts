@@ -12,6 +12,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 import { Subject } from '../../academics/entities/subject.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
 
 @Entity('timetable')
 export class Timetable {
@@ -25,6 +26,14 @@ export class Timetable {
   @ManyToOne(() => Section, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'sectionId' })
   section: Section;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
 
   @Index()
   @Column('uuid')
