@@ -13,6 +13,7 @@ import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { AcademicClass } from '../../academics/entities/academic-class.entity';
+import { Subject } from '../../academics/entities/subject.entity';
 
 @Entity('enrollments')
 export class Enrollment {
@@ -50,6 +51,14 @@ export class Enrollment {
   @ManyToOne(() => Course, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'courseId' })
   course: Course;
+
+  @Index()
+  @Column({ type: 'uuid', nullable: true })
+  subjectId: string;
+
+  @ManyToOne(() => Subject, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'subjectId' })
+  subject: Subject;
 
   @Column({ default: 'ACTIVE' }) // ACTIVE, DROPPED, GRADUATED
   status: string;

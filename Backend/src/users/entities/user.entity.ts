@@ -20,6 +20,8 @@ import { Mark } from '../../marks/entities/mark.entity';
 import { StaffProfile } from '../../hr/entities/staff-profile.entity';
 import { Attendance } from '../../attendance/entities/attendance.entity';
 import { Department } from '../../departments/entities/department.entity';
+import { AcademicClass } from '../../academics/entities/academic-class.entity';
+import { Section } from '../../academics/entities/section.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')
@@ -78,6 +80,21 @@ export class User {
   // New Student Fields
   @Column({ nullable: true })
   previousSchool: string;
+
+  // Primary class and section for traditional school models
+  @Column({ type: 'uuid', nullable: true })
+  classId: string;
+
+  @ManyToOne(() => AcademicClass, { nullable: true })
+  @JoinColumn({ name: 'classId' })
+  academicClass: AcademicClass;
+
+  @Column({ type: 'uuid', nullable: true })
+  sectionId: string;
+
+  @ManyToOne(() => Section, { nullable: true })
+  @JoinColumn({ name: 'sectionId' })
+  section: Section;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   discountAmount: number;
