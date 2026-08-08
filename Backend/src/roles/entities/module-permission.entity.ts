@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 import { Role } from './role.entity';
 
 export enum ModuleId {
@@ -60,4 +61,10 @@ export class ModulePermission {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

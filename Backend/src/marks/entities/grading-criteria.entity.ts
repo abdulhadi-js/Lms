@@ -5,6 +5,7 @@ import {
   Column,
   ManyToOne,
 } from 'typeorm';
+import { Campus } from '../../campuses/entities/campus.entity';
 
 @Entity('grading_criteria')
 export class GradingCriteria {
@@ -25,4 +26,10 @@ export class GradingCriteria {
 
   @Column({ nullable: true })
   description: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

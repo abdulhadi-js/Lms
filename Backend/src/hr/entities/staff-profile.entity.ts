@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
 
 @Entity('staff_profiles')
 export class StaffProfile {
@@ -47,4 +49,10 @@ export class StaffProfile {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

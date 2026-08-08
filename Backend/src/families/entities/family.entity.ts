@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
 
 @Entity('families')
 export class Family {
@@ -39,4 +41,10 @@ export class Family {
 
   @OneToMany(() => User, (user) => user.family)
   users: User[];
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

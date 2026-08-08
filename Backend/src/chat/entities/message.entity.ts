@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 
@@ -44,4 +45,10 @@ export class Message {
   @ManyToOne(() => Section)
   @JoinColumn({ name: 'sectionId' })
   section: Section;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

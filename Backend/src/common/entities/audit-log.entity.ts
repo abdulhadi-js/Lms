@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('audit_logs')
@@ -41,4 +42,10 @@ export class AuditLog {
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

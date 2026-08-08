@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 
 @Entity('notifications')
 export class Notification {
@@ -31,4 +32,10 @@ export class Notification {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

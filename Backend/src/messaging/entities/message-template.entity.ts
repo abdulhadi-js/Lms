@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 
 export enum MessageType {
   SMS = 'SMS',
@@ -27,4 +29,10 @@ export class MessageTemplate {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

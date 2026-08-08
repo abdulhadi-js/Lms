@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 import { Course } from './course.entity';
 import { CourseLesson } from './course-lesson.entity';
 
@@ -28,4 +29,10 @@ export class CourseModule {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

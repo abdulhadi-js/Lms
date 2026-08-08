@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 
 @Entity('audit_logs')
 export class AuditLog {
@@ -27,4 +29,10 @@ export class AuditLog {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

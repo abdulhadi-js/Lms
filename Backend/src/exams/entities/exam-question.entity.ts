@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 import { Exam } from './exam.entity';
 import { Question } from './question.entity';
 
@@ -30,4 +31,10 @@ export class ExamQuestion {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }

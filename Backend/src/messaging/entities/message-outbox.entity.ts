@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Campus } from '../../../campuses/entities/campus.entity';
 
 export enum MessageStatus {
   PENDING = 'PENDING',
@@ -30,4 +32,10 @@ export class MessageOutbox {
 
   @Column({ type: 'timestamp', nullable: true })
   sentAt: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  campusId: string;
+
+  @ManyToOne(() => Campus)
+  campus: Campus;
 }
