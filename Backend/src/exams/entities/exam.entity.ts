@@ -57,10 +57,10 @@ export class Exam {
   @Column({ type: 'int', default: 100 })
   totalMarks: number;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   startTime: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   endTime: Date;
 
   @Column({ type: 'varchar', default: ExamStatus.DRAFT })

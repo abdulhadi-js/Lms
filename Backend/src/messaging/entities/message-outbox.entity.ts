@@ -31,7 +31,7 @@ export class MessageOutbox {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   sentAt: Date;
 
   @Column({ type: 'uuid', nullable: true })
