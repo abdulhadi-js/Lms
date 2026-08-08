@@ -55,7 +55,9 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
     }
 
     if (res.status === 204) return null;
-    return await res.json();
+    const text = await res.text();
+    if (!text) return null;
+    return JSON.parse(text);
   } catch (error: any) {
     clearTimeout(timeoutId);
     let errMsg = error.message;
