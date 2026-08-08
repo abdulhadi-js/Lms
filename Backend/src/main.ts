@@ -29,10 +29,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let message =
       exception instanceof Error ? exception.message : 'Unknown error';
 
-    // Handle TypeORM unique constraint violations
-    if (exception && (exception as any).name === 'QueryFailedError' && (exception as any).code === '23505') {
-      status = HttpStatus.CONFLICT;
-      message = 'A record with this unique value already exists (e.g. duplicate code or email).';
+    // Handle TypeORM database constraints
+    if (exception && (exception as any).name === 'QueryFailedError') {
+      const code = (exception as any).code;
+      if (code === '23505') {
+        status = HttpStatus.CONFLICT;
+        message = 'A record with this unique value already exists (e.g. duplicate code or email).';
+      } else if (code === '23503') {
+        status = HttpStatus.CONFLICT;
+        message = 'Cannot delete this record because it is currently in use by other records (e.g. assigned to users).';
+      }
     }
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
