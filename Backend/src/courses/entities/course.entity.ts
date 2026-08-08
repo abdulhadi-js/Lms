@@ -20,12 +20,18 @@ export class Course {
   @Column({ type: 'int', default: 3 })
   credits: number;
 
-  @Column('uuid')
+  @Column('uuid', { nullable: true })
   teacherId: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teacherId' })
   teacher: User;
+
+  @Column('uuid', { nullable: true })
+  classId: string;
+
+  @Column('uuid', { nullable: true })
+  sectionId: string;
 
   @OneToMany(() => CourseModule, mod => mod.course, { cascade: true })
   modules: CourseModule[];

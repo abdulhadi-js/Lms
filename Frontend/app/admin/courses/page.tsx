@@ -23,6 +23,7 @@ export default function CoursesManagement() {
     credits: 100,
     teacherId: '',
     classId: '',
+    sectionId: '',
     classLevel: ''
   });
 
@@ -60,6 +61,7 @@ export default function CoursesManagement() {
         credits: parseInt(courseForm.credits as any) || 100,
         teacherId: courseForm.teacherId || undefined,
         classId: courseForm.classId || undefined,
+        sectionId: courseForm.sectionId || undefined,
         classLevel: courseForm.classLevel || undefined,
       };
 
@@ -72,7 +74,7 @@ export default function CoursesManagement() {
       }
       setCourseModalOpen(false);
       setEditingCourse(null);
-      setCourseForm({ title: '', code: '', description: '', credits: 100, teacherId: '', classId: '', classLevel: '' });
+      setCourseForm({ title: '', code: '', description: '', credits: 100, teacherId: '', classId: '', sectionId: '', classLevel: '' });
       fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save subject');
@@ -111,7 +113,7 @@ export default function CoursesManagement() {
         <button
           onClick={() => {
             setEditingCourse(null);
-            setCourseForm({ title: '', code: '', description: '', credits: 100, teacherId: '', classId: '', classLevel: '' });
+            setCourseForm({ title: '', code: '', description: '', credits: 100, teacherId: '', classId: '', sectionId: '', classLevel: '' });
             setCourseModalOpen(true);
           }}
           className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
@@ -248,6 +250,7 @@ export default function CoursesManagement() {
                               credits: course.credits || 100,
                               teacherId: course.teacherId || course.teacher?.id || '',
                               classId: course.classId || '',
+                              sectionId: course.sectionId || '',
                               classLevel: course.classLevel || ''
                             });
                             setCourseModalOpen(true);
@@ -315,14 +318,26 @@ export default function CoursesManagement() {
                     <div className="col-span-2">
                       <select
                         value={courseForm.classId}
-                        onChange={e => setCourseForm({ ...courseForm, classId: e.target.value, classLevel: '' })}
-                        className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                        onChange={e => setCourseForm({ ...courseForm, classId: e.target.value, sectionId: '', classLevel: '' })}
+                        className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary mb-2"
                       >
                         <option value="">-- Select Class (Optional) --</option>
                         {classes.map(cls => (
                           <option key={cls.id} value={cls.id}>{cls.name}</option>
                         ))}
                       </select>
+                      {courseForm.classId && classes.find(c => c.id === courseForm.classId)?.sections?.length > 0 && (
+                        <select
+                          value={courseForm.sectionId}
+                          onChange={e => setCourseForm({ ...courseForm, sectionId: e.target.value })}
+                          className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                        >
+                          <option value="">-- Select Section (Optional) --</option>
+                          {classes.find(c => c.id === courseForm.classId)?.sections.map((sec: any) => (
+                            <option key={sec.id} value={sec.id}>{sec.name}</option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                   ) : (
                     <>

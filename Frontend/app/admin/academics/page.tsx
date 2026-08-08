@@ -305,68 +305,6 @@ export default function AcademicsManagement() {
                 </div>
               </div>
 
-              {/* Subjects Panel */}
-              <div className="bg-surface rounded-xl border border-divider shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-divider bg-surface-container-lowest flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-success" />
-                    <h3 className="font-bold text-heading-on-light">Subjects for {selectedClass.name}</h3>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      setEditingSubject(null);
-                      setSubjectForm({ name: '', code: '', sectionId: '' });
-                      setSubjectModalOpen(true);
-                    }}
-                    className="text-xs font-semibold text-primary hover:bg-primary/10 px-2.5 py-1.5 rounded transition-colors"
-                  >
-                    + Add Subject
-                  </button>
-                </div>
-                <div className="p-0">
-                  {subjects.length === 0 ? (
-                    <div className="p-4 text-sm text-body-secondary italic">No subjects defined yet.</div>
-                  ) : (
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="text-body-secondary text-[11px] uppercase tracking-wider border-b border-divider">
-                          <th className="py-3 px-4 font-semibold">Subject Name</th>
-                          <th className="py-3 px-4 font-semibold">Code</th>
-                          <th className="py-3 px-4 font-semibold text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="text-sm">
-                        {subjects.map(sub => (
-                          <tr key={sub.id} className="border-b border-border-light last:border-0 hover:bg-surface-container-low transition-colors group">
-                            <td className="py-3 px-4 font-medium text-on-surface">{sub.name}</td>
-                            <td className="py-3 px-4 text-body-secondary font-mono text-xs">{sub.code || '-'}</td>
-                            <td className="py-3 px-4 text-right">
-                              <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button 
-                                  onClick={() => {
-                                    setEditingSubject(sub);
-                                    setSubjectForm({ name: sub.name, code: sub.code || '', sectionId: sub.sectionId || sub.section?.id || '' });
-                                    setSubjectModalOpen(true);
-                                  }}
-                                  className="text-body-secondary hover:text-primary transition-colors p-1"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteSubject(sub.id)}
-                                  className="text-body-secondary hover:text-error transition-colors p-1"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
             </>
           )}
         </div>
@@ -439,40 +377,6 @@ export default function AcademicsManagement() {
         </div>
       )}
 
-      {/* Subject Modal */}
-      {isSubjectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-divider flex justify-between items-center">
-              <h3 className="text-lg font-bold text-heading-on-light">{editingSubject ? 'Edit Subject' : `Add Subject to ${selectedClass?.name}`}</h3>
-              <button onClick={() => setSubjectModalOpen(false)} className="text-body-secondary hover:text-error"><X className="w-5 h-5" /></button>
-            </div>
-            <form onSubmit={handleCreateOrUpdateSubject} className="p-5 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Subject Name (e.g. Mathematics)</label>
-                <input required type="text" value={subjectForm.name} onChange={e => setSubjectForm({ ...subjectForm, name: e.target.value })}
-                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Subject Code (Optional)</label>
-                <input type="text" value={subjectForm.code} onChange={e => setSubjectForm({ ...subjectForm, code: e.target.value })}
-                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Assigned Section (Optional)</label>
-                <select value={subjectForm.sectionId} onChange={e => setSubjectForm({ ...subjectForm, sectionId: e.target.value })}
-                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                  <option value="">All Sections (Class-wide)</option>
-                  {sections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <button type="button" onClick={() => setSubjectModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium bg-primary text-on-primary rounded-lg">{editingSubject ? 'Save Changes' : 'Add Subject'}</button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </div>
   );

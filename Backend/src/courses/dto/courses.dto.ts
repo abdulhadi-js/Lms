@@ -19,6 +19,14 @@ export class CreateCourseDto {
   @IsString()
   @IsOptional()
   teacherId?: string;
+
+  @IsString()
+  @IsOptional()
+  classId?: string;
+
+  @IsString()
+  @IsOptional()
+  sectionId?: string;
 }
 
 export class UpdateCourseDto {
@@ -41,6 +49,14 @@ export class UpdateCourseDto {
   @IsString()
   @IsOptional()
   teacherId?: string;
+
+  @IsString()
+  @IsOptional()
+  classId?: string;
+
+  @IsString()
+  @IsOptional()
+  sectionId?: string;
 }
 
 export class CreateCourseModuleDto {
