@@ -42,7 +42,7 @@ export class AcademicsService {
   ): Promise<AcademicClass> {
     const newClass = this.academicClassRepo.create({
       ...dto,
-      campusId: currentUser.campusId,
+      campusId: dto.campusId || currentUser.campusId,
     });
     return this.academicClassRepo.save(newClass);
   }

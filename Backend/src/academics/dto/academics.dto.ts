@@ -14,6 +14,14 @@ export class CreateAcademicClassDto {
   @IsNumber()
   @IsOptional()
   level?: number;
+
+  @IsUUID()
+  @IsOptional()
+  campusId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  academicGroupId?: string;
 }
 
 export class UpdateAcademicClassDto {
@@ -24,6 +32,14 @@ export class UpdateAcademicClassDto {
   @IsNumber()
   @IsOptional()
   level?: number;
+
+  @IsUUID()
+  @IsOptional()
+  campusId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  academicGroupId?: string;
 }
 
 export class CreateSectionDto {
