@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { Plus, BookOpen, Users, LayoutGrid, X, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { academicsApi } from '@/lib/api';
+import { useSearchParams } from 'next/navigation';
 
 export default function AcademicsManagement() {
+  const searchParams = useSearchParams();
+  const campusIdFilter = searchParams.get('campusId');
   const [classes, setClasses] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
@@ -30,7 +33,8 @@ export default function AcademicsManagement() {
     setLoading(true);
     try {
       const data = await academicsApi.listClasses();
-      setClasses(data);
+      const filtered = campusIdFilter ? data.filter((c: any) => c.campusId === campusIdFilter || c.campus?.id === campusIdFilter) : data;
+      setClasses(filtered);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch classes');
     } finally {
@@ -51,7 +55,7 @@ export default function AcademicsManagement() {
 
   useEffect(() => {
     fetchClasses();
-  }, []);
+  }, [campusIdFilter]);
 
   const handleCreateOrUpdateClass = async (e: React.FormEvent) => {
     e.preventDefault();

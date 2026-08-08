@@ -191,7 +191,7 @@ export default function CampusDetails() {
                <h3 className="font-bold text-lg text-heading-on-light flex items-center gap-2">
                  <Users className="w-5 h-5 text-primary" /> Staff Directory
                </h3>
-               <Link href="/admin/users" className="text-xs font-semibold text-primary hover:underline">View All →</Link>
+               <Link href={`/admin/users?campusId=${id}`} className="text-xs font-semibold text-primary hover:underline">View All →</Link>
              </div>
              <div className="p-0">
                {staff.length > 0 ? (
@@ -246,7 +246,7 @@ export default function CampusDetails() {
                <h3 className="font-bold text-lg text-heading-on-light flex items-center gap-2">
                  <BookOpen className="w-5 h-5 text-[#8b5cf6]" /> Classes
                </h3>
-               <Link href="/admin/academics/classes" className="text-xs font-semibold text-[#8b5cf6] hover:underline">View All →</Link>
+               <Link href={`/admin/academics?campusId=${id}`} className="text-xs font-semibold text-[#8b5cf6] hover:underline">View All →</Link>
              </div>
              <div className="p-0">
                {classes.length > 0 ? (

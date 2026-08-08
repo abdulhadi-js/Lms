@@ -4,11 +4,14 @@ import { Search, Filter, Plus, MoreVertical, Shield, UserX, UserCheck, Edit, Tra
 import { usersApi, rolesApi, campusesApi, hrApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
+  const searchParams = useSearchParams();
+  const campusIdFilter = searchParams.get('campusId');
   const queryClient = useQueryClient();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -310,6 +313,9 @@ export default function UserManagement() {
   };
 
   const filteredUsers = users.filter(user => {
+    if (campusIdFilter && user.campusId !== campusIdFilter && user.campus?.id !== campusIdFilter) {
+      return false;
+    }
     const query = searchQuery.toLowerCase();
     return (
       user.email?.toLowerCase().includes(query) ||
