@@ -2,6 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../ERD.md"
+  theme    = "forest"
+}
+
 datasource db {
   provider = "sqlite"
   url      = "file:../database.sqlite"
@@ -231,13 +237,13 @@ model users {
 model Question {
   id            String         @id @default(uuid())
   text          String
-  type          String         // MCQ, TRUE_FALSE, ESSAY
-  options       String         // JSON array as string
+  type          String
+  options       String
   correctAnswer String
   courseId      String
   chapter       String?
   topic         String?
-  difficulty    String         // EASY, MEDIUM, HARD
+  difficulty    String
   marks         Int
   ExamQuestion  ExamQuestion[]
 }
@@ -250,7 +256,7 @@ model Exam {
   totalMarks      Int
   startTime       DateTime
   endTime         DateTime
-  status          String           // DRAFT, PUBLISHED
+  status          String
   ExamQuestion    ExamQuestion[]
   ExamSubmission  ExamSubmission[]
 }
@@ -259,16 +265,16 @@ model ExamQuestion {
   id         String   @id @default(uuid())
   examId     String
   questionId String
-  exam       Exam     @relation(fields: [examId], references: [id])
   question   Question @relation(fields: [questionId], references: [id])
+  exam       Exam     @relation(fields: [examId], references: [id])
 }
 
 model ExamSubmission {
-  id         String   @id @default(uuid())
-  examId     String
-  studentId  String
-  answers    String   // JSON string
-  score      Int
+  id          String   @id @default(uuid())
+  examId      String
+  studentId   String
+  answers     String
+  score       Int
   submittedAt DateTime @default(now())
-  exam       Exam     @relation(fields: [examId], references: [id])
+  exam        Exam     @relation(fields: [examId], references: [id])
 }
