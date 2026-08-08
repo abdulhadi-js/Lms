@@ -19,7 +19,7 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', enum: TransactionType })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'enum' : 'varchar', enum: TransactionType })
   type: TransactionType;
 
   @Column()

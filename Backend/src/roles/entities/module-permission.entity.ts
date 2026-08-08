@@ -38,7 +38,7 @@ export class ModulePermission {
   @JoinColumn({ name: 'roleId' })
   role: Role;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'enum' : 'varchar', enum: ModuleId })
   moduleId: ModuleId;
 
   @Column({ default: false })
