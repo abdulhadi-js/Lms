@@ -9,13 +9,19 @@ export default function AcademicGroupsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', campusId: '' });
+  const [campuses, setCampuses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
       loadGroups();
+      if (user.role === 'SUPER_ADMIN') {
+        import('@/lib/api').then(({ campusesApi }) => {
+          campusesApi.list().then(setCampuses).catch(() => {});
+        });
+      }
     }
   }, [user]);
 
@@ -43,7 +49,7 @@ export default function AcademicGroupsPage() {
       } else {
         await fetchApi('/academic-groups', {
           method: 'POST',
-          body: JSON.stringify({ ...formData, campusId: user?.campusId || null }),
+          body: JSON.stringify({ ...formData, campusId: formData.campusId || user?.campusId || null }),
         });
       }
       setIsModalOpen(false);
@@ -65,7 +71,7 @@ export default function AcademicGroupsPage() {
 
   const openModal = (group: any = null) => {
     setEditingGroup(group);
-    setFormData(group ? { name: group.name } : { name: '' });
+    setFormData(group ? { name: group.name, campusId: group.campusId || '' } : { name: '', campusId: '' });
     setIsModalOpen(true);
   };
 
@@ -100,7 +106,14 @@ export default function AcademicGroupsPage() {
         ) : (
           groups.map(group => (
             <div key={group.id} className="bg-surface brand-shadow rounded-xl p-5 hover:shadow-md transition-shadow">
-              <h3 className="text-xl font-bold text-on-surface mb-4">{group.name}</h3>
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-on-surface">{group.name}</h3>
+                {user?.role === 'SUPER_ADMIN' && group.campusId && (
+                  <span className="text-xs font-semibold bg-surface-container text-body-secondary px-2 py-1 rounded-md border border-divider">
+                    {campuses.find(c => c.id === group.campusId)?.name || 'Campus'}
+                  </span>
+                )}
+              </div>
               <div className="flex justify-end gap-2 mt-4 border-t border-divider pt-4">
                 <button 
                   onClick={() => openModal(group)}
@@ -142,6 +155,22 @@ export default function AcademicGroupsPage() {
                   required
                 />
               </div>
+              {user?.role === 'SUPER_ADMIN' && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-on-surface mb-2">Assign to Campus</label>
+                  <select 
+                    value={formData.campusId}
+                    onChange={(e) => setFormData({...formData, campusId: e.target.value})}
+                    className="w-full border border-divider rounded-lg px-4 py-2 bg-surface text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                    required
+                  >
+                    <option value="">-- Select Campus --</option>
+                    {campuses.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex justify-end gap-3 mt-8">
                 <button 
                   type="button" 
