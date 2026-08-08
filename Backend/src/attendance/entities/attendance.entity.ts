@@ -71,5 +71,6 @@ export class Attendance {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }

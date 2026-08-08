@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn   JoinColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Campus } from '../../campuses/entities/campus.entity';
 import { CourseModule } from './course-module.entity';
@@ -34,6 +35,7 @@ export class Course {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 
   @CreateDateColumn()

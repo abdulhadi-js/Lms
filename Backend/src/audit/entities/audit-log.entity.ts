@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Campus } from '../../campuses/entities/campus.entity';
 
@@ -34,5 +35,6 @@ export class AuditLog {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }

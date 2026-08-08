@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('submissions')
@@ -42,5 +43,6 @@ export class Submission {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }

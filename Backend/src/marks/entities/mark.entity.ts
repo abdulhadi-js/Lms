@@ -20,7 +20,7 @@ export class Mark {
   @Column({ type: 'uuid' })
   studentId: string;
 
-  @ManyToOne(() => User, (user) => user.marks)
+  @ManyToOne(() => User, (user) => user.marks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'studentId' })
   student: User;
 
@@ -74,5 +74,6 @@ export class Mark {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }

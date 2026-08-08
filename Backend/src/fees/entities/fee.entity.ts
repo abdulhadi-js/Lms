@@ -29,7 +29,7 @@ export class Fee {
   @Column({ type: 'uuid' })
   studentId: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'studentId' })
   student: User;
 
@@ -92,5 +92,6 @@ export class Fee {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }

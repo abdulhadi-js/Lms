@@ -56,5 +56,6 @@ export class TeacherAssignment {
   campusId: string;
 
   @ManyToOne(() => Campus)
+  @JoinColumn({ name: 'campusId' })
   campus: Campus;
 }
