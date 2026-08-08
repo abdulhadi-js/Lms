@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { Campus } from '../../../campuses/entities/campus.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
 
 @Entity('notifications')
 export class Notification {

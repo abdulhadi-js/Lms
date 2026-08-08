@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Campus } from '../../../campuses/entities/campus.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
 import { User } from '../../users/entities/user.entity';
 import { Section } from '../../academics/entities/section.entity';
 

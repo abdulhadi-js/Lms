@@ -6,7 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { Campus } from '../../../campuses/entities/campus.entity';
+import { Campus } from '../../campuses/entities/campus.entity';
 import { Exam } from './exam.entity';
 import { User } from '../../users/entities/user.entity';
 
