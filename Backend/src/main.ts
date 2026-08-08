@@ -21,13 +21,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
 
-    const status =
+    let status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     let message =
       exception instanceof Error ? exception.message : 'Unknown error';
+
+    // Handle TypeORM unique constraint violations
+    if (exception && (exception as any).name === 'QueryFailedError' && (exception as any).code === '23505') {
+      status = HttpStatus.CONFLICT;
+      message = 'A record with this unique value already exists (e.g. duplicate code or email).';
+    }
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
       console.error('Validation Error Details:', exceptionResponse);
