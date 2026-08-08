@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
@@ -52,6 +52,7 @@ export class RolesService {
 
   async remove(id: string, currentUser?: any): Promise<void> {
     const role = await this.findOne(id, currentUser);
+    if (role.isSystem) throw new ForbiddenException('Cannot delete system roles');
     await this.repo.remove(role);
   }
 }
