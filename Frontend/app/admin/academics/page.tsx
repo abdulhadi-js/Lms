@@ -377,7 +377,6 @@ export default function AcademicsManagement() {
         </div>
       )}
 
-      )}
     </div>
   );
 }
