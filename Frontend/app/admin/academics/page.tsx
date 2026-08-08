@@ -2,13 +2,15 @@
 import { useState, useEffect } from 'react';
 import { Plus, BookOpen, Users, LayoutGrid, X, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { academicsApi } from '@/lib/api';
+import { academicsApi, campusesApi, fetchAuthApi } from '@/lib/api';
 import { useSearchParams } from 'next/navigation';
 
 export default function AcademicsManagement() {
   const searchParams = useSearchParams();
   const campusIdFilter = searchParams.get('campusId');
   const [classes, setClasses] = useState<any[]>([]);
+  const [campuses, setCampuses] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -25,16 +27,22 @@ export default function AcademicsManagement() {
   const [editingSubject, setEditingSubject] = useState<any>(null);
 
   // Forms
-  const [classForm, setClassForm] = useState({ name: '', level: 1 });
+  const [classForm, setClassForm] = useState({ name: '', level: 1, campusId: '', academicGroupId: '' });
   const [sectionForm, setSectionForm] = useState({ name: '' });
   const [subjectForm, setSubjectForm] = useState({ name: '', code: '' });
 
   const fetchClasses = async () => {
     setLoading(true);
     try {
-      const data = await academicsApi.listClasses();
-      const filtered = campusIdFilter ? data.filter((c: any) => c.campusId === campusIdFilter || c.campus?.id === campusIdFilter) : data;
+      const [clsData, campData, grpData] = await Promise.all([
+        academicsApi.listClasses(),
+        campusesApi.list().catch(() => []),
+        fetchAuthApi('/academic-groups').catch(() => [])
+      ]);
+      const filtered = campusIdFilter ? clsData.filter((c: any) => c.campusId === campusIdFilter || c.campus?.id === campusIdFilter) : clsData;
       setClasses(filtered);
+      setCampuses(campData);
+      setGroups(grpData);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch classes');
     } finally {
@@ -69,7 +77,7 @@ export default function AcademicsManagement() {
       }
       setClassModalOpen(false);
       setEditingClass(null);
-      setClassForm({ name: '', level: 1 });
+      setClassForm({ name: '', level: 1, campusId: '', academicGroupId: '' });
       fetchClasses();
       if (selectedClass?.id === editingClass?.id) {
         setSelectedClass(null); // Force reload
@@ -173,7 +181,7 @@ export default function AcademicsManagement() {
           <button 
             onClick={() => {
               setEditingClass(null);
-              setClassForm({ name: '', level: 1 });
+              setClassForm({ name: '', level: 1, campusId: campuses.length > 0 ? campuses[0].id : '', academicGroupId: '' });
               setClassModalOpen(true);
             }}
             className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 flex items-center gap-2"
@@ -218,7 +226,7 @@ export default function AcademicsManagement() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setEditingClass(cls);
-                          setClassForm({ name: cls.name, level: cls.level });
+                          setClassForm({ name: cls.name, level: cls.level, campusId: cls.campusId || cls.campus?.id || '', academicGroupId: cls.academicGroupId || cls.academicGroup?.id || '' });
                           setClassModalOpen(true);
                         }}
                         className="text-body-secondary hover:text-primary transition-colors p-1"
@@ -382,6 +390,22 @@ export default function AcademicsManagement() {
                 <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Academic Level (for sorting)</label>
                 <input required type="number" min="0" value={classForm.level} onChange={e => setClassForm({ ...classForm, level: parseInt(e.target.value) || 0 })}
                   className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Campus</label>
+                <select required value={classForm.campusId} onChange={e => setClassForm({ ...classForm, campusId: e.target.value })}
+                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                  <option value="">Select Campus</option>
+                  {campuses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-body-secondary uppercase tracking-wider mb-1">Academic Group (Optional)</label>
+                <select value={classForm.academicGroupId} onChange={e => setClassForm({ ...classForm, academicGroupId: e.target.value })}
+                  className="w-full px-4 py-2 bg-surface-container-lowest border border-border-light rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                  <option value="">None / General</option>
+                  {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
               </div>
               <div className="pt-2 flex justify-end gap-3">
                 <button type="button" onClick={() => setClassModalOpen(false)} className="px-4 py-2 text-sm font-medium border border-border-light rounded-lg">Cancel</button>
