@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { Search, Filter, Plus, MoreVertical, Shield, UserX, UserCheck, Edit, Trash2, Loader2, Users, Briefcase } from 'lucide-react';
-import { usersApi, rolesApi, campusesApi, hrApi } from '@/lib/api';
+import { usersApi, rolesApi, campusesApi, hrApi, academicsApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth-context';
 import { useSearchParams } from 'next/navigation';
@@ -63,8 +63,8 @@ export default function UserManagement() {
     bFormNumber: '',
     dateOfBirth: '',
     gender: '',
-    className: '',
-    section: '',
+    classId: '',
+    sectionId: '',
     religion: 'Islam',
     fatherCnic: ''
   });
@@ -91,8 +91,13 @@ export default function UserManagement() {
     queryFn: async () => campusesApi.list().catch(() => [])
   });
 
+  const { data: academicClasses = [], isLoading: isClassesLoading } = useQuery<any[]>({
+    queryKey: ['classes'],
+    queryFn: async () => academicsApi.listClasses().catch(() => [])
+  });
+
   const users = usersData || [];
-  const isLoading = isUsersLoading || isRolesLoading || isCampusesLoading;
+  const isLoading = isUsersLoading || isRolesLoading || isCampusesLoading || isClassesLoading;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -127,8 +132,8 @@ export default function UserManagement() {
         bFormNumber: user.bFormNumber || user.cnic || '',
         dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
         gender: user.gender || '',
-        className: user.class || '',
-        section: user.section || '',
+        classId: user.class?.id || user.classId || '',
+        sectionId: user.section?.id || user.sectionId || '',
         religion: user.religion || 'Islam',
         fatherCnic: user.family?.father?.cnic || user.parentCnic || ''
       });
@@ -155,8 +160,8 @@ export default function UserManagement() {
         bFormNumber: '',
         dateOfBirth: '',
         gender: '',
-        className: '',
-        section: '',
+        classId: '',
+        sectionId: '',
         religion: 'Islam',
         fatherCnic: ''
       });
@@ -196,8 +201,8 @@ export default function UserManagement() {
       if (!formData.dateOfBirth) { toast.error('Date of Birth is required'); return; }
       if (!formData.gender) { toast.error('Gender is required'); return; }
       if (!formData.bFormNumber) { toast.error('B-Form / CNIC is required'); return; }
-      if (!formData.className) { toast.error('Class is required'); return; }
-      if (!formData.section) { toast.error('Section is required'); return; }
+      if (!formData.classId) { toast.error('Class is required'); return; }
+      if (!formData.sectionId) { toast.error('Section is required'); return; }
       if (!formData.fatherName) { toast.error("Father's Name is required"); return; }
       if (!formData.fatherCnic) { toast.error("Father's CNIC is required"); return; }
       if (!formData.fatherPhone) { toast.error("Father's Phone is required"); return; }
@@ -223,8 +228,8 @@ export default function UserManagement() {
       bFormNumber: formData.bFormNumber || undefined,
       dateOfBirth: formData.dateOfBirth || undefined,
       gender: formData.gender || undefined,
-      className: formData.className || undefined,
-      section: formData.section || undefined,
+      classId: formData.classId || undefined,
+      sectionId: formData.sectionId || undefined,
       religion: formData.religion || undefined,
       fatherCnic: formData.fatherCnic || undefined,
     };
@@ -719,12 +724,12 @@ export default function UserManagement() {
                       <label className="block text-xs font-semibold text-on-surface mb-1">Class <span className="text-error">*</span></label>
                       <select
                         required
-                        value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})}
+                        value={formData.classId} onChange={e => setFormData({...formData, classId: e.target.value, sectionId: ''})}
                         className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                       >
                         <option value="">Select Class</option>
-                        {['Nursery','KG','1','2','3','4','5','6','7','8','9','10','11','12'].map(c => (
-                          <option key={c} value={c}>Class {c}</option>
+                        {academicClasses.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
                     </div>
@@ -732,12 +737,13 @@ export default function UserManagement() {
                       <label className="block text-xs font-semibold text-on-surface mb-1">Section <span className="text-error">*</span></label>
                       <select
                         required
-                        value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})}
-                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                        disabled={!formData.classId}
+                        value={formData.sectionId} onChange={e => setFormData({...formData, sectionId: e.target.value})}
+                        className="w-full px-3 py-2 bg-surface text-on-surface border border-divider rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm disabled:opacity-50"
                       >
                         <option value="">Select Section</option>
-                        {['A','B','C','D','E'].map(s => (
-                          <option key={s} value={s}>Section {s}</option>
+                        {(academicClasses.find(c => c.id === formData.classId)?.sections || []).map((s: any) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                       </select>
                     </div>

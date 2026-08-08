@@ -294,6 +294,11 @@ model users {
   metadata                            String?
   createdAt                           DateTime              @default(now())
   updatedAt                           DateTime              @default(now())
+  grNumber                            String?
+  bFormNumber                         String?
+  bloodGroup                          String?
+  religion                            String?
+  domicile                            String?
   assignments                         assignments[]
   attendance                          attendance[]
   courses                             courses[]
@@ -308,16 +313,17 @@ model users {
   staff_profiles                      staff_profiles?
   teacher_assignments                 teacher_assignments[]
   timetable                           timetable[]
-  sections                            sections?             @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  academic_classes                    academic_classes?     @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  departments                         departments?          @relation(fields: [departmentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  families                            families?             @relation(fields: [familyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  campuses                            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   roles                               roles?                @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campuses                            campuses?             @relation(fields: [campusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  families                            families?             @relation(fields: [familyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  departments                         departments?          @relation(fields: [departmentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_classes                    academic_classes?     @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sections                            sections?             @relation(fields: [sectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([email], map: "IDX_97672ac88f789774dd47f7c8be")
   @@index([campusId], map: "IDX_3bca1783a663d7485fc95d82a9")
   @@index([roleId], map: "IDX_368e146b785b574f42ae9e53d5")
+  @@index([grNumber], map: "IDX_1d73f8ecb5c82b9b674c721848")
 }
 
 model academic_classes {

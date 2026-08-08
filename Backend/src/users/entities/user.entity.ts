@@ -81,6 +81,22 @@ export class User {
   @Column({ nullable: true })
   previousSchool: string;
 
+  @Index()
+  @Column({ nullable: true })
+  grNumber: string;
+
+  @Column({ nullable: true })
+  bFormNumber: string;
+
+  @Column({ nullable: true })
+  bloodGroup: string;
+
+  @Column({ nullable: true })
+  religion: string;
+
+  @Column({ nullable: true })
+  domicile: string;
+
   // Primary class and section for traditional school models
   @Column({ type: 'uuid', nullable: true })
   classId: string;
